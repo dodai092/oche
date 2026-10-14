@@ -149,3 +149,25 @@ it("retains the original raw save when an explicit reset write fails", () => {
   expect(storage.raw()).toBe("original");
   expect(storage.blocked()).toBe(true);
 });
+
+it("adds input preferences to older saves without discarding matches", () => {
+  const saved = restorePersistedData(defaults);
+  expect(saved.settings.entryMode).toBe("total");
+  expect(saved.settings.keyboardMode).toBe("keypad");
+  const next = restorePersistedData({
+    ...defaults,
+    settings: {
+      ...defaults.settings,
+      entryMode: "darts",
+      keyboardMode: "keyboard",
+    },
+  });
+  expect(next.settings.entryMode).toBe("darts");
+  expect(next.settings.keyboardMode).toBe("keyboard");
+  expect(() =>
+    restorePersistedData({
+      ...defaults,
+      settings: { ...defaults.settings, entryMode: "invalid" },
+    }),
+  ).toThrow();
+});

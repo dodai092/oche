@@ -61,7 +61,7 @@ export function OcheApp({ screen }: { screen: Screen }) {
   }, []);
   return (
     <>
-      <div className="app-shell">
+      <div className={`app-shell ${screen === "match" ? "match-shell" : ""}`}>
         <aside className="sidebar">
           <Link href="/" className="wordmark" aria-label="Oche home">
             <span className="logo-mark">
@@ -127,7 +127,11 @@ export function OcheApp({ screen }: { screen: Screen }) {
           )}
         </main>
       </div>
-      <footer className="mobile-footer">OCHE / EVERY DART COUNTS</footer>
+      <footer
+        className={`mobile-footer ${screen === "match" ? "match-footer" : ""}`}
+      >
+        OCHE / EVERY DART COUNTS
+      </footer>
     </>
   );
 }

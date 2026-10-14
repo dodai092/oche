@@ -1,10 +1,34 @@
 "use client";
-import { useState } from "react";
+import { useRef, useState, useSyncExternalStore } from "react";
+import { flushSync } from "react-dom";
 import { Delete, RotateCcw, ArrowRight } from "lucide-react";
 import { Button } from "./ui/button";
 import { submitVisit, type GameState, type VisitOptions } from "@/lib/engine";
 import { useGameStore } from "@/lib/store";
+function subscribeToPointer(callback: () => void) {
+  const query = window.matchMedia("(pointer:coarse)");
+  query.addEventListener("change", callback);
+  return () => query.removeEventListener("change", callback);
+}
 export function VisitEntry({ game }: { game: GameState }) {
+  const touch = useSyncExternalStore(
+    subscribeToPointer,
+    () => window.matchMedia("(pointer:coarse)").matches,
+    () => false,
+  );
+  const inputRef = useRef<HTMLInputElement>(null);
+  const settings = useGameStore((s) => s.settings),
+    updateSettings = useGameStore((s) => s.updateSettings);
+  const customKeypad = settings.keyboardMode === "keypad";
+  function switchKeyboard() {
+    if (customKeypad) {
+      flushSync(() => updateSettings({ keyboardMode: "keyboard" }));
+      inputRef.current?.focus({ preventScroll: true });
+    } else {
+      inputRef.current?.blur();
+      updateSettings({ keyboardMode: "keypad" });
+    }
+  }
   const [value, setValue] = useState("");
   const [dartsUsed, setDartsUsed] = useState(3);
   const [attempts, setAttempts] = useState(0);
@@ -56,33 +80,33 @@ export function VisitEntry({ game }: { game: GameState }) {
       setError(err instanceof Error ? err.message : "Check your score.");
     }
   }
-  const lastWasTotal = game.events.at(-1)?.type === "visit";
+  const lastWasTotal =
+    !game.events.length || game.events.at(-1)?.type === "visit";
   return (
     <form
-      className="visit-entry"
+      className={`visit-entry ${customKeypad ? "uses-keypad" : "uses-keyboard"}`}
       onSubmit={(e) => {
         e.preventDefault();
         if (!confirming) submit();
       }}
     >
-      <label className="field-label" htmlFor="visit-score">
+      <label className="sr-only" htmlFor="visit-score">
         TOTAL FOR THIS VISIT
       </label>
       <div className="score-entry-row">
         <input
+          ref={inputRef}
           id="visit-score"
           aria-label="Visit score"
           aria-describedby="visit-entry-hint"
-          inputMode="numeric"
+          inputMode={customKeypad ? "none" : "numeric"}
+          readOnly={touch && customKeypad}
           autoComplete="off"
           pattern="[0-9]{1,3}"
           placeholder="Enter a score"
           value={value}
           onChange={(e) => edit(e.target.value)}
-          autoFocus={
-            typeof window !== "undefined" &&
-            window.matchMedia("(pointer:fine)").matches
-          }
+          autoFocus={!touch || !customKeypad}
         />
         <Button
           type="submit"
@@ -128,89 +152,59 @@ export function VisitEntry({ game }: { game: GameState }) {
           </div>
         </section>
       )}
-      <details className="visit-details" open={confirming ? true : undefined}>
-        <summary>
-          Darts & checkout attempts{" "}
-          <span>
-            {dartsUsed} darts / {confirming ? Math.max(1, attempts) : attempts}{" "}
-            attempts
-          </span>
-        </summary>
-        <div className="two-fields">
-          <label className="field-label">
-            Darts thrown
-            <select
-              aria-label="Darts thrown"
-              value={dartsUsed}
-              onChange={(e) => {
-                const n = Number(e.target.value);
-                setDartsUsed(n);
-                setAttempts(Math.min(attempts, n));
-                setError(null);
-              }}
-            >
-              {[1, 2, 3].map((n) => (
-                <option key={n} value={n}>
-                  {n} dart{n === 1 ? "" : "s"}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label className="field-label">
-            Checkout attempts
-            <select
-              aria-label="Checkout attempts"
-              value={confirming ? Math.max(1, attempts) : attempts}
-              onChange={(e) => setAttempts(Number(e.target.value))}
-            >
-              {Array.from({ length: dartsUsed + 1 }, (_, i) => i)
-                .filter((n) => !confirming || n > 0)
-                .map((n) => (
-                  <option key={n} value={n}>
-                    {n}
-                  </option>
-                ))}
-            </select>
-          </label>
-        </div>
-        <p className="small muted">
-          Report how many darts you threw at a checkout. Defaults are three
-          darts and no checkout attempts.
-        </p>
-      </details>
-      <div className="total-keypad" aria-label="Score keypad">
-        {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((n) => (
+      <div className="score-presets" aria-label="Common scores">
+        {[60, 100, 140, 180].map((n) => (
           <button
             type="button"
             key={n}
-            aria-label={`Digit ${n}`}
-            onClick={() => edit(value + String(n))}
+            aria-label={`Score ${n}`}
+            onClick={() => edit(String(n))}
           >
             {n}
           </button>
         ))}
-        <button
-          type="button"
-          aria-label="Backspace score"
-          onClick={() => edit(value.slice(0, -1))}
-        >
-          <Delete size={23} />
-        </button>
-        <button
-          type="button"
-          aria-label="Digit 0"
-          onClick={() => edit(value + "0")}
-        >
-          0
-        </button>
-        <button type="button" className="clear-score" onClick={() => edit("")}>
-          Clear
-        </button>
       </div>
+      {customKeypad && (
+        <>
+          <div className="total-keypad" aria-label="Score keypad">
+            {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((n) => (
+              <button
+                type="button"
+                key={n}
+                aria-label={`Digit ${n}`}
+                onClick={() => edit(value + String(n))}
+              >
+                {n}
+              </button>
+            ))}
+            <button
+              type="button"
+              aria-label="Backspace score"
+              onClick={() => edit(value.slice(0, -1))}
+            >
+              <Delete size={23} />
+            </button>
+            <button
+              type="button"
+              aria-label="Digit 0"
+              onClick={() => edit(value + "0")}
+            >
+              0
+            </button>
+            <button
+              type="button"
+              className="clear-score"
+              onClick={() => edit("")}
+            >
+              Clear
+            </button>
+          </div>
+        </>
+      )}
       <div className="total-actions">
         <Button
           type="button"
-          variant="ghost"
+          variant="outline"
           disabled={!game.events.length}
           aria-label={lastWasTotal ? "Undo score" : "Undo dart"}
           onClick={() => undo()}
@@ -220,16 +214,75 @@ export function VisitEntry({ game }: { game: GameState }) {
         </Button>
         <Button
           type="button"
-          variant="ghost"
+          variant="outline"
           disabled={!game.events.length}
           onClick={() => undo(true)}
         >
           Undo turn
         </Button>
       </div>
+      <div className="input-tools">
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          onClick={switchKeyboard}
+        >
+          {customKeypad ? "Use keyboard" : "Use keypad"}
+        </Button>
+        <details className="visit-details" open={confirming ? true : undefined}>
+          <summary>
+            Darts / attempts{" "}
+            <span>
+              {dartsUsed} darts /{" "}
+              {confirming ? Math.max(1, attempts) : attempts} attempts
+            </span>
+          </summary>
+          <div className="two-fields">
+            <label className="field-label">
+              Darts thrown
+              <select
+                aria-label="Darts thrown"
+                value={dartsUsed}
+                onChange={(e) => {
+                  const n = Number(e.target.value);
+                  setDartsUsed(n);
+                  setAttempts(Math.min(attempts, n));
+                  setError(null);
+                }}
+              >
+                {[1, 2, 3].map((n) => (
+                  <option key={n} value={n}>
+                    {n} dart{n === 1 ? "" : "s"}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="field-label">
+              Checkout attempts
+              <select
+                aria-label="Checkout attempts"
+                value={confirming ? Math.max(1, attempts) : attempts}
+                onChange={(e) => setAttempts(Number(e.target.value))}
+              >
+                {Array.from({ length: dartsUsed + 1 }, (_, i) => i)
+                  .filter((n) => !confirming || n > 0)
+                  .map((n) => (
+                    <option key={n} value={n}>
+                      {n}
+                    </option>
+                  ))}
+              </select>
+            </label>
+          </div>
+          <p className="visit-options-help">
+            Report how many darts you threw at a checkout. Defaults are three
+            darts and no checkout attempts.
+          </p>
+        </details>
+      </div>
       <p id="visit-entry-hint" className="keypad-hint">
-        Type your visit total and press Enter, or use the keypad and Submit.
-        Scores count only after submission.
+        Choose a score, then Submit. Switch to keyboard to type and press Enter.
       </p>
     </form>
   );

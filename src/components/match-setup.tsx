@@ -20,6 +20,7 @@ export function MatchSetup() {
   const [score, setScore] = useState<301 | 501 | 701>(settings.startScore);
   const [doubleOut, setDoubleOut] = useState(settings.doubleOut);
   const [names, setNames] = useState(["Player 1", "Player 2"]);
+  const [profileIds, setProfileIds] = useState(["", ""]);
   const [legs, setLegs] = useState(1),
     [sets, setSets] = useState(1);
   const [validationError, setValidationError] = useState<string | null>(null);
@@ -159,36 +160,58 @@ export function MatchSetup() {
               </h2>
               <span className="step-number">02</span>
             </div>
-            <datalist id="saved-players">
-              {profiles.map((p) => (
-                <option key={p.id} value={p.name} />
-              ))}
-            </datalist>
             {names.map((name, i) => (
               <div className="player-input" key={i}>
                 <span className={`avatar color-${i}`}>{i + 1}</span>
-                <label>
-                  Player {i + 1}
-                  <input
-                    required
-                    maxLength={40}
-                    list="saved-players"
-                    aria-label={`Player ${i + 1} name`}
-                    value={name}
-                    onChange={(e) =>
-                      setNames(
-                        names.map((n, j) => (j === i ? e.target.value : n)),
-                      )
-                    }
-                  />
-                </label>
+                <div className="player-lineup-fields">
+                  <select
+                    className="player-profile-select"
+                    aria-label={`Player ${i + 1} profile`}
+                    value={profileIds[i]}
+                    onChange={(e) => {
+                      const id = e.target.value;
+                      setProfileIds(
+                        profileIds.map((p, j) => (j === i ? id : p)),
+                      );
+                      const profile = profiles.find((p) => p.id === id);
+                      setNames(names.map((n,j)=>j===i?(profile?.name??`Player ${i+1}`):n));
+                    }}
+                  >
+                    <option value="">Guest player</option>
+                    {profiles.map((p) => (
+                      <option key={p.id} value={p.id}>
+                        {p.name}
+                      </option>
+                    ))}
+                  </select>
+                  <label>
+                    Player {i + 1}
+                    <input
+                      required
+                      maxLength={40}
+                      aria-label={`Player ${i + 1} name`}
+                      value={name}
+                      onChange={(e) => {
+                        setProfileIds(
+                          profileIds.map((p, j) => (j === i ? "" : p)),
+                        );
+                        setNames(
+                          names.map((n, j) => (j === i ? e.target.value : n)),
+                        );
+                      }}
+                    />
+                  </label>
+                </div>
                 {names.length > 1 && (
                   <Button
                     type="button"
                     variant="ghost"
                     size="icon"
                     aria-label={`Remove player ${i + 1}`}
-                    onClick={() => setNames(names.filter((_, j) => j !== i))}
+                    onClick={() => {
+                      setNames(names.filter((_, j) => j !== i));
+                      setProfileIds(profileIds.filter((_, j) => j !== i));
+                    }}
                   >
                     <Minus size={18} />
                   </Button>
@@ -199,9 +222,10 @@ export function MatchSetup() {
               <Button
                 type="button"
                 variant="outline"
-                onClick={() =>
-                  setNames([...names, `Player ${names.length + 1}`])
-                }
+                onClick={() => {
+                  setNames([...names, `Player ${names.length + 1}`]);
+                  setProfileIds([...profileIds, ""]);
+                }}
               >
                 <Plus size={17} /> Add another player
               </Button>

@@ -33,9 +33,11 @@ The production build uses Next.js's supported webpack compiler. Turbopack's prod
 
 ## Play
 
-Choose a starting score, checkout rule, first-to legs and sets, and one to four players. Type a saved player's name to link the result to their profile. Unsaved guests have unique match identities.
+Choose a starting score, checkout rule, first-to legs and sets, and one to four players. Select saved players from each profile picker or enter guest names. Unsaved guests have unique match identities.
 
-Visit total is the default. Type the score for your visit and press Enter or Submit, or use the touch keypad. Use the expandable darts and checkout controls to report a shorter visit or darts thrown at a finish. Double-out checkouts require confirmation. Undo score removes the entire submitted visit. Totals are saved without inventing individual segment hits.
+Visit total is the default. Use the touch keypad or choose Use keyboard to type and press Enter. Common-score presets fill the entry for submission. The app remembers your input mode and keyboard choice. Use the expandable darts and checkout controls to report a shorter visit or darts thrown at a finish. Double-out checkouts require confirmation. Undo score removes the entire submitted visit. Totals are saved without inventing individual segment hits.
+
+During mobile play, scores and controls fill the screen. Open More match details for statistics, checkout routes and recent visits. Turn feedback reports the last score or bust immediately. After completion, Rematch with these players starts a fresh match with the same lineup and rules while keeping the previous result in history.
 
 Switch to Dart-by-dart for individual throws. Select Single, Double or Triple, then tap a numbered segment. Multiplier selection stays active within the visit and resets when the visit ends. Dedicated bull buttons always score 25 or 50. Miss scores zero. The third dart changes turns automatically. Bust restores the entire visit score.
 

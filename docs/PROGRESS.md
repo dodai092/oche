@@ -98,3 +98,20 @@ Repository: https://github.com/dodai092/oche
 Deployment run: https://github.com/dodai092/oche/actions/runs/38629214472, successful build and Pages deployment from app commit 2fe7b67. Public HTTP returned 200. The live mobile Chromium check passed scoring, completion, undo, refresh, every screen and asset checks. WebKit passed the same local static export but could not complete the public-site connection, reporting "The network connection was lost" on retry, including after the user's request to ask for access again. No physical iPhone test is claimed.
 
 A fresh explicit WebKit access request was approved after the initial retries. The public WebKit test still returned the same network-connection error after approval, so it is not reported as a permission denial or a passing test.
+
+## Match usability improvements 1-5
+
+User authorized implementing the five review priorities. Preserve the original charcoal/lime identity and scoring rules; keep the Dodai bar removed.
+
+- [x] Add backward-compatible persisted input preferences and safe completed-match rematch.
+- [x] Add a proper saved-player selector to each lineup slot, preserving identity and duplicate validation.
+- [x] Fit standard mobile scoring controls into the viewport and move secondary details into a drawer.
+- [x] Improve useful labels and contrast; remove live dashboard chrome.
+- [x] Provide one active mobile keyboard and common-score presets.
+- [x] Show immediate last-score, turn and bust feedback with visible undo.
+- [x] Test rematch, profile selection, both entry modes, storage compatibility and mobile layout.
+- [ ] Publish verified changes to GitHub Pages.
+
+Work ledger: parent implements live layout, feedback, preferences and rematch; parallel saved-player picker task completed and reviewed. Review fixes reset Guest selection to a guest name and accept trailing-slash URLs in tests. No additional task dispatch is required.
+
+Verification: 43 unit tests passed; 33 desktop/mobile browser tests passed with one intentional desktop skip for the mobile-only layout case. TypeScript and ESLint passed with no errors or warnings. Pages production export passed. Updated desktop and mobile scoring screenshots were inspected. Mobile tests cover control bounds, keyboard exclusivity, presets, persisted preferences and the details drawer. The exported site passed mobile Chromium scoring, completion, undo, refresh, routes and asset checks.

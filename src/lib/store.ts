@@ -30,6 +30,8 @@ export type SavedMatch = {
 };
 export type Profile = { id: string; name: string };
 export type Settings = {
+  entryMode: "total" | "darts";
+  keyboardMode: "keypad" | "keyboard";
   startScore: 301 | 501 | 701;
   doubleOut: boolean;
   showCheckouts: boolean;
@@ -43,6 +45,7 @@ type Store = {
   storageError: string | null;
   ready: () => void;
   start: (config: MatchConfig) => void;
+  rematch: () => void;
   visit: (score: number, options?: VisitOptions) => void;
   dart: (dart: Dart) => void;
   finishTurn: () => void;
@@ -87,7 +90,13 @@ export const useGameStore = create<Store>()(
         current: null,
         history: [],
         profiles: [],
-        settings: { startScore: 501, doubleOut: true, showCheckouts: true },
+        settings: {
+          startScore: 501,
+          doubleOut: true,
+          showCheckouts: true,
+          entryMode: "total",
+          keyboardMode: "keypad",
+        },
         hydrated: false,
         storageError: null,
         ready: () => set({ hydrated: true }),
@@ -101,6 +110,11 @@ export const useGameStore = create<Store>()(
               game,
             },
           });
+        },
+        rematch: () => {
+          const current = get().current;
+          if (current?.game.status === "complete")
+            get().start(current.game.config);
         },
         visit: (score, options) => {
           const game = get().current?.game;

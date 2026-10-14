@@ -96,7 +96,11 @@ export function restorePersistedData(value: unknown): {
   if (
     ![301, 501, 701].includes(settings.startScore as number) ||
     typeof settings.doubleOut !== "boolean" ||
-    typeof settings.showCheckouts !== "boolean"
+    typeof settings.showCheckouts !== "boolean" ||
+    (settings.entryMode !== undefined &&
+      !["total", "darts"].includes(settings.entryMode as string)) ||
+    (settings.keyboardMode !== undefined &&
+      !["keypad", "keyboard"].includes(settings.keyboardMode as string))
   )
     throw Error("Invalid settings");
   const profiles = v.profiles.map((item) => {
@@ -112,7 +116,11 @@ export function restorePersistedData(value: unknown): {
     current: v.current === null ? null : match(v.current),
     history,
     profiles,
-    settings: settings as Settings,
+    settings: {
+      ...settings,
+      entryMode: settings.entryMode ?? "total",
+      keyboardMode: settings.keyboardMode ?? "keypad",
+    } as Settings,
   };
 }
 

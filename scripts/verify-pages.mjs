@@ -23,6 +23,7 @@ try {
   assert.equal(await page.getByAltText("Dodai").count(), 0);
   await page.getByRole("link", { name: "Start a match", exact: true }).click();
   await page.getByRole("button", { name: "Start match", exact: true }).click();
+  await page.getByRole("button",{name:"Use keyboard",exact:true}).click();
   async function score(value) {
     await page.getByLabel("Visit score", { exact: true }).fill(String(value));
     await page

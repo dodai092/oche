@@ -20,7 +20,7 @@ for (const [name, width, height] of [
   });
   await page.goto("http://127.0.0.1:3000/new", { waitUntil: "networkidle" });
   await page.getByRole("button", { name: "Start match", exact: true }).click();
-  await page.getByLabel("Visit score", { exact: true }).fill("140");
+  await page.getByRole("button",{name:"Score 140",exact:true}).click();
   await page.evaluate(() => window.scrollTo(0, 0));
   await page.screenshot({
     path: `docs/screenshots/${name}-total-entry.png`,

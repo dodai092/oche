@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import Link from "next/link";
 import {
   ArrowLeft,
@@ -8,25 +8,26 @@ import {
   ArrowRight,
   Target,
   Trophy,
-  Crosshair,
-  Check,
-  Flag,
+  MoreHorizontal,
+  X,
 } from "lucide-react";
+import { MatchDetails } from "./match-details";
 import { VisitEntry } from "./visit-entry";
 import { Button } from "./ui/button";
 import { useGameStore } from "@/lib/store";
-import {
-  checkoutSuggestions,
-  dartLabel,
-  playerStats,
-  type Dart,
-} from "@/lib/engine";
+import { checkoutSuggestions, dartLabel, playerStats } from "@/lib/engine";
 export function LiveMatch() {
-  const { current, dart, undo, finishTurn, settings, storageError } =
-    useGameStore();
-  const [entryMode, setEntryMode] = useState<"total" | "darts">(() =>
-    useGameStore.getState().current?.game.turnDarts.length ? "darts" : "total",
-  );
+  const {
+    current,
+    dart,
+    undo,
+    finishTurn,
+    settings,
+    storageError,
+    updateSettings,
+    rematch,
+  } = useGameStore();
+  const detailsRef = useRef<HTMLDialogElement>(null);
   const [multiplier, setMultiplier] = useState<1 | 2 | 3>(1);
   if (!current)
     return (
@@ -51,7 +52,7 @@ export function LiveMatch() {
     game.config.doubleOut,
   );
   const lastTurn = game.turns.at(-1);
-  const mode = game.turnDarts.length ? "darts" : entryMode;
+  const mode = game.turnDarts.length ? "darts" : settings.entryMode;
   function hit(value: number, mult: 1 | 2 | 3 = multiplier) {
     dart({ value, multiplier: mult });
     if (!useGameStore.getState().current?.game.turnDarts.length)
@@ -99,10 +100,16 @@ export function LiveMatch() {
             })}
           </div>
           <div className="action-row">
-            <Button asChild>
-              <Link href="/new">
-                Play again <ArrowRight size={17} />
-              </Link>
+            <Button
+              onClick={() => {
+                setMultiplier(1);
+                rematch();
+              }}
+            >
+              Rematch with these players <ArrowRight size={17} />
+            </Button>
+            <Button asChild variant="outline">
+              <Link href="/new">Change match setup</Link>
             </Button>
             <Button asChild variant="outline">
               <Link href="/history">View match history</Link>
@@ -122,21 +129,29 @@ export function LiveMatch() {
   return (
     <div className="page-content match-page">
       <div className="match-heading">
-        <Link href="/" className="back-link">
-          <ArrowLeft size={16} /> Overview
+        <Link href="/" className="back-link" aria-label="Back to overview">
+          <ArrowLeft size={19} />
+          <span>Overview</span>
         </Link>
-        <div className="match-tags">
-          <span className="pill">
-            <span className="status-dot" /> LIVE MATCH
-          </span>
-          <span>
+        <div className="match-format">
+          <strong>
             {game.config.startScore} ·{" "}
-            {game.config.doubleOut ? "DOUBLE OUT" : "SINGLE OUT"}
+            {game.config.doubleOut ? "Double out" : "Single out"}
+          </strong>
+          <span>
+            Set {game.set} / Leg {game.leg}
           </span>
         </div>
-        <span className="small muted">
-          SET {game.set} / LEG {game.leg}
-        </span>
+        <Button
+          variant="ghost"
+          size="icon"
+          aria-label="More match details"
+          aria-haspopup="dialog"
+          aria-controls="match-details"
+          onClick={() => detailsRef.current?.showModal()}
+        >
+          <MoreHorizontal size={23} />
+        </Button>
       </div>
       <div
         className="scoreboard"
@@ -165,53 +180,70 @@ export function LiveMatch() {
               </div>
               <div className="score-sub">
                 <span>
-                  {p.sets} <small>SETS</small>
+                  <small>Avg</small> {stats.average.toFixed(1)}
                 </span>
                 <span>
-                  {p.legs} <small>LEGS</small>
+                  <small>Last</small>{" "}
+                  {(() => {
+                    const turn = game.turns.findLast(
+                      (t) => t.playerIndex === i && t.complete,
+                    );
+                    return turn
+                      ? turn.bust
+                        ? "Bust"
+                        : turn.startScore - turn.endScore
+                      : "-";
+                  })()}
                 </span>
-                <span>
-                  {stats.average.toFixed(1)} <small>AVG</small>
-                </span>
-              </div>
-              <div className="score-progress">
-                <span
-                  style={{
-                    width: `${((game.config.startScore - p.score) / game.config.startScore) * 100}%`,
-                  }}
-                />
               </div>
             </article>
           );
         })}
       </div>
+      <div
+        role="status"
+        aria-live="polite"
+        aria-atomic="true"
+        className={`turn-feedback ${game.notice === "Bust" ? "is-bust" : game.notice === "Checkout" ? "is-checkout" : ""}`}
+      >
+        <h2 data-testid="active-player">{active.name} to throw</h2>
+        <p>
+          {game.notice === "Bust"
+            ? `Bust. ${lastTurn && game.players[lastTurn.playerIndex].name} stays on ${lastTurn?.startScore}.`
+            : game.notice === "Checkout"
+              ? `${lastTurn && game.players[lastTurn.playerIndex].name} won the leg. Leg ${game.leg} starts now.`
+              : lastTurn
+                ? lastTurn.complete
+                  ? `${game.players[lastTurn.playerIndex].name} scored ${lastTurn.startScore - lastTurn.endScore}.`
+                  : `${lastTurn.startScore - lastTurn.endScore} this visit · ${3 - game.turnDarts.length} darts left.`
+                : "Enter your first score."}
+        </p>
+        {settings.showCheckouts && routes.length > 0 && (
+          <span className="checkout-inline">
+            Finish: {routes.map(dartLabel).join(" → ")}
+          </span>
+        )}
+        {storageError && (
+          <span className="feedback-storage">
+            Memory only. Storage unavailable.
+          </span>
+        )}
+      </div>
       <div className="live-grid">
         <section className="panel scoring-panel">
-          <div className="section-heading">
-            <div>
-              <span className="eyebrow">AT THE OCHE</span>
-              <h2 data-testid="active-player">
-                {active.name}
-                <span className="muted">, your throw.</span>
-              </h2>
-            </div>
-            <span className="darts-left">
-              {3 - game.turnDarts.length} DARTS LEFT
-            </span>
-          </div>
           <div className="segmented entry-mode" aria-label="Score entry mode">
             <button
               aria-pressed={mode === "total"}
               className={mode === "total" ? "selected" : ""}
               disabled={game.turnDarts.length > 0}
-              onClick={() => setEntryMode("total")}
+              onClick={() => updateSettings({ entryMode: "total" })}
             >
               Visit total
             </button>
             <button
               aria-pressed={mode === "darts"}
               className={mode === "darts" ? "selected" : ""}
-              onClick={() => setEntryMode("darts")}
+              onClick={() => updateSettings({ entryMode: "darts" })}
             >
               Dart-by-dart
             </button>
@@ -323,127 +355,25 @@ export function LiveMatch() {
             </>
           )}
         </section>
-        <aside className="match-aside">
-          <section className="panel checkout-panel">
-            <div className="section-heading">
-              <h2>
-                <Flag size={18} /> The finish line
-              </h2>
-            </div>
-            {settings.showCheckouts ? (
-              routes.length ? (
-                <>
-                  <span className="eyebrow lime">{active.score} CHECKOUT</span>
-                  <div className="checkout-route">
-                    {routes.map((d, i) => (
-                      <span key={i}>
-                        {dartLabel(d)}
-                        {i < routes.length - 1 && <ArrowRight size={13} />}
-                      </span>
-                    ))}
-                  </div>
-                  <p>
-                    A way out in {routes.length} dart
-                    {routes.length > 1 ? "s" : ""}. Make the last one count.
-                  </p>
-                </>
-              ) : (
-                <div className="no-checkout">
-                  <Crosshair size={25} />
-                  <h3>
-                    {active.score > 170
-                      ? "Build your finish."
-                      : "Set up the next visit."}
-                  </h3>
-                  <p>
-                    No checkout with {3 - game.turnDarts.length} darts left.
-                    Keep a comfortable double in sight.
-                  </p>
-                </div>
-              )
-            ) : (
-              <p>
-                Checkout suggestions are off.{" "}
-                <Link href="/settings">Change in Settings</Link>
-              </p>
-            )}
-          </section>
-          <div
-            role="status"
-            className={`match-notice ${game.notice === "Bust" ? "bust-notice" : ""}`}
-          >
-            {game.notice === "Bust" ? (
-              <>
-                <RotateCcw size={18} />
-                <span>
-                  <strong>Bust. Score restored.</strong>
-                  <small>
-                    {lastTurn && game.players[lastTurn.playerIndex].name} stays
-                    on {lastTurn?.startScore}.
-                  </small>
-                </span>
-              </>
-            ) : game.notice === "Checkout" ? (
-              <>
-                <Check size={18} />
-                <span>
-                  <strong>Game shot!</strong>
-                  <small>New leg. {active.name} throws first.</small>
-                </span>
-              </>
-            ) : (
-              <>
-                <Check size={16} />
-                <span>
-                  {storageError
-                    ? "Playing in memory. Storage unavailable."
-                    : "Every dart saved on this device."}
-                </span>
-              </>
-            )}
-          </div>
-          <section className="panel visits-panel">
-            <div className="section-heading">
-              <h2>Recent visits</h2>
-              <span className="small muted">SCORE / LEFT</span>
-            </div>
-            {game.turns.length === 0 ? (
-              <p className="muted small">Your first throw starts the story.</p>
-            ) : (
-              <div className="visits-list">
-                {game.turns
-                  .slice(-6)
-                  .reverse()
-                  .map((t, i) => (
-                    <div className="visit-row" key={`${game.turns.length - i}`}>
-                      <span className={`visit-dot color-${t.playerIndex}`} />
-                      <div>
-                        <strong>{game.players[t.playerIndex].name}</strong>
-                        <small>
-                          {t.visitScore !== undefined
-                            ? `${t.visitScore} total · ${t.dartsUsed} darts`
-                            : t.darts
-                                .map((d: Dart) => dartLabel(d))
-                                .join(" · ")}
-                        </small>
-                      </div>
-                      <span className={t.bust ? "bust-text" : ""}>
-                        {t.bust ? "BUST" : t.startScore - t.endScore}
-                      </span>
-                      <strong>{t.endScore}</strong>
-                    </div>
-                  ))}
-              </div>
-            )}
-          </section>
+        <aside className="desktop-match-details">
+          <MatchDetails game={game} showCheckouts={settings.showCheckouts} />
         </aside>
       </div>
-      <div className="page-foot">
-        <span>
-          FIRST TO {game.config.legsToWin} LEGS / {game.config.setsToWin} SETS
-        </span>
-        <span>{storageError ? "MEMORY ONLY" : "SAVED AFTER EVERY DART"}</span>
-      </div>
+      <dialog id="match-details" ref={detailsRef} className="match-drawer">
+        <header>
+          <h2>Match details</h2>
+          <Button
+            variant="ghost"
+            size="icon"
+            aria-label="Close match details"
+            onClick={() => detailsRef.current?.close()}
+            autoFocus
+          >
+            <X size={22} />
+          </Button>
+        </header>
+        <MatchDetails game={game} showCheckouts={settings.showCheckouts} />
+      </dialog>
     </div>
   );
 }
