@@ -212,14 +212,17 @@ export function VisitEntry({ game }: { game: GameState }) {
           <RotateCcw size={17} />
           {lastWasTotal ? "Undo score" : "Undo dart"}
         </Button>
-        <Button
-          type="button"
-          variant="outline"
-          disabled={!game.events.length}
-          onClick={() => undo(true)}
-        >
-          Undo turn
-        </Button>
+        {!lastWasTotal && (
+          // After a typed total, undoing the score already undoes the visit.
+          <Button
+            type="button"
+            variant="outline"
+            disabled={!game.events.length}
+            onClick={() => undo(true)}
+          >
+            Undo turn
+          </Button>
+        )}
       </div>
       <div className="input-tools">
         <Button
@@ -281,7 +284,7 @@ export function VisitEntry({ game }: { game: GameState }) {
           </p>
         </details>
       </div>
-      <p id="visit-entry-hint" className="keypad-hint">
+      <p id="visit-entry-hint" className="sr-only">
         Choose a score, then Submit. Switch to keyboard to type and press Enter.
       </p>
     </form>

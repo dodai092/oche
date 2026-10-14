@@ -159,3 +159,5 @@ Verification: 68 unit tests, 68 browser checks (one intentional skip), TypeScrip
 Adapt pass (same day): landscape phones (max-height 500px) use two columns, scores left and entry right, so Submit, presets and the turn strip stay in view at 844x390 and 667x375. The mobile tab strip fades its cut-off edge and scrolls the current tab into view. Uncommitted. Physical iPhone landscape not tested.
 
 Layout pass (setup): on screens up to 900px the match summary collapses into a sticky bottom bar so Start match is always reachable; lineup rows show the name field first with the saved-player select under it, and the remove button is 44px. Committed locally. Release f69f3af is live and verified (bot levels and landscape Submit in view on the public site).
+
+Distill pass (live entry): after a typed total only one Undo score shows (Undo turn appears only after dart-by-dart input), the keypad hint is screen-reader-only, and the desktop scoreboard is compacted on screens up to 960px tall. Committed locally, not pushed.
