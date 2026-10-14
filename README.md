@@ -4,7 +4,7 @@ A playable local darts scorer with an original charcoal-and-lime interface. Buil
 
 ## Test on iPhone
 
-Open https://dodai092.github.io/oche/ in Safari. Match data stays in that browser. Localhost data does not transfer to the published site. Safari Share > Add to Home Screen can keep a shortcut to the app; this is not an offline installation.
+Open https://dodai092.github.io/oche/ in Safari. Visit Settings and wait for Ready offline before disconnecting. Safari Share > Add to Home Screen adds the app with its own icon and standalone layout. The first download needs a connection. Match data stays in that browser; JSON export/import can transfer a scorebook.
 
 Repository: https://github.com/dodai092/oche
 
@@ -45,6 +45,18 @@ End turn closes a partial visit using only the darts entered. On an empty visit 
 
 Scores and settings save after each change. Completing a match adds it to history. Undoing the winning dart removes that result until the match finishes again. Starting a new match over an unfinished one requires an explicit replacement click.
 
+Choose DartBot under Opponent in setup for Easy, Medium or Hard play. The bot throws individual segments using the normal rules. These are relative strengths, not promised averages. Pause and Undo bot turn stop its next dart so you can correct a visit. Bot turns stop while the page is hidden.
+
+Open More match details during play for Keep screen awake and Spoken scores. Both are optional and depend on browser/device support. Wake lock releases when you leave play and retries when the match becomes visible. Speech starts from a user action and defaults off when you reopen the match. Device voices may require a connection.
+
+Completion and history show averages, highest valid visits, checkout rates, best winning legs and a leg-by-leg comparison. Typed totals remain totals; unknown individual hits are never reconstructed.
+
+Settings restores a JSON export after validation, a count preview and explicit replacement confirmation. Export current data first: restoration replaces the entire scorebook. Last export requested records when a download was triggered, not proof that a file was kept. Backups are limited to 10 MB and 100 archived matches.
+
+Only one tab can save at a time. Other tabs show a read-only copy that follows saved changes. Close the active tab and choose Enable scoring in this tab to acquire access. Browsers without Web Locks stay read-only. Storage failures still allow the active tab to score in memory.
+
+Offline files are versioned as one complete export. New versions wait during play. Finish the match, then choose Update in Settings to activate and reload. If cached files are evicted, reconnect and choose Download offline files. Clearing site data can remove cached files and saved matches. Export backups independently.
+
 ## Included
 
 - Dashboard, match setup, live match, completion, players, statistics, history and settings.
@@ -61,12 +73,20 @@ Scores and settings save after each change. Completing a match adds it to histor
 npm run typecheck
 npm run lint
 npm test
-npx playwright install chromium
+npx playwright install chromium webkit
 npm run test:e2e -- --workers=2
 npm run build
 ```
 
-Browser tests use desktop Chromium and a mobile viewport with Chromium. They do not establish Safari or real-device compatibility. Playwright starts the dev server if needed, or reuses a server already on port 3000. Run one Playwright command at a time because test artifacts share a directory.
+Browser tests use desktop Chromium, mobile Chromium and mobile WebKit. They do not establish physical iPhone or VoiceOver compatibility. Playwright starts the dev server if needed, or reuses a server already on port 3000. Run one Playwright command at a time because test artifacts share a directory.
+
+Offline and update verification:
+
+```sh
+GITHUB_PAGES=true NEXT_PUBLIC_BASE_PATH=/oche npm run build
+node scripts/verify-offline.mjs
+node scripts/verify-offline.mjs webkit
+```
 
 For fresh preview images while the dev server is running:
 
@@ -82,13 +102,13 @@ Bust visits count three statistical darts and zero points. Early-ended partial v
 
 Checkout suggestions are the shortest legal route, with higher scoring darts preferred. They are deterministic recommendations, not a copy of DartCounter's algorithm or a promise of professional tactical choice.
 
-All data is stored in this browser. No cloud sync or import is implemented. The most recent 100 completed matches are retained. Export JSON for a longer record. Saved data is shared across tabs without conflict resolution; use one scoring tab per device.
+All data is stored in this browser. No cloud sync is implemented. The most recent 100 completed matches are retained. Import restores one bounded backup rather than merging archives. One writer tab is enforced with Web Locks.
 
 The production dependency audit returned zero vulnerabilities. The full audit reports five high development-only findings in Next's lint tooling chain, ending in braces 3.0.3. No patched braces release was available from the registry at inspection. Details are in docs/PROGRESS.md.
 
 ## Next milestones
 
-DartBot difficulty levels, Cricket, richer player analytics, tournaments and Supabase online play remain planned. No simulated online features or bot controls are exposed in this milestone.
+Cricket, richer longitudinal player analytics, tournaments and Supabase online play remain planned. DartBot and per-match comparisons are implemented. No simulated online controls are exposed.
 
 ## Documents
 

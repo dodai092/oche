@@ -11,15 +11,13 @@ beforeEach(() => {
 it("rematches completed games with the same players and format while preserving history", async () => {
   const { useGameStore } = await import("./store");
   const store = useGameStore;
-  store
-    .getState()
-    .start({
-      startScore: 301,
-      doubleOut: false,
-      legsToWin: 1,
-      setsToWin: 1,
-      players: [{ id: "alice", name: "Alice" }],
-    });
+  store.getState().start({
+    startScore: 301,
+    doubleOut: false,
+    legsToWin: 1,
+    setsToWin: 1,
+    players: [{ id: "alice", name: "Alice" }],
+  });
   store.getState().visit(180);
   store.getState().visit(121);
   const finished = store.getState().current!;
@@ -41,15 +39,13 @@ it("rematches completed games with the same players and format while preserving 
 });
 it("does not replace an unfinished match with rematch", async () => {
   const { useGameStore } = await import("./store");
-  useGameStore
-    .getState()
-    .start({
-      startScore: 501,
-      doubleOut: true,
-      legsToWin: 1,
-      setsToWin: 1,
-      players: [{ id: "alice", name: "Alice" }],
-    });
+  useGameStore.getState().start({
+    startScore: 501,
+    doubleOut: true,
+    legsToWin: 1,
+    setsToWin: 1,
+    players: [{ id: "alice", name: "Alice" }],
+  });
   const current = useGameStore.getState().current;
   useGameStore.getState().rematch();
   expect(useGameStore.getState().current).toBe(current);
@@ -69,4 +65,31 @@ it("persists both entry preferences across hydration", async () => {
     entryMode: "darts",
     keyboardMode: "keyboard",
   });
+});
+
+it("blocks mutations and persistence from read-only tabs", async () => {
+  const { useGameStore } = await import("./store");
+  useGameStore.setState({ readOnly: true });
+  const saved = localStorage.getItem("oche-v1");
+  useGameStore.getState().addPlayer("Blocked");
+  useGameStore.getState().updateSettings({ startScore: 701 });
+  expect(useGameStore.getState().profiles).toEqual([]);
+  expect(useGameStore.getState().settings.startScore).toBe(501);
+  expect(localStorage.getItem("oche-v1")).toBe(saved);
+});
+it("validates restores before replacing data and keeps existing state when writes fail", async () => {
+  const { useGameStore, safeStorage } = await import("./store");
+  useGameStore.getState().addPlayer("Alice");
+  const before = useGameStore.getState().profiles;
+  expect(() => useGameStore.getState().restoreBackup({})).toThrow();
+  expect(useGameStore.getState().profiles).toBe(before);
+  const valid = JSON.parse(localStorage.getItem("oche-v1")!).state;
+  valid.profiles = [{ id: "b", name: "Bob" }];
+  localStorage.setItem = () => {
+    throw Error("quota");
+  };
+  vi.stubGlobal("window", { dispatchEvent: () => {} });
+  expect(() => useGameStore.getState().restoreBackup(valid)).toThrow();
+  expect(useGameStore.getState().profiles).toBe(before);
+  expect(safeStorage.blocked()).toBe(true);
 });

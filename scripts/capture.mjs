@@ -20,7 +20,7 @@ for (const [name, width, height] of [
   });
   await page.goto("http://127.0.0.1:3000/new", { waitUntil: "networkidle" });
   await page.getByRole("button", { name: "Start match", exact: true }).click();
-  await page.getByRole("button",{name:"Score 140",exact:true}).click();
+  await page.getByRole("button", { name: "Score 140", exact: true }).click();
   await page.evaluate(() => window.scrollTo(0, 0));
   await page.screenshot({
     path: `docs/screenshots/${name}-total-entry.png`,
@@ -32,6 +32,29 @@ for (const [name, width, height] of [
   await page.evaluate(() => window.scrollTo(0, 0));
   await page.screenshot({
     path: `docs/screenshots/${name}-match.png`,
+    fullPage: true,
+  });
+  await page.goto("http://127.0.0.1:3000/new");
+  await page.getByRole("button", { name: "301", exact: true }).click();
+  await page.getByRole("button", { name: /Single out/ }).click();
+  await page.getByRole("button", { name: "Remove player 2" }).click();
+  await page.getByRole("button", { name: "Start match", exact: true }).click();
+  await page.getByRole("button", { name: "Replace & start match" }).click();
+  await page.getByRole("button", { name: "Visit total", exact: true }).click();
+  await page.getByRole("button", { name: "Score 180", exact: true }).click();
+  await page.getByRole("button", { name: "Submit score", exact: true }).click();
+  await page.getByRole("button", { name: "Use keyboard", exact: true }).click();
+  await page.getByLabel("Visit score", { exact: true }).fill("121");
+  await page.getByRole("button", { name: "Submit score", exact: true }).click();
+  await page.getByRole("heading", { name: "Player 1 wins!" }).waitFor();
+  await page.screenshot({
+    path: `docs/screenshots/${name}-summary.png`,
+    fullPage: true,
+  });
+  await page.goto("http://127.0.0.1:3000/settings");
+  await page.getByLabel("Import Oche backup").waitFor();
+  await page.screenshot({
+    path: `docs/screenshots/${name}-settings.png`,
     fullPage: true,
   });
   await context.close();

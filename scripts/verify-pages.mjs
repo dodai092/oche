@@ -66,6 +66,7 @@ try {
   }
   assert.deepEqual(errors, [], "Browser exceptions");
   assert.deepEqual(failed, [], "Failed app requests");
+  await page.getByTestId("offline-manager").getByRole("status").filter({hasText:"Ready offline"}).waitFor({timeout:60000});
   console.log(
     `${process.argv[3] ?? "chromium"}: ${root.href} passed scoring, completion, undo, refresh, all routes and asset checks`,
   );

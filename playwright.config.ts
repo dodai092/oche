@@ -9,6 +9,10 @@ export default defineConfig({
       name: "mobile",
       use: { ...devices["iPhone 13"], defaultBrowserType: "chromium" },
     },
+    {
+      name: "webkit-mobile",
+      use: { ...devices["iPhone 13"], defaultBrowserType: "webkit" },
+    },
   ],
   webServer: {
     command: "npm run dev",

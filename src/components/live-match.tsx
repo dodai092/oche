@@ -13,6 +13,9 @@ import {
 } from "lucide-react";
 import { MatchDetails } from "./match-details";
 import { VisitEntry } from "./visit-entry";
+import { MatchSummary } from "./match-summary";
+import { useMatchDay } from "./match-day";
+import { BotTurn } from "./bot-turn";
 import { Button } from "./ui/button";
 import { useGameStore } from "@/lib/store";
 import { checkoutSuggestions, dartLabel, playerStats } from "@/lib/engine";
@@ -26,9 +29,12 @@ export function LiveMatch() {
     storageError,
     updateSettings,
     rematch,
+    readOnly,
   } = useGameStore();
   const detailsRef = useRef<HTMLDialogElement>(null);
+  const detailsButtonRef = useRef<HTMLButtonElement>(null);
   const [multiplier, setMultiplier] = useState<1 | 2 | 3>(1);
+  const matchDay = useMatchDay();
   if (!current)
     return (
       <div className="page-content">
@@ -53,6 +59,8 @@ export function LiveMatch() {
   );
   const lastTurn = game.turns.at(-1);
   const mode = game.turnDarts.length ? "darts" : settings.entryMode;
+  const botActive =
+    game.players[game.activePlayer].id === game.config.bot?.playerId;
   function hit(value: number, mult: 1 | 2 | 3 = multiplier) {
     dart({ value, multiplier: mult });
     if (!useGameStore.getState().current?.game.turnDarts.length)
@@ -80,27 +88,9 @@ export function LiveMatch() {
             {game.config.doubleOut ? "Double out" : "Single out"} ·{" "}
             {game.turns.filter((t) => t.checkout).length} legs played
           </p>
-          <div className="completion-stats">
-            {game.players.map((p, i) => {
-              const stats = playerStats(game, i);
-              return (
-                <div key={p.id}>
-                  <span className={`avatar color-${i}`}>
-                    {p.name.slice(0, 1)}
-                  </span>
-                  <h3>{p.name}</h3>
-                  <strong>{stats.average.toFixed(1)}</strong>
-                  <small>3-DART AVERAGE</small>
-                  <p>
-                    {p.sets} sets · {stats.checkouts} legs won · {stats.darts}{" "}
-                    darts
-                  </p>
-                </div>
-              );
-            })}
-          </div>
           <div className="action-row">
             <Button
+              disabled={readOnly}
               onClick={() => {
                 setMultiplier(1);
                 rematch();
@@ -115,13 +105,14 @@ export function LiveMatch() {
               <Link href="/history">View match history</Link>
             </Button>
           </div>
-          <Button variant="ghost" onClick={() => undo()}>
+          <Button variant="ghost" disabled={readOnly} onClick={() => undo()}>
             {" "}
             <Undo2 size={16} />{" "}
             {game.events.at(-1)?.type === "visit"
               ? "Undo winning score"
               : "Undo winning dart"}
           </Button>
+          <MatchSummary game={game} />
         </section>
       </div>
     );
@@ -146,6 +137,7 @@ export function LiveMatch() {
           variant="ghost"
           size="icon"
           aria-label="More match details"
+          ref={detailsButtonRef}
           aria-haspopup="dialog"
           aria-controls="match-details"
           onClick={() => detailsRef.current?.showModal()}
@@ -230,136 +222,149 @@ export function LiveMatch() {
         )}
       </div>
       <div className="live-grid">
-        <section className="panel scoring-panel">
-          <div className="segmented entry-mode" aria-label="Score entry mode">
-            <button
-              aria-pressed={mode === "total"}
-              className={mode === "total" ? "selected" : ""}
-              disabled={game.turnDarts.length > 0}
-              onClick={() => updateSettings({ entryMode: "total" })}
-            >
-              Visit total
-            </button>
-            <button
-              aria-pressed={mode === "darts"}
-              className={mode === "darts" ? "selected" : ""}
-              onClick={() => updateSettings({ entryMode: "darts" })}
-            >
-              Dart-by-dart
-            </button>
-          </div>
-          {mode === "total" ? (
-            <VisitEntry
-              key={`${current.id}-${game.events.length}`}
-              game={game}
-            />
-          ) : (
-            <>
-              <div className="visit-display">
-                <div className="dart-slots">
-                  {[0, 1, 2].map((_, i) => (
-                    <div
-                      key={i}
-                      className={`dart-slot ${game.turnDarts[i] ? "filled" : ""}`}
+        <div className="score-controls-column">
+          <BotTurn />
+          <fieldset
+            hidden={botActive}
+            disabled={readOnly || botActive}
+            className="panel scoring-panel"
+          >
+            <legend className="sr-only">Scoring controls</legend>
+            <div className="segmented entry-mode" aria-label="Score entry mode">
+              <button
+                aria-pressed={mode === "total"}
+                className={mode === "total" ? "selected" : ""}
+                disabled={game.turnDarts.length > 0}
+                onClick={() => updateSettings({ entryMode: "total" })}
+              >
+                Visit total
+              </button>
+              <button
+                aria-pressed={mode === "darts"}
+                className={mode === "darts" ? "selected" : ""}
+                onClick={() => updateSettings({ entryMode: "darts" })}
+              >
+                Dart-by-dart
+              </button>
+            </div>
+            {mode === "total" ? (
+              <VisitEntry
+                key={`${current.id}-${game.events.length}`}
+                game={game}
+              />
+            ) : (
+              <>
+                <div className="visit-display">
+                  <div className="dart-slots">
+                    {[0, 1, 2].map((_, i) => (
+                      <div
+                        key={i}
+                        className={`dart-slot ${game.turnDarts[i] ? "filled" : ""}`}
+                      >
+                        <span>DART {i + 1}</span>
+                        <strong>
+                          {game.turnDarts[i] ? (
+                            dartLabel(game.turnDarts[i])
+                          ) : (
+                            <span className="slot-line" />
+                          )}
+                        </strong>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="visit-total">
+                    <span>THIS VISIT</span>
+                    <strong>
+                      {game.turnDarts.reduce(
+                        (s, d) => s + d.value * d.multiplier,
+                        0,
+                      )}
+                    </strong>
+                  </div>
+                </div>
+                <div className="segmented multiplier-options">
+                  {(
+                    [
+                      { label: "Single", value: 1 },
+                      { label: "Double", value: 2 },
+                      { label: "Triple", value: 3 },
+                    ] as const
+                  ).map((m) => (
+                    <button
+                      key={m.value}
+                      aria-pressed={multiplier === m.value}
+                      className={multiplier === m.value ? "selected" : ""}
+                      onClick={() => setMultiplier(m.value)}
                     >
-                      <span>DART {i + 1}</span>
-                      <strong>
-                        {game.turnDarts[i] ? (
-                          dartLabel(game.turnDarts[i])
-                        ) : (
-                          <span className="slot-line" />
-                        )}
-                      </strong>
-                    </div>
+                      {m.label}
+                      <span aria-hidden="true">×{m.value}</span>
+                    </button>
                   ))}
                 </div>
-                <div className="visit-total">
-                  <span>THIS VISIT</span>
-                  <strong>
-                    {game.turnDarts.reduce(
-                      (s, d) => s + d.value * d.multiplier,
-                      0,
-                    )}
-                  </strong>
+                <div className="keypad">
+                  {Array.from({ length: 20 }, (_, i) => i + 1).map((n) => (
+                    <button
+                      key={n}
+                      aria-label={`Hit ${n}`}
+                      onClick={() => hit(n)}
+                    >
+                      <span className="hit-multiplier">
+                        {multiplier === 1 ? "" : multiplier === 2 ? "D" : "T"}
+                      </span>
+                      {n}
+                    </button>
+                  ))}
                 </div>
-              </div>
-              <div className="segmented multiplier-options">
-                {(
-                  [
-                    { label: "Single", value: 1 },
-                    { label: "Double", value: 2 },
-                    { label: "Triple", value: 3 },
-                  ] as const
-                ).map((m) => (
-                  <button
-                    key={m.value}
-                    aria-pressed={multiplier === m.value}
-                    className={multiplier === m.value ? "selected" : ""}
-                    onClick={() => setMultiplier(m.value)}
-                  >
-                    {m.label}
-                    <span aria-hidden="true">×{m.value}</span>
+                <div className="bull-row">
+                  <button onClick={() => hit(0, 1)} className="miss-button">
+                    MISS <span>0</span>
                   </button>
-                ))}
-              </div>
-              <div className="keypad">
-                {Array.from({ length: 20 }, (_, i) => i + 1).map((n) => (
-                  <button
-                    key={n}
-                    aria-label={`Hit ${n}`}
-                    onClick={() => hit(n)}
-                  >
-                    <span className="hit-multiplier">
-                      {multiplier === 1 ? "" : multiplier === 2 ? "D" : "T"}
-                    </span>
-                    {n}
+                  <button onClick={() => hit(25, 1)}>
+                    OUTER BULL <span>25</span>
                   </button>
-                ))}
-              </div>
-              <div className="bull-row">
-                <button onClick={() => hit(0, 1)} className="miss-button">
-                  MISS <span>0</span>
-                </button>
-                <button onClick={() => hit(25, 1)}>
-                  OUTER BULL <span>25</span>
-                </button>
-                <button onClick={() => hit(25, 2)} className="bull-button">
-                  <Target size={17} /> BULL <span>50</span>
-                </button>
-              </div>
-              <div className="scoring-actions">
-                <Button
-                  variant="ghost"
-                  disabled={!game.events.length}
-                  onClick={() => undo()}
-                  aria-label="Undo dart"
-                >
-                  <Undo2 size={17} /> Undo dart
-                </Button>
-                <Button
-                  variant="ghost"
-                  disabled={!game.events.length}
-                  onClick={() => undo(true)}
-                  aria-label="Undo turn"
-                >
-                  <RotateCcw size={16} /> Undo turn
-                </Button>
-                <Button variant="outline" onClick={endVisit}>
-                  End turn <ArrowRight size={16} />
-                </Button>
-              </div>
-              <p className="keypad-hint">
-                Choose a multiplier, then tap the segment. Bull buttons always
-                score 25 or 50.
-              </p>
-            </>
-          )}
-        </section>
+                  <button onClick={() => hit(25, 2)} className="bull-button">
+                    <Target size={17} /> BULL <span>50</span>
+                  </button>
+                </div>
+                <div className="scoring-actions">
+                  <Button
+                    variant="ghost"
+                    disabled={!game.events.length}
+                    onClick={() => undo()}
+                    aria-label="Undo dart"
+                  >
+                    <Undo2 size={17} /> Undo dart
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    disabled={!game.events.length}
+                    onClick={() => undo(true)}
+                    aria-label="Undo turn"
+                  >
+                    <RotateCcw size={16} /> Undo turn
+                  </Button>
+                  <Button variant="outline" onClick={endVisit}>
+                    End turn <ArrowRight size={16} />
+                  </Button>
+                </div>
+                <p className="keypad-hint">
+                  Choose a multiplier, then tap the segment. Bull buttons always
+                  score 25 or 50.
+                </p>
+              </>
+            )}
+          </fieldset>
+        </div>
         <aside className="desktop-match-details">
           <MatchDetails game={game} showCheckouts={settings.showCheckouts} />
         </aside>
       </div>
-      <dialog id="match-details" ref={detailsRef} className="match-drawer">
+      <dialog
+        id="match-details"
+        ref={detailsRef}
+        className="match-drawer"
+        onClose={() => detailsButtonRef.current?.focus({ preventScroll: true })}
+      >
         <header>
           <h2>Match details</h2>
           <Button
@@ -373,6 +378,7 @@ export function LiveMatch() {
           </Button>
         </header>
         <MatchDetails game={game} showCheckouts={settings.showCheckouts} />
+        {matchDay}
       </dialog>
     </div>
   );

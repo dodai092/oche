@@ -5,6 +5,7 @@ export type MatchConfig = {
   legsToWin: number;
   setsToWin: number;
   players: { id: string; name: string }[];
+  bot?: { playerId: string; difficulty: "easy" | "medium" | "hard" };
 };
 export type VisitOptions = {
   dartsUsed?: number;
@@ -76,11 +77,14 @@ export function createGame(config: MatchConfig): GameState {
         !p.name.trim() ||
         p.name.length > 40,
     ) ||
-    new Set(config.players.map((p) => p.id)).size !== config.players.length
+    new Set(config.players.map((p) => p.id)).size !== config.players.length ||
+    (config.bot !== undefined &&
+      (!config.bot || !config.players.some((p) => p.id === config.bot?.playerId) ||
+        !["easy", "medium", "hard"].includes(config.bot.difficulty)))
   ) {
     throw new RangeError("Invalid match configuration");
   }
-  const copy = { ...config, players: config.players.map((p) => ({ ...p })) };
+  const copy = { ...config, ...(config.bot ? { bot: { ...config.bot } } : {}), players: config.players.map((p) => ({ ...p })) };
   return {
     config: copy,
     players: copy.players.map((p) => ({

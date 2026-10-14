@@ -16,7 +16,7 @@ import { Button } from "./ui/button";
 import { resolvePlayers } from "@/lib/setup";
 import { useGameStore } from "@/lib/store";
 export function MatchSetup() {
-  const { settings, profiles, current, start } = useGameStore();
+  const { settings, profiles, current, start, readOnly } = useGameStore();
   const [score, setScore] = useState<301 | 501 | 701>(settings.startScore);
   const [doubleOut, setDoubleOut] = useState(settings.doubleOut);
   const [names, setNames] = useState(["Player 1", "Player 2"]);
@@ -25,11 +25,20 @@ export function MatchSetup() {
     [sets, setSets] = useState(1);
   const [validationError, setValidationError] = useState<string | null>(null);
   const [replace, setReplace] = useState(false);
+  const [opponent, setOpponent] = useState("local");
+  const [difficulty, setDifficulty] = useState<"easy" | "medium" | "hard">(
+    "medium",
+  );
   const router = useRouter();
   function begin() {
     let players;
     try {
-      players = resolvePlayers(names, profiles);
+      players = resolvePlayers(
+        opponent === "bot" ? names.slice(0, -1) : names,
+        profiles,
+      );
+      if (opponent === "bot")
+        players.push({ id: `bot-${crypto.randomUUID()}`, name: "DartBot" });
     } catch (error) {
       setValidationError(
         error instanceof Error ? error.message : "Check the player lineup.",
@@ -47,6 +56,9 @@ export function MatchSetup() {
       legsToWin: legs,
       setsToWin: sets,
       players,
+      ...(opponent === "bot"
+        ? { bot: { playerId: players.at(-1)!.id, difficulty } }
+        : {}),
     });
     router.push("/match");
   }
@@ -160,64 +172,116 @@ export function MatchSetup() {
               </h2>
               <span className="step-number">02</span>
             </div>
-            {names.map((name, i) => (
-              <div className="player-input" key={i}>
-                <span className={`avatar color-${i}`}>{i + 1}</span>
-                <div className="player-lineup-fields">
-                  <select
-                    className="player-profile-select"
-                    aria-label={`Player ${i + 1} profile`}
-                    value={profileIds[i]}
-                    onChange={(e) => {
-                      const id = e.target.value;
-                      setProfileIds(
-                        profileIds.map((p, j) => (j === i ? id : p)),
-                      );
-                      const profile = profiles.find((p) => p.id === id);
-                      setNames(names.map((n,j)=>j===i?(profile?.name??`Player ${i+1}`):n));
-                    }}
-                  >
-                    <option value="">Guest player</option>
-                    {profiles.map((p) => (
-                      <option key={p.id} value={p.id}>
-                        {p.name}
-                      </option>
-                    ))}
-                  </select>
-                  <label>
-                    Player {i + 1}
-                    <input
-                      required
-                      maxLength={40}
-                      aria-label={`Player ${i + 1} name`}
-                      value={name}
+            {names.map((name, i) =>
+              opponent === "bot" && i === names.length - 1 ? (
+                <div className="player-input" key={i}>
+                  <span className={`avatar color-${i}`}>B</span>
+                  <div>
+                    <strong>DartBot</strong>
+                    <p className="small muted">
+                      {difficulty} difficulty. Throws actual darts
+                      automatically.
+                    </p>
+                  </div>
+                </div>
+              ) : (
+                <div className="player-input" key={i}>
+                  <span className={`avatar color-${i}`}>{i + 1}</span>
+                  <div className="player-lineup-fields">
+                    <select
+                      className="player-profile-select"
+                      aria-label={`Player ${i + 1} profile`}
+                      value={profileIds[i]}
                       onChange={(e) => {
+                        const id = e.target.value;
                         setProfileIds(
-                          profileIds.map((p, j) => (j === i ? "" : p)),
+                          profileIds.map((p, j) => (j === i ? id : p)),
                         );
+                        const profile = profiles.find((p) => p.id === id);
                         setNames(
-                          names.map((n, j) => (j === i ? e.target.value : n)),
+                          names.map((n, j) =>
+                            j === i ? (profile?.name ?? `Player ${i + 1}`) : n,
+                          ),
                         );
                       }}
-                    />
-                  </label>
+                    >
+                      <option value="">Guest player</option>
+                      {profiles.map((p) => (
+                        <option key={p.id} value={p.id}>
+                          {p.name}
+                        </option>
+                      ))}
+                    </select>
+                    <label>
+                      Player {i + 1}
+                      <input
+                        required
+                        maxLength={40}
+                        aria-label={`Player ${i + 1} name`}
+                        value={name}
+                        onChange={(e) => {
+                          setProfileIds(
+                            profileIds.map((p, j) => (j === i ? "" : p)),
+                          );
+                          setNames(
+                            names.map((n, j) => (j === i ? e.target.value : n)),
+                          );
+                        }}
+                      />
+                    </label>
+                  </div>
+                  {names.length > (opponent === "bot" ? 2 : 1) && (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      aria-label={`Remove player ${i + 1}`}
+                      onClick={() => {
+                        setNames(names.filter((_, j) => j !== i));
+                        setProfileIds(profileIds.filter((_, j) => j !== i));
+                      }}
+                    >
+                      <Minus size={18} />
+                    </Button>
+                  )}
                 </div>
-                {names.length > 1 && (
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    aria-label={`Remove player ${i + 1}`}
-                    onClick={() => {
-                      setNames(names.filter((_, j) => j !== i));
-                      setProfileIds(profileIds.filter((_, j) => j !== i));
-                    }}
+              ),
+            )}
+            <div className="two-fields opponent-fields">
+              <label className="field-label">
+                Opponent
+                <select
+                  aria-label="Opponent"
+                  value={opponent}
+                  onChange={(e) => {
+                    setOpponent(e.target.value);
+                    if (e.target.value === "bot" && names.length === 1) {
+                      setNames([...names, "DartBot"]);
+                      setProfileIds([...profileIds, ""]);
+                    }
+                  }}
+                >
+                  <option value="local">Local players</option>
+                  <option value="bot">DartBot</option>
+                </select>
+              </label>
+              {opponent === "bot" && (
+                <label className="field-label">
+                  Bot difficulty
+                  <select
+                    aria-label="Bot difficulty"
+                    value={difficulty}
+                    onChange={(e) =>
+                      setDifficulty(e.target.value as typeof difficulty)
+                    }
                   >
-                    <Minus size={18} />
-                  </Button>
-                )}
-              </div>
-            ))}
+                    <option value="easy">Easy</option>
+                    <option value="medium">Medium</option>
+                    <option value="hard">Hard</option>
+                  </select>
+                </label>
+              )}
+            </div>
             {names.length < 4 && (
               <Button
                 type="button"
@@ -276,7 +340,7 @@ export function MatchSetup() {
           <Button
             className="full-width"
             type="submit"
-            disabled={names.some((n) => !n.trim())}
+            disabled={readOnly || names.some((n,i) => !(opponent === "bot" && i === names.length-1) && !n.trim())}
           >
             {replace ? "Replace & start match" : "Start match"}
             <ArrowUpRight size={18} />

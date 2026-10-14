@@ -21,7 +21,7 @@ First milestone: a refresh-safe, playable local x01 match. Later modes remain pl
 
 ## Later priorities
 
-- [ ] DartBot difficulty levels.
+- [x] DartBot difficulty levels.
 - [ ] Cricket.
 - [ ] Advanced statistics and player analytics.
 - [ ] Tournaments.
@@ -57,7 +57,7 @@ Dependencies are installed. `npm ci` reproduces the pinned install on a fresh ch
 - Next.js Turbopack production compilation hit a subprocess port restriction even after escalation. The supported webpack compiler passes; `npm run build` uses `next build --webpack`. Development uses Next's default compiler.
 - Full dependency audit: five high development-only findings in `eslint-config-next -> fast-glob -> micromatch -> braces`. Registry reports braces 3.0.3 as latest and the advisory includes it. No forced framework downgrade applied. Production audit is clean.
 - Checkout attempts infer one-dart opportunities, not intended targets. Busts count three statistical darts. These conventions appear in the engine, tests and statistics screen.
-- Browser-local persistence has a 100-match archive cap, JSON export and original-save recovery. Backup import and cross-tab conflict handling remain unimplemented. Use one scoring tab per device.
+- Browser-local persistence has a 100-match archive cap, JSON export/import and original-save recovery. One writer tab is enforced through Web Locks. Import replaces rather than merges data; there is no cloud sync.
 - REA CLI/MCP health probe passed, but REA is not registered in this Codex session. Exact reconnect commands and analysis limits are in REA.md. No app binary was analyzed.
 
 ## Typed visit score entry
@@ -119,3 +119,25 @@ Verification: 43 unit tests passed; 33 desktop/mobile browser tests passed with 
 WebKit export verification passed on retry. Its first run completed gameplay but reported an access-control error for a Next route-data request during navigation. The unchanged retry passed all assertions; this intermittent navigation error remains recorded rather than being treated as a code fix or physical Safari verification.
 
 Published app commit d00c9a3. GitHub Pages run https://github.com/dodai092/oche/actions/runs/38634943538 completed successfully. The published mobile Chromium check passed scoring, completion, undo, refresh, all routes and assets. Physical iPhone verification remains outstanding.
+
+## Reliability and solo play
+
+Approved scope: implement the six follow-up priorities. See RELIABILITY-PLAN.md for the ownership ledger.
+
+- [x] Short portrait/landscape and enlarged-text checks, safe-area padding and explicit drawer focus restoration for WebKit.
+- [x] Versioned offline export, manifest and icons; cold HTML/RSC navigation, scoring and refresh offline.
+- [x] Atomic failed-download handling, waiting updates, explicit update after completion, and recovery after cache eviction.
+- [x] Validated JSON backup import with preview and explicit replacement; failed writes preserve current state.
+- [x] Last export request timestamp and one-writer Web Lock with read-only following tabs and explicit handover.
+- [x] Reusable match comparison and per-leg summaries in completion/history; typed-total uncertainty is explained.
+- [x] DartBot Easy/Medium/Hard, real segment events, cancellable darts, pause and bot-turn undo, hidden-page suspension.
+- [x] Opt-in screen wake lock and spoken scores with lifecycle cleanup and capability/error feedback.
+- [ ] Complete final checks and publish.
+
+Focused unit coverage includes backup validation, read-only mutation guards, failed restore writes, bot configuration and difficulty ordering, timer cancellation, announcements and multi-set summaries. Browser checks exercise backup preview/restore, two-tab handover, bot turns, short/landscape layouts, enlarged text, dialog focus and mocked wake/speech APIs. A full run found WebKit's native dialog did not restore focus to a mouse-clicked button; an explicit onClose focus restoration fixed the targeted WebKit test.
+
+Offline verification passed in Chromium and WebKit: initial download, offline scoring/undo/reload, never-visited routes, interrupted update preserving the active cache, waiting update, real Update button disabled mid-match and enabled after completion, explicit reload preserving the scorebook, and evicted-cache repair. Desktop/mobile screenshots were inspected as one batch with one summary-text correction and confirmation.
+
+Physical iPhone, VoiceOver, real spoken audio and device wake behavior are not claimed as tested. Browser mocks verify API requests and cleanup, not hardware behavior. Browser-supplied speech voices can require a connection. Unsupported Web Locks browsers remain read-only. Import replaces the bounded dataset; cloud sync and archive merging remain planned.
+
+Final local checks: 66 unit tests passed across nine files; full browser suite passed 65 checks with one intentional desktop skip, using desktop Chromium, mobile Chromium and mobile WebKit. The final bot-lineup constraint also passed three targeted browser checks. TypeScript, ESLint and Pages production export passed. The final export's offline/update/repair script passed in both Chromium and WebKit. No new dependencies were added.

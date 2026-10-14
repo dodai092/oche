@@ -10,7 +10,12 @@ The first milestone is x01 scoring, not online infrastructure. A backend now wou
 
 - src/lib/engine.ts: pure deterministic state transitions, legal darts, checkout search, event replay and statistics. No browser, React, clock or randomness.
 - src/lib/store.ts: Zustand persistence, match identity/timestamps, player profiles, settings and archived match references. Hydration occurs after mount to prevent server/client mismatch.
-- src/components: responsive application shell and screen components. Scoring uses the engine API only. Buttons commit a real action or navigate to a working screen.
+- src/lib/tab-session.ts: exclusive Web Lock held for the document lifetime. Hydrate before enabling writes; secondary tabs suppress persisted writes and refresh on storage events. Page hide releases access; returning reacquires and hydrates before editing.
+- src/lib/backup.ts: bounded JSON parsing and event-replay validation. Restore previews counts and requires replacement confirmation; failed writes keep current in-memory data.
+- src/lib/bot.ts: segment selection with injectable randomness and a cancellable timer. Board landing errors provide relative strengths. The engine stays deterministic.
+- src/lib/match-summary.ts: comparisons and set/leg aggregates derived from actual turns.
+- scripts/build-offline.mjs: static file inventory, content-versioned worker and route aliases. Install caches every file atomically; updates wait for explicit application outside a match. No automatic reload. Evicted files can be downloaded again.
+- src/components: responsive application shell and screen components. Scoring uses the engine API only. Match-day hooks release screen wake locks and cancel speech when leaving play.
 - src/app: Next.js App Router layout, routes and styling.
 - Vitest validates the scoring engine; Playwright exercises actual browser interaction, persistence and mobile layouts.
 
@@ -36,8 +41,10 @@ Versioned localStorage stores a bounded archive and current match. Data stays in
 
 ## Future online boundary
 
-Supabase would hold profiles, match membership, authoritative turn events and row-level security. Clients must submit expected revision numbers; server transactions validate darts and advance turn ownership. Realtime is delivery, not an authority. Offline play remains independent. Bot and Cricket need their own tested rules before adding them to setup.
+Supabase would hold profiles, match membership, authoritative turn events and row-level security. Clients must submit expected revision numbers; server transactions validate darts and advance turn ownership. Realtime is delivery, not an authority. Offline play remains independent. Cricket needs its own tested rules. DartBot already uses the x01 engine.
 
 ## Current limits
 
-Use one scoring tab per device: localStorage has no cross-tab transaction or conflict resolution. History is capped at 100 matches. Checkout attempts infer opportunities, not player intent. JSON export has no import flow yet. No server authority, authentication or online synchronization is claimed in this local milestone.
+One writer tab is enforced with Web Locks. Unsupported browsers are read-only; there is no unsafe localStorage lease fallback. History is capped at 100 matches. Checkout attempts infer opportunities, not player intent. JSON import replaces rather than merges a validated scorebook. Offline caching does not back up match data. No server authority, authentication or online synchronization is claimed.
+
+Browser API references: [Web Locks](https://developer.mozilla.org/en-US/docs/Web/API/Web_Locks_API), [Screen Wake Lock](https://developer.mozilla.org/en-US/docs/Web/API/Screen_Wake_Lock_API), [Speech synthesis](https://developer.mozilla.org/en-US/docs/Web/API/SpeechSynthesis). Physical-device behavior remains a separate verification step.

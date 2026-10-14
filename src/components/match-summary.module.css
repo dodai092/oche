@@ -1,0 +1,90 @@
+.summary {
+  display: grid;
+  gap: 20px;
+  min-width: 0;
+  max-width: 100%;
+  text-align: left;
+  overflow-wrap: anywhere;
+}
+.players {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr));
+  gap: 12px;
+  min-width: 0;
+}
+.player {
+  min-width: 0;
+  padding: 18px;
+  background: var(--surface, #191c1b);
+  border: 1px solid var(--line, #2c312e);
+  border-radius: 8px;
+}
+.stats {
+  display: grid;
+  gap: 12px;
+  margin: 18px 0 0;
+}
+.player .stats > div {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  padding: 0;
+  border: 0;
+  font-size: 14px;
+}
+.stats dt {
+  color: var(--muted, #929b92);
+}
+.stats dd {
+  margin: 0;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.highlight {
+  color: var(--lime, #c4f568);
+  font-size: 22px;
+}
+.tableScroll {
+  min-width: 0;
+  max-width: 100%;
+  overflow-x: auto;
+  border: 1px solid var(--line, #2c312e);
+  border-radius: 8px;
+}
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+.table caption {
+  padding: 14px;
+  text-align: left;
+  color: var(--muted, #929b92);
+}
+.table th,
+.table td {
+  padding: 12px;
+  text-align: left;
+  min-width: 96px;
+  border-top: 1px solid var(--line, #2c312e);
+}
+.table thead {
+  background: var(--surface, #191c1b);
+}
+.table small {
+  display: block;
+  color: var(--muted, #929b92);
+  font-weight: 400;
+  margin-top: 4px;
+}
+.note {
+  font-size: 13px;
+  line-height: 1.6;
+}
+@media (max-width: 400px) {
+  .player {
+    padding: 12px;
+  }
+}

@@ -83,6 +83,7 @@ export function restorePersistedData(value: unknown): {
   history: SavedMatch[];
   profiles: Profile[];
   settings: Settings;
+  lastBackupAt: string | null;
 } {
   const v = record(value);
   if (
@@ -100,7 +101,9 @@ export function restorePersistedData(value: unknown): {
     (settings.entryMode !== undefined &&
       !["total", "darts"].includes(settings.entryMode as string)) ||
     (settings.keyboardMode !== undefined &&
-      !["keypad", "keyboard"].includes(settings.keyboardMode as string))
+      !["keypad", "keyboard"].includes(settings.keyboardMode as string)) ||
+    (settings.keepAwake !== undefined &&
+      typeof settings.keepAwake !== "boolean")
   )
     throw Error("Invalid settings");
   const profiles = v.profiles.map((item) => {
@@ -116,10 +119,14 @@ export function restorePersistedData(value: unknown): {
     current: v.current === null ? null : match(v.current),
     history,
     profiles,
+    lastBackupAt: v.lastBackupAt == null ? null : date(v.lastBackupAt),
     settings: {
-      ...settings,
+      startScore: settings.startScore,
+      doubleOut: settings.doubleOut,
+      showCheckouts: settings.showCheckouts,
       entryMode: settings.entryMode ?? "total",
       keyboardMode: settings.keyboardMode ?? "keypad",
+      keepAwake: settings.keepAwake ?? false,
     } as Settings,
   };
 }

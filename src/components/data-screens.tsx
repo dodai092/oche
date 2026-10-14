@@ -5,7 +5,6 @@ import {
   UsersRound,
   Plus,
   Trash2,
-  Download,
   ArrowUpRight,
   History,
   Trophy,
@@ -15,6 +14,8 @@ import { useGameStore, safeStorage, type SavedMatch } from "@/lib/store";
 import { playerStats } from "@/lib/engine";
 import { Button } from "./ui/button";
 import type { Screen } from "./oche-app";
+import { BackupPanel } from "./backup-panel";
+import { MatchSummary } from "./match-summary";
 const titles = {
   players: ["The home team", "Your regulars, ready for the next match."],
   statistics: ["Know your game", "Real numbers from every match played here."],
@@ -51,28 +52,6 @@ export function DataScreens({
     points = rows.reduce((s, r) => s + r.stats.points, 0),
     attempts = rows.reduce((s, r) => s + r.stats.checkoutAttempts, 0),
     checkouts = rows.reduce((s, r) => s + r.stats.checkouts, 0);
-  function exportData() {
-    const data = JSON.stringify(
-      {
-        version: 1,
-        exportedAt: new Date().toISOString(),
-        current: store.current,
-        history: store.history,
-        profiles: store.profiles,
-        settings: store.settings,
-      },
-      null,
-      2,
-    );
-    const url = URL.createObjectURL(
-      new Blob([data], { type: "application/json" }),
-    );
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `oche-backup-${new Date().toISOString().slice(0, 10)}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
-  }
   function downloadRaw() {
     const raw = safeStorage.raw();
     if (raw === null) return;
@@ -84,6 +63,7 @@ export function DataScreens({
     URL.revokeObjectURL(url);
   }
   function resetStorage() {
+    if (store.readOnly) return;
     if (
       !window.confirm(
         "Replace the original saved data with the current in-memory data? Download the original first if you need it.",
@@ -126,7 +106,7 @@ export function DataScreens({
                 required
               />
             </label>
-            <Button type="submit" disabled={!name.trim()}>
+            <Button type="submit" disabled={!name.trim() || store.readOnly}>
               <Plus size={17} /> Add player
             </Button>
           </form>
@@ -159,6 +139,7 @@ export function DataScreens({
                       size="sm"
                       onClick={() => store.removePlayer(p.id)}
                       aria-label={`Remove ${p.name}`}
+                      disabled={store.readOnly}
                     >
                       <Trash2 size={14} /> Remove profile
                     </Button>
@@ -285,6 +266,7 @@ export function DataScreens({
               STARTING SCORE
               <select
                 aria-label="Starting score"
+                disabled={store.readOnly}
                 value={store.settings.startScore}
                 onChange={(e) =>
                   store.updateSettings({
@@ -307,6 +289,7 @@ export function DataScreens({
               <input
                 type="checkbox"
                 checked={store.settings.doubleOut}
+                disabled={store.readOnly}
                 onChange={(e) =>
                   store.updateSettings({ doubleOut: e.target.checked })
                 }
@@ -320,6 +303,7 @@ export function DataScreens({
               <input
                 type="checkbox"
                 checked={store.settings.showCheckouts}
+                disabled={store.readOnly}
                 onChange={(e) =>
                   store.updateSettings({ showCheckouts: e.target.checked })
                 }
@@ -341,7 +325,7 @@ export function DataScreens({
                 >
                   Download original save
                 </Button>
-                <Button variant="ghost" onClick={resetStorage}>
+                <Button variant="ghost" onClick={resetStorage} disabled={store.readOnly}>
                   Reset storage with current data
                 </Button>
               </div>
@@ -356,12 +340,7 @@ export function DataScreens({
               The most recent 100 completed matches are retained. Export a copy
               to keep a longer record.
             </p>
-            <Button variant="outline" onClick={exportData}>
-              <Download size={17} /> Export data as JSON
-            </Button>
-            <p className="small muted">
-              Export is a readable backup. Import is not part of this release.
-            </p>
+            <BackupPanel />
           </section>
         </div>
       )}
@@ -410,6 +389,7 @@ function MatchRecord({ match }: { match: SavedMatch }) {
         </span>
         <Plus size={18} />
       </summary>
+      <MatchSummary game={g} />
       <div className="table-scroll">
         <table>
           <thead>

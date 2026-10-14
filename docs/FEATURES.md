@@ -28,7 +28,7 @@ Sources: [Apple listing](https://apps.apple.com/hr/app/dartcounter/id999533915) 
 
 Working local x01: 301/501/701, single/double out, up to four players, legal single/double/triple hits, bulls, miss, three darts, immediate score updates, bust, undo dart/turn, checkout routes, legs/sets, completion, persisted matches and local statistics. Profiles and history operate only on this browser's data.
 
-Planned after verified core: DartBot, Cricket, richer analytics, tournaments and Supabase online play. No fake mode buttons or simulated opponents.
+Implemented after the core: DartBot with three difficulty levels, richer per-match summaries, offline play, validated backup import, one-writer tab protection and optional match-day controls. Planned: Cricket, longitudinal analytics, tournaments and Supabase online play. No fake online controls.
 
 ## Supplied screenshot evidence: typed totals
 

@@ -13,6 +13,9 @@ import {
   CircleHelp,
 } from "lucide-react";
 import { useGameStore } from "@/lib/store";
+import { startTabSession, acquireScoringTab } from "@/lib/tab-session";
+import { Button } from "./ui/button";
+import { OfflineManager } from "./offline-manager";
 import { Dashboard } from "./dashboard";
 import { MatchSetup } from "./match-setup";
 import { LiveMatch } from "./live-match";
@@ -46,6 +49,7 @@ const navigation = [
 export function OcheApp({ screen }: { screen: Screen }) {
   const hydrated = useGameStore((s) => s.hydrated);
   const error = useGameStore((s) => s.storageError);
+  const tabMessage = useGameStore((s) => s.tabMessage);
   useEffect(() => {
     const storageError = () =>
       useGameStore
@@ -54,9 +58,7 @@ export function OcheApp({ screen }: { screen: Screen }) {
           "Browser storage is full or unavailable. This match works in memory, but changes may not survive a refresh. Export your data in Settings.",
         );
     window.addEventListener("oche-storage-error", storageError);
-    void Promise.resolve(useGameStore.persist.rehydrate()).finally(() =>
-      useGameStore.getState().ready(),
-    );
+    startTabSession();
     return () => window.removeEventListener("oche-storage-error", storageError);
   }, []);
   return (
@@ -110,6 +112,18 @@ export function OcheApp({ screen }: { screen: Screen }) {
           {error && (
             <div role="alert" className="error-banner">
               {error}
+            </div>
+          )}
+          <OfflineManager showStatus={screen === "settings"} />
+          {tabMessage && (
+            <div className="tab-warning" role="alert">
+              <p>{tabMessage}</p>
+              <Button
+                variant="outline"
+                onClick={() => void acquireScoringTab()}
+              >
+                Enable scoring in this tab
+              </Button>
             </div>
           )}
           {!hydrated ? (

@@ -36,7 +36,7 @@ The second command uses Playwright WebKit. It helps catch Safari engine issues b
 
 ## iPhone data
 
-Scores use browser-local storage on the published HTTPS origin. They do not sync with the Mac's localhost storage or other browsers. Use one scoring tab per device. The site needs network access to load and has no offline service worker. Add to Home Screen creates a shortcut.
+Scores use browser-local storage on the published HTTPS origin. They do not sync automatically with localhost or other browsers; JSON export/import transfers the complete scorebook. Web Locks enforce one writer tab. After the first complete download, the production service worker supports offline launch, scoring and navigation. Check Settings for Ready offline before disconnecting. Add to Home Screen uses the manifest and app icons. Updates wait until the match finishes and the user clicks Update. Evicted files can be downloaded again from Settings.
 
 ## References
 
