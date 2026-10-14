@@ -82,7 +82,8 @@ export function OfflineManager({
       .register(`${base}/sw.js`, { scope: `${base}/`, updateViaCache: "none" })
       .then((registration) => {
         if (disposed) return;
-        setWaiting(registration.waiting);
+        // No controller means a first install, which is not an update.
+        setWaiting(navigator.serviceWorker.controller ? registration.waiting : null);
         check();
         const track = () => {
           const worker = registration.installing;
@@ -90,7 +91,9 @@ export function OfflineManager({
           const stateChanged = () => {
             if (disposed) return;
             if (worker.state === "installed") {
-              setWaiting(registration.waiting);
+              setWaiting(
+                navigator.serviceWorker.controller ? registration.waiting : null,
+              );
               check();
             }
             if (worker.state === "redundant")

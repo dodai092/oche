@@ -70,7 +70,7 @@ function BotTurnControls({
 
   if (!bot || game.status !== "playing") return null;
   const lastTurn = game.turns.at(-1);
-  const canUndo =
+  const lastIsBot =
     !!lastTurn && game.players[lastTurn.playerIndex].id === bot.playerId;
 
   function changePause(value: boolean) {
@@ -90,7 +90,7 @@ function BotTurnControls({
               ? `DartBot aiming at ${dartLabel(botTarget(game))}.`
               : "DartBot waiting for its turn."}
       </p>
-      {lastTurn && game.players[lastTurn.playerIndex].id === bot.playerId && (
+      {lastIsBot && lastTurn && (
         <p className="small muted">
           Thrown: {lastTurn.darts.map(dartLabel).join(" · ")}
           {lastTurn.bust ? " · Bust" : ""}
@@ -106,7 +106,7 @@ function BotTurnControls({
         </Button>
         <Button
           variant="ghost"
-          disabled={!canUndo || !!readOnly}
+          disabled={!lastTurn || !!readOnly}
           onClick={() => {
             changePause(true);
             const latest = useGameStore.getState();
@@ -117,7 +117,7 @@ function BotTurnControls({
               latest.undo(true);
           }}
         >
-          Undo bot turn
+          {lastIsBot ? "Undo bot turn" : "Undo my last visit"}
         </Button>
       </div>
     </section>

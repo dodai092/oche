@@ -2,6 +2,8 @@ import { describe, expect, it, vi } from "vitest";
 import {
   chooseBotDart,
   botTarget,
+  botLevelStats,
+  isBotDifficulty,
   scheduleBotDart,
   type BotDifficulty,
   type BotTurnState,
@@ -135,6 +137,41 @@ describe("bot darts", () => {
     });
     expect(averages[1]).toBeGreaterThan(averages[0] + 5);
     expect(averages[2]).toBeGreaterThan(averages[1] + 5);
+  });
+});
+
+describe("bot levels", () => {
+  function levelAverage(level: number) {
+    let points = 0,
+      darts = 0;
+    for (let seed = 1; seed <= 40; seed++) {
+      let g = createGame({ ...game().config, startScore: 501 });
+      const random = seeded(seed);
+      for (let i = 0; i < 2000 && g.status === "playing"; i++)
+        g = throwDart(g, chooseBotDart(g, level, random));
+      const stats = playerStats(g, 0);
+      points += stats.points;
+      darts += stats.darts;
+    }
+    return (points / darts) * 3;
+  }
+
+  it("validates integer levels 1-20 and the older named tiers", () => {
+    for (const ok of [1, 10, 20, "easy", "hard"])
+      expect(isBotDifficulty(ok)).toBe(true);
+    for (const bad of [0, 21, 4.5, "impossible", null])
+      expect(isBotDifficulty(bad)).toBe(false);
+  });
+
+  it("raises the three-dart average with each band and lands near the displayed range", () => {
+    const [low, mid, high, max] = [1, 10, 15, 20].map(levelAverage);
+    expect(mid).toBeGreaterThan(low + 20);
+    expect(high).toBeGreaterThan(mid + 10);
+    expect(max).toBeGreaterThan(high + 15);
+    expect(Math.abs(mid - 53)).toBeLessThan(8);
+    expect(max).toBeGreaterThan(90);
+    expect(botLevelStats(10).average).toBe("48-58");
+    expect(botLevelStats(20).average).toBe("90+");
   });
 });
 

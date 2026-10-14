@@ -58,10 +58,10 @@
   font-size: 13px;
   font-variant-numeric: tabular-nums;
 }
-.table caption {
-  padding: 14px;
-  text-align: left;
+.caption {
+  margin: 0 0 -12px;
   color: var(--muted, #929b92);
+  font-size: 13px;
 }
 .table th,
 .table td {
@@ -82,6 +82,12 @@
 .note {
   font-size: 13px;
   line-height: 1.6;
+}
+.note summary {
+  cursor: pointer;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
 }
 @media (max-width: 400px) {
   .player {

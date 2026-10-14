@@ -143,3 +143,17 @@ Physical iPhone, VoiceOver, real spoken audio and device wake behavior are not c
 Final local checks: 66 unit tests passed across nine files; full browser suite passed 65 checks with one intentional desktop skip, using desktop Chromium, mobile Chromium and mobile WebKit. The final bot-lineup constraint also passed three targeted browser checks. TypeScript, ESLint and Pages production export passed. The final export's offline/update/repair script passed in both Chromium and WebKit. No new dependencies were added.
 
 Release commit 9d0980f deployed successfully in https://github.com/dodai092/oche/actions/runs/38638051948. The published Chromium check passed scoring, completion, undo, refresh, all routes/assets and complete offline readiness. Existing local session summaries remain outside the feature commit.
+
+## Review batch: 2026-10-14
+
+Impeccable critique/audit (design 7/10, heuristics 28/40, audit 15/20). Implemented, not yet committed or published:
+
+- [x] DartBot levels 1-20 (slider with expected 3-dart average and checkout range). Spread per level calibrated by seeded 501 simulation, about 13 + 4 * level average, level 20 about 98. Named Easy/Medium/Hard saves still replay unchanged.
+- [x] Human can undo their own visit while DartBot is idle or paused.
+- [x] No "Update available" on first install.
+- [x] Leg table caption outside the scroller, methodology note behind a disclosure.
+- [x] 12px text floor, five failing grey tones raised to the muted token, 44px mobile nav and back link.
+
+Verification: 68 unit tests, 68 browser checks (one intentional skip), TypeScript and ESLint clean. Not yet verified: production export, offline script, physical iPhone.
+
+Adapt pass (same day): landscape phones (max-height 500px) use two columns, scores left and entry right, so Submit, presets and the turn strip stay in view at 844x390 and 667x375. The mobile tab strip fades its cut-off edge and scrolls the current tab into view. Uncommitted. Physical iPhone landscape not tested.

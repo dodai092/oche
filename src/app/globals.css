@@ -107,7 +107,7 @@ button {
 .eyebrow,
 .sidebar-label,
 .field-label {
-  font-size: 10px;
+  font-size: 12px;
   letter-spacing: 0.15em;
   font-weight: 600;
 }
@@ -160,8 +160,8 @@ button {
   color: var(--lime);
 }
 .sidebar-label {
-  font-size: 9px;
-  color: #727b72;
+  font-size: 12px;
+  color: #929b92;
   margin: 0 14px 17px;
 }
 .nav-item {
@@ -197,16 +197,16 @@ button {
   display: flex;
   gap: 7px;
   align-items: center;
-  font-size: 9px;
+  font-size: 12px;
   letter-spacing: 0.1em;
   color: #b4bdb2;
 }
 .local-note > span:last-child {
   margin-left: auto;
-  color: #697168;
+  color: #929b92;
 }
 .sidebar-bottom p {
-  font-size: 11px;
+  font-size: 12px;
   margin-top: 15px;
   line-height: 1.8;
 }
@@ -217,7 +217,7 @@ button {
   display: flex;
   gap: 8px;
   color: var(--muted);
-  font-size: 11px;
+  font-size: 12px;
 }
 main {
   min-width: 0;
@@ -229,7 +229,7 @@ main {
   align-items: center;
   padding: 0 38px;
   border-bottom: 1px solid var(--line);
-  font-size: 9px;
+  font-size: 12px;
   letter-spacing: 0.13em;
   color: #8a958a;
 }
@@ -238,7 +238,7 @@ main {
   align-items: center;
   gap: 8px;
   letter-spacing: 0;
-  font-size: 11px;
+  font-size: 12px;
 }
 .page-content {
   padding: 36px 38px 0;
@@ -265,7 +265,7 @@ main {
   border: 1px solid #394133;
   border-radius: 5px;
   padding: 9px 10px;
-  font-size: 8px;
+  font-size: 12px;
   letter-spacing: 0.08em;
   white-space: nowrap;
   color: #b8c1ad;
@@ -318,7 +318,7 @@ main {
 .button-sm {
   min-height: 35px;
   padding: 7px 12px;
-  font-size: 11px;
+  font-size: 12px;
 }
 .button-icon {
   width: 40px;
@@ -345,7 +345,7 @@ main {
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 9px;
+  font-size: 12px;
   letter-spacing: 0.15em;
   color: #c1d1af;
 }
@@ -372,7 +372,7 @@ main {
   display: flex;
   align-items: center;
   gap: 10px;
-  font-size: 8px;
+  font-size: 12px;
   letter-spacing: 0.1em;
   color: #a7b39a;
 }
@@ -452,7 +452,7 @@ main {
 .board-number {
   position: absolute;
   color: #a9b393;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 600;
 }
 .n20 {
@@ -519,7 +519,7 @@ main {
   position: absolute;
   bottom: 21px;
   right: 24px;
-  font-size: 8px;
+  font-size: 12px;
   letter-spacing: 0.18em;
   color: #89967c;
 }
@@ -539,7 +539,7 @@ main {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  font-size: 8px;
+  font-size: 12px;
   letter-spacing: 0.12em;
   color: #a4ada0;
   gap: 6px;
@@ -557,7 +557,7 @@ main {
   font-variant-numeric: tabular-nums;
 }
 .stat-card p {
-  font-size: 10px;
+  font-size: 12px;
   color: #858f82;
 }
 .dashboard-bottom {
@@ -579,7 +579,7 @@ main {
   gap: 9px;
 }
 .section-heading > .small {
-  font-size: 8px;
+  font-size: 12px;
   letter-spacing: 0.1em;
 }
 .mode-card {
@@ -618,7 +618,7 @@ main {
   letter-spacing: -0.02em;
 }
 .pill {
-  font-size: 7px;
+  font-size: 12px;
   letter-spacing: 0.08em;
   font-weight: 600;
   background: #2c3b20;
@@ -631,11 +631,11 @@ main {
   white-space: nowrap;
 }
 .mode-card p {
-  font-size: 11px;
+  font-size: 12px;
   margin: 6px 0;
 }
 .mode-meta {
-  font-size: 9px;
+  font-size: 12px;
   color: #7f8a79;
   display: flex;
   gap: 9px;
@@ -651,7 +651,7 @@ main {
   color: #6b7b60;
 }
 .tip p {
-  font-size: 10px;
+  font-size: 12px;
   line-height: 1.8;
 }
 .tip strong {
@@ -682,7 +682,7 @@ main {
   margin-bottom: 8px;
 }
 .empty-recent p {
-  font-size: 10px;
+  font-size: 12px;
 }
 .resume-card {
   display: block;
@@ -695,7 +695,7 @@ main {
   margin-bottom: 18px;
 }
 .resume-card > span:last-child {
-  font-size: 11px;
+  font-size: 12px;
   color: #b0c19c;
   display: flex;
   align-items: center;
@@ -708,15 +708,16 @@ main {
   display: flex;
   justify-content: space-between;
   color: #62705e;
-  font-size: 8px;
+  font-size: 12px;
   letter-spacing: 0.1em;
 }
 .back-link {
   display: inline-flex;
   align-items: center;
+  min-height: 44px;
   gap: 8px;
   color: var(--muted);
-  font-size: 11px;
+  font-size: 12px;
 }
 .setup-page > .back-link {
   margin-bottom: 27px;
@@ -737,8 +738,8 @@ main {
   padding: 25px;
 }
 .step-number {
-  font-size: 11px;
-  color: #63715c;
+  font-size: 12px;
+  color: #929b92;
 }
 .field-label {
   display: block;
@@ -806,7 +807,7 @@ main {
 .rule-options small {
   display: block;
   color: #93a087;
-  font-size: 10px;
+  font-size: 12px;
   margin-top: 5px;
   line-height: 1.5;
 }
@@ -863,7 +864,7 @@ select {
 }
 .player-input label {
   flex: 1;
-  font-size: 10px;
+  font-size: 12px;
   color: #91a085;
 }
 .player-input input {
@@ -883,7 +884,7 @@ select {
 }
 .summary-score span {
   display: block;
-  font-size: 9px;
+  font-size: 12px;
   letter-spacing: 0.16em;
   color: var(--lime);
   margin: 10px 0;
@@ -908,7 +909,7 @@ dd {
 .summary-note {
   display: flex;
   gap: 9px;
-  font-size: 10px;
+  font-size: 12px;
   margin: 22px 0;
 }
 .summary-note svg {
@@ -917,7 +918,7 @@ dd {
 }
 .match-summary > .small {
   margin-top: 15px;
-  font-size: 10px;
+  font-size: 12px;
 }
 .replace-warning {
   padding: 12px;
@@ -943,7 +944,7 @@ dd {
   display: flex;
   gap: 12px;
   align-items: center;
-  font-size: 9px;
+  font-size: 12px;
   letter-spacing: 0.08em;
   color: #899780;
 }
@@ -976,7 +977,7 @@ dd {
   min-width: 0;
 }
 .throwing-badge {
-  font-size: 7px;
+  font-size: 12px;
   color: var(--lime);
   letter-spacing: 0.08em;
   margin-left: auto;
@@ -1001,7 +1002,7 @@ dd {
   font-variant-numeric: tabular-nums;
 }
 .score-sub small {
-  font-size: 8px;
+  font-size: 12px;
   color: #94a087;
   letter-spacing: 0.07em;
   margin-left: 5px;
@@ -1036,11 +1037,11 @@ dd {
   font-weight: 400;
 }
 .scoring-panel .eyebrow {
-  font-size: 8px;
+  font-size: 12px;
   margin-bottom: 6px;
 }
 .darts-left {
-  font-size: 8px;
+  font-size: 12px;
   letter-spacing: 0.08em;
   color: #91a281;
 }
@@ -1070,7 +1071,7 @@ dd {
 }
 .dart-slot > span,
 .visit-total > span {
-  font-size: 7px;
+  font-size: 12px;
   letter-spacing: 0.1em;
   color: #7d8b72;
 }
@@ -1144,7 +1145,7 @@ dd {
   position: absolute;
   top: 5px;
   left: 7px;
-  font-size: 8px;
+  font-size: 12px;
   color: #9fb487;
 }
 .bull-row {
@@ -1162,7 +1163,7 @@ dd {
   border: 1px solid #3a4531;
   border-radius: 5px;
   background: #232c1d;
-  font-size: 8px;
+  font-size: 12px;
   letter-spacing: 0.04em;
 }
 .bull-row button > span {
@@ -1186,13 +1187,13 @@ dd {
   gap: 5px;
 }
 .scoring-actions .button {
-  font-size: 10px;
+  font-size: 12px;
   padding: 9px 10px;
   gap: 7px;
   min-height: 40px;
 }
 .keypad-hint {
-  font-size: 9px;
+  font-size: 12px;
   margin-top: 16px;
   color: #7b8871;
 }
@@ -1202,7 +1203,7 @@ dd {
   gap: 16px;
 }
 .checkout-panel .eyebrow {
-  font-size: 9px;
+  font-size: 12px;
   margin: 24px 0 14px;
 }
 .checkout-route {
@@ -1222,7 +1223,7 @@ dd {
   color: #667759;
 }
 .checkout-panel p {
-  font-size: 11px;
+  font-size: 12px;
   margin-top: 15px;
 }
 .no-checkout > svg {
@@ -1241,7 +1242,7 @@ dd {
   border-radius: 7px;
   padding: 15px;
   color: #9db18a;
-  font-size: 10px;
+  font-size: 12px;
 }
 .match-notice strong {
   display: block;
@@ -1291,13 +1292,13 @@ dd {
   flex: 1;
 }
 .visit-row > div strong {
-  font-size: 10px;
+  font-size: 12px;
   display: block;
   overflow-wrap: anywhere;
 }
 .visit-row small {
   display: block;
-  font-size: 9px;
+  font-size: 12px;
   color: #7e8d72;
   margin-top: 4px;
 }
@@ -1312,7 +1313,7 @@ dd {
 }
 .visit-row .bust-text {
   color: #eeb58b !important;
-  font-size: 9px;
+  font-size: 12px;
 }
 .completion {
   max-width: 850px;
@@ -1359,12 +1360,12 @@ dd {
   font-variant-numeric: tabular-nums;
 }
 .completion-stats small {
-  font-size: 8px;
+  font-size: 12px;
   color: #99ab87;
   letter-spacing: 0.1em;
 }
 .completion-stats p {
-  font-size: 10px;
+  font-size: 12px;
   margin-top: 12px;
 }
 .action-row {
@@ -1432,7 +1433,7 @@ dd {
   margin-bottom: 20px;
 }
 .filter-bar label {
-  font-size: 10px;
+  font-size: 12px;
   letter-spacing: 0.1em;
   color: var(--muted);
 }
@@ -1455,7 +1456,7 @@ table {
 }
 th {
   text-align: left;
-  font-size: 9px;
+  font-size: 12px;
   letter-spacing: 0.08em;
   color: #8f9c84;
   text-transform: uppercase;
@@ -1496,7 +1497,7 @@ td {
 }
 .setting-toggle small {
   display: block;
-  font-size: 10px;
+  font-size: 12px;
   color: var(--muted);
   margin-top: 7px;
 }
@@ -1528,7 +1529,7 @@ td {
 }
 .history-record summary small {
   display: block;
-  font-size: 10px;
+  font-size: 12px;
   margin-top: 7px;
   color: var(--muted);
 }
@@ -1604,7 +1605,7 @@ td {
     margin-top: 26px;
   }
   .hero-meta {
-    font-size: 9px;
+    font-size: 12px;
   }
 }
 @media (max-width: 1100px) {
@@ -1654,7 +1655,7 @@ td {
   }
   .hero-meta {
     gap: 7px;
-    font-size: 7px;
+    font-size: 12px;
   }
   .hero h2 {
     font-size: 45px;
@@ -1666,10 +1667,10 @@ td {
     padding: 16px 12px;
   }
   .stat-top {
-    font-size: 7px;
+    font-size: 12px;
   }
   .stat-card p {
-    font-size: 9px;
+    font-size: 12px;
   }
   .dashboard-bottom {
     grid-template-columns: 1fr;
@@ -1770,15 +1771,17 @@ td {
     display: flex;
     gap: 5px;
     overflow-x: auto;
-    padding: 0 0 9px;
+    padding: 0 28px 9px 0;
     border-bottom: 1px solid var(--line);
     scrollbar-width: none;
+    /* Fade the cut-off edge so hidden tabs read as scrollable. */
+    mask-image: linear-gradient(to right, #000 calc(100% - 28px), transparent);
   }
   .nav-item {
-    min-height: 39px;
+    min-height: 44px;
     padding: 0 12px;
     gap: 7px;
-    font-size: 11px;
+    font-size: 12px;
     white-space: nowrap;
     flex-shrink: 0;
     margin: 0;
@@ -1793,10 +1796,10 @@ td {
     height: 44px;
     border-bottom: 0;
     padding: 0 20px;
-    font-size: 7px;
+    font-size: 12px;
   }
   .topbar > div {
-    font-size: 9px;
+    font-size: 12px;
   }
   .page-content {
     padding: 19px 20px 0;
@@ -1805,7 +1808,7 @@ td {
     margin-bottom: 24px;
   }
   .eyebrow {
-    font-size: 8px;
+    font-size: 12px;
   }
   h1 {
     font-size: 31px;
@@ -1824,7 +1827,7 @@ td {
     width: calc(100% + 30px);
   }
   .hero-kicker {
-    font-size: 7px;
+    font-size: 12px;
     gap: 6px;
   }
   .tiny-line {
@@ -1835,7 +1838,7 @@ td {
     margin-top: 23px;
   }
   .hero p {
-    font-size: 11px;
+    font-size: 12px;
     max-width: 235px;
   }
   .hero-art {
@@ -1868,7 +1871,7 @@ td {
     margin: 22px 0;
   }
   .hero-meta {
-    font-size: 6px;
+    font-size: 12px;
     gap: 7px;
     white-space: nowrap;
   }
@@ -1884,20 +1887,20 @@ td {
     padding: 17px;
   }
   .stat-top {
-    font-size: 8px;
+    font-size: 12px;
   }
   .stat-card > strong {
     font-size: 32px;
     margin-top: 13px;
   }
   .stat-card p {
-    font-size: 9px;
+    font-size: 12px;
   }
   .section-heading h2 {
     font-size: 17px;
   }
   .section-heading > .small {
-    font-size: 7px;
+    font-size: 12px;
   }
   .mode-card {
     padding: 19px 15px;
@@ -1915,18 +1918,18 @@ td {
     gap: 8px;
   }
   .mode-title .pill {
-    font-size: 6px;
+    font-size: 12px;
     padding: 4px;
   }
   .mode-card p {
-    font-size: 10px;
+    font-size: 12px;
     line-height: 1.6;
   }
   .mode-card > svg {
     width: 17px;
   }
   .mode-meta {
-    font-size: 7px;
+    font-size: 12px;
     gap: 6px;
     flex-wrap: wrap;
   }
@@ -1934,7 +1937,7 @@ td {
     margin-top: 16px;
   }
   .tip p {
-    font-size: 9px;
+    font-size: 12px;
   }
   .dashboard-bottom {
     gap: 21px;
@@ -1950,7 +1953,7 @@ td {
     margin-bottom: 7px;
   }
   .page-foot {
-    font-size: 6px;
+    font-size: 12px;
     gap: 15px;
     line-height: 1.8;
     margin-top: 24px;
@@ -1958,8 +1961,8 @@ td {
   .mobile-footer {
     display: block;
     text-align: center;
-    color: #5b6c52;
-    font-size: 7px;
+    color: #929b92;
+    font-size: 12px;
     letter-spacing: 0.2em;
     padding: 12px 0 25px;
   }
@@ -1977,16 +1980,16 @@ td {
     gap: 7px;
   }
   .rule-options small {
-    font-size: 9px;
+    font-size: 12px;
   }
   .rule-options strong {
-    font-size: 11px;
+    font-size: 12px;
   }
   .two-fields {
     gap: 12px;
   }
   .field-label {
-    font-size: 8px;
+    font-size: 12px;
     letter-spacing: 0.1em;
   }
   .summary-score {
@@ -1998,12 +2001,12 @@ td {
     margin-bottom: 18px;
   }
   .match-tags {
-    font-size: 8px;
+    font-size: 12px;
     gap: 8px;
     margin-left: auto;
   }
   .match-heading > .small {
-    font-size: 8px;
+    font-size: 12px;
     width: 100%;
     text-align: center;
   }
@@ -2021,14 +2024,14 @@ td {
   .player-score-head .avatar {
     width: 26px;
     height: 26px;
-    font-size: 10px;
+    font-size: 12px;
   }
   .player-score-head h2 {
     font-size: 12px;
     flex: 1;
   }
   .throwing-badge {
-    font-size: 6px;
+    font-size: 12px;
     width: 100%;
     height: 9px;
     order: 3;
@@ -2049,7 +2052,7 @@ td {
   }
   .score-sub small {
     display: block;
-    font-size: 7px;
+    font-size: 12px;
     margin: 3px 0 0;
   }
   .score-progress {
@@ -2065,7 +2068,7 @@ td {
     font-size: 17px;
   }
   .darts-left {
-    font-size: 7px;
+    font-size: 12px;
   }
   .visit-display {
     margin-top: 20px;
@@ -2087,7 +2090,7 @@ td {
     font-size: 21px;
   }
   .multiplier-options button {
-    font-size: 11px;
+    font-size: 12px;
     padding: 10px;
     gap: 8px;
   }
@@ -2102,7 +2105,7 @@ td {
     gap: 6px;
   }
   .bull-row button {
-    font-size: 7px;
+    font-size: 12px;
     gap: 5px;
     min-height: 48px;
   }
@@ -2118,7 +2121,7 @@ td {
     margin-top: 20px;
   }
   .scoring-actions .button {
-    font-size: 9px;
+    font-size: 12px;
     gap: 5px;
     padding: 9px 8px;
   }
@@ -2126,7 +2129,7 @@ td {
     width: 14px;
   }
   .keypad-hint {
-    font-size: 8px;
+    font-size: 12px;
   }
   .match-aside {
     display: flex;
@@ -2144,7 +2147,7 @@ td {
     font-size: 14px;
   }
   .no-checkout p {
-    font-size: 10px;
+    font-size: 12px;
     margin-top: 8px;
   }
   .checkout-route > span {
@@ -2167,13 +2170,13 @@ td {
     padding: 15px 10px;
   }
   .completion-stats p {
-    font-size: 9px;
+    font-size: 12px;
   }
   .completion-stats strong {
     font-size: 34px;
   }
   .completion .button {
-    font-size: 11px;
+    font-size: 12px;
   }
   .profiles-grid {
     grid-template-columns: 1fr 1fr;
@@ -2186,10 +2189,10 @@ td {
     font-size: 18px;
   }
   .profile-card p {
-    font-size: 10px;
+    font-size: 12px;
   }
   .profile-card .button {
-    font-size: 9px;
+    font-size: 12px;
     padding: 8px 0;
   }
   .add-player-form {
@@ -2210,7 +2213,7 @@ td {
     flex-wrap: wrap;
   }
   .history-record summary > .outline-tag {
-    font-size: 7px;
+    font-size: 12px;
     order: 4;
     margin-left: 0;
   }
@@ -2218,7 +2221,7 @@ td {
     font-size: 12px;
   }
   .history-record summary small {
-    font-size: 9px;
+    font-size: 12px;
   }
   .history-record summary > svg {
     width: 16px;
@@ -2232,7 +2235,7 @@ td {
   }
   .error-banner {
     margin: 15px 20px 0;
-    font-size: 11px;
+    font-size: 12px;
   }
   .empty-state {
     padding: 45px 20px;
@@ -2302,7 +2305,7 @@ td {
 .visit-details {
   margin: 16px 0 20px;
   color: var(--muted);
-  font-size: 11px;
+  font-size: 12px;
 }
 .visit-details summary {
   display: flex;
@@ -2323,14 +2326,14 @@ td {
 }
 .visit-details summary > span {
   margin-left: auto;
-  font-size: 10px;
+  font-size: 12px;
   color: #a0b08f;
 }
 .visit-details .field-label {
   margin: 10px 0;
 }
 .visit-details .small {
-  font-size: 10px;
+  font-size: 12px;
 }
 .total-keypad {
   display: grid;
@@ -2381,7 +2384,7 @@ td {
   margin-top: 15px;
 }
 .finish-confirmation p {
-  font-size: 11px;
+  font-size: 12px;
   margin-top: 10px;
 }
 .finish-confirmation .action-row {
@@ -2390,7 +2393,7 @@ td {
   gap: 8px;
 }
 .finish-confirmation .button {
-  font-size: 11px;
+  font-size: 12px;
   padding: 10px 13px;
 }
 .visit-entry .keypad-hint {
@@ -2410,24 +2413,24 @@ td {
   }
   .score-entry-row > .button {
     padding: 10px 14px;
-    font-size: 11px;
+    font-size: 12px;
     gap: 7px;
   }
   .score-entry-row .button svg {
     width: 14px;
   }
   .entry-mode button {
-    font-size: 11px;
+    font-size: 12px;
   }
   .total-keypad button {
     min-height: 69px;
     font-size: 29px;
   }
   .visit-details summary {
-    font-size: 10px;
+    font-size: 12px;
   }
   .visit-details summary > span {
-    font-size: 9px;
+    font-size: 12px;
   }
   .finish-confirmation {
     padding: 15px;
@@ -2436,11 +2439,11 @@ td {
     font-size: 16px;
   }
   .total-actions .button {
-    font-size: 10px;
+    font-size: 12px;
     min-height: 44px;
   }
   .visit-entry .keypad-hint {
-    font-size: 9px;
+    font-size: 12px;
   }
 }
 
@@ -2510,7 +2513,7 @@ select {
   letter-spacing: -0.02em;
 }
 .throwing-badge {
-  font-size: 11px;
+  font-size: 12px;
   letter-spacing: 0.03em;
 }
 .score-sub {
@@ -2651,7 +2654,7 @@ select {
   color: #c4cebb;
 }
 .visit-details summary > span {
-  font-size: 11px;
+  font-size: 12px;
   letter-spacing: 0;
 }
 .visit-details summary:before {
@@ -2809,7 +2812,7 @@ select {
     text-overflow: ellipsis;
   }
   .match-page .throwing-badge {
-    font-size: 10px;
+    font-size: 12px;
     width: auto;
     order: 0;
     height: auto;
@@ -2919,7 +2922,7 @@ select {
     gap: 5px;
   }
   .visit-details summary > span {
-    font-size: 11px;
+    font-size: 12px;
   }
   .visit-entry .keypad-hint {
     display: none;
@@ -2948,7 +2951,7 @@ select {
   }
   .dart-slot > span,
   .visit-total > span {
-    font-size: 11px;
+    font-size: 12px;
   }
   .dart-slot strong {
     font-size: 20px;
@@ -2972,14 +2975,14 @@ select {
     font-size: 24px;
   }
   .hit-multiplier {
-    font-size: 10px;
+    font-size: 12px;
   }
   .bull-row {
     margin-top: 6px;
   }
   .bull-row button {
     min-height: 44px;
-    font-size: 11px;
+    font-size: 12px;
   }
   .bull-row button > span {
     font-size: 16px;
@@ -3020,7 +3023,7 @@ select {
     font-size: 12px;
   }
   .stat-top {
-    font-size: 11px;
+    font-size: 12px;
   }
 }
 @media (max-width: 360px) {
@@ -3187,4 +3190,81 @@ fieldset.scoring-panel[hidden] {
   .match-page .big-score {
     font-size: 48px;
   }
+  /* Scores left, entry right, so Submit never falls below the fold. */
+  .match-page {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-rows: auto auto 1fr;
+    column-gap: 16px;
+    align-content: start;
+  }
+  .match-page > .match-heading {
+    grid-column: 1 / -1;
+  }
+  .match-page > .scoreboard {
+    grid-column: 1;
+    align-self: start;
+    margin-bottom: 8px;
+    gap: 8px;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+  .match-page > .turn-feedback {
+    grid-column: 1;
+    align-self: start;
+    margin-bottom: 0;
+  }
+  .match-page > .live-grid {
+    grid-column: 2;
+    grid-row: 2 / span 2;
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .match-page .desktop-match-details,
+  .match-page .throwing-badge {
+    display: none;
+  }
+  .match-page .player-score {
+    padding: 10px 12px 0;
+  }
+  .match-page .player-score-head h2 {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+.bot-level {
+  grid-column: 1 / -1;
+  gap: 0.5rem;
+}
+.bot-level-stats dd {
+  white-space: nowrap;
+}
+.bot-level label {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+.bot-level label strong {
+  color: var(--lime);
+  font-variant-numeric: tabular-nums;
+}
+.bot-level input[type="range"] {
+  width: 100%;
+  min-height: 44px;
+  accent-color: var(--lime);
+}
+.bot-level-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+  margin: 0;
+}
+.bot-level-stats dt {
+  color: var(--muted);
+  font-size: 12px;
+}
+.bot-level-stats dd {
+  margin: 0;
+  font-variant-numeric: tabular-nums;
 }

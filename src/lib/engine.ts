@@ -5,7 +5,7 @@ export type MatchConfig = {
   legsToWin: number;
   setsToWin: number;
   players: { id: string; name: string }[];
-  bot?: { playerId: string; difficulty: "easy" | "medium" | "hard" };
+  bot?: { playerId: string; difficulty: "easy" | "medium" | "hard" | number };
 };
 export type VisitOptions = {
   dartsUsed?: number;
@@ -80,7 +80,12 @@ export function createGame(config: MatchConfig): GameState {
     new Set(config.players.map((p) => p.id)).size !== config.players.length ||
     (config.bot !== undefined &&
       (!config.bot || !config.players.some((p) => p.id === config.bot?.playerId) ||
-        !["easy", "medium", "hard"].includes(config.bot.difficulty)))
+        !(
+          ["easy", "medium", "hard"].includes(config.bot.difficulty as string) ||
+          (Number.isInteger(config.bot.difficulty) &&
+            (config.bot.difficulty as number) >= 1 &&
+            (config.bot.difficulty as number) <= 20)
+        )))
   ) {
     throw new RangeError("Invalid match configuration");
   }

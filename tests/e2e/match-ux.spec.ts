@@ -93,3 +93,15 @@ test("rematch reuses players and settings, and undo restores a bust visibly", as
   await page.goto("/history");
   await expect(page.getByText("Alice wins", { exact: true })).toBeVisible();
 });
+
+test("landscape phone keeps scores and Submit in view, and the nav strip shows the current tab", async ({ page }) => {
+  await page.setViewportSize({ width: 844, height: 390 });
+  await page.goto("/new");
+  await page.getByRole("button", { name: "Start match", exact: true }).click();
+  const submit = await page.getByRole("button", { name: "Submit score", exact: true }).boundingBox();
+  expect(submit!.y + submit!.height).toBeLessThanOrEqual(390);
+  await expect(page.getByTestId("score-0")).toBeInViewport();
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/settings");
+  await expect(page.getByRole("link", { name: "Settings", exact: true }).first()).toBeInViewport();
+});

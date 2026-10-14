@@ -14,6 +14,12 @@ import {
 } from "lucide-react";
 import { Button } from "./ui/button";
 import { resolvePlayers } from "@/lib/setup";
+import {
+  BOT_LEVELS,
+  DEFAULT_BOT_LEVEL,
+  botLabel,
+  botLevelStats,
+} from "@/lib/bot";
 import { useGameStore } from "@/lib/store";
 export function MatchSetup() {
   const { settings, profiles, current, start, readOnly } = useGameStore();
@@ -26,9 +32,7 @@ export function MatchSetup() {
   const [validationError, setValidationError] = useState<string | null>(null);
   const [replace, setReplace] = useState(false);
   const [opponent, setOpponent] = useState("local");
-  const [difficulty, setDifficulty] = useState<"easy" | "medium" | "hard">(
-    "medium",
-  );
+  const [difficulty, setDifficulty] = useState(DEFAULT_BOT_LEVEL);
   const router = useRouter();
   function begin() {
     let players;
@@ -179,7 +183,7 @@ export function MatchSetup() {
                   <div>
                     <strong>DartBot</strong>
                     <p className="small muted">
-                      {difficulty} difficulty. Throws actual darts
+                      {botLabel(difficulty)}. Throws actual darts
                       automatically.
                     </p>
                   </div>
@@ -266,20 +270,34 @@ export function MatchSetup() {
                 </select>
               </label>
               {opponent === "bot" && (
-                <label className="field-label">
-                  Bot difficulty
-                  <select
-                    aria-label="Bot difficulty"
+                <div className="field-label bot-level">
+                  <label htmlFor="bot-level">
+                    Bot difficulty
+                    <strong>
+                      {difficulty === BOT_LEVELS ? "Level 20 (max)" : `Level ${difficulty}`}
+                    </strong>
+                  </label>
+                  <input
+                    id="bot-level"
+                    type="range"
+                    min={1}
+                    max={BOT_LEVELS}
+                    step={1}
                     value={difficulty}
-                    onChange={(e) =>
-                      setDifficulty(e.target.value as typeof difficulty)
-                    }
-                  >
-                    <option value="easy">Easy</option>
-                    <option value="medium">Medium</option>
-                    <option value="hard">Hard</option>
-                  </select>
-                </label>
+                    aria-valuetext={`Level ${difficulty}, three-dart average ${botLevelStats(difficulty).average}`}
+                    onChange={(e) => setDifficulty(Number(e.target.value))}
+                  />
+                  <dl className="bot-level-stats">
+                    <div>
+                      <dt>3-dart average</dt>
+                      <dd>{botLevelStats(difficulty).average}</dd>
+                    </div>
+                    <div>
+                      <dt>Checkout</dt>
+                      <dd>{botLevelStats(difficulty).checkout}</dd>
+                    </div>
+                  </dl>
+                </div>
               )}
             </div>
             {names.length < 4 && (

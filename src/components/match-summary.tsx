@@ -56,17 +56,18 @@ export function MatchSummary({ game }: { game: GameState }) {
       {!summary.legs.length ? (
         <p>No visits recorded yet.</p>
       ) : (
+        <p className={styles.caption}>
+          Leg-by-leg results. Darts and averages use statistical dart counts.
+        </p>
+      )}
+      {summary.legs.length > 0 && (
         <div
           className={styles.tableScroll}
           role="region"
           aria-label="Leg results"
           tabIndex={0}
         >
-          <table className={styles.table}>
-            <caption>
-              Leg-by-leg results. Darts and averages use statistical dart
-              counts.
-            </caption>
+          <table className={styles.table} aria-label="Leg-by-leg results">
             <thead>
               <tr>
                 <th scope="col">Set / leg</th>
@@ -106,7 +107,9 @@ export function MatchSummary({ game }: { game: GameState }) {
           </table>
         </div>
       )}
-      <p className={styles.note}>
+      <details className={styles.note}>
+        <summary>How these are calculated</summary>
+        <p>
         Busts score zero and count as three statistical darts. Other visits use
         the recorded dart count, including partial visits. Checkout totals cover
         the whole winning visit. Dart-entry attempts count darts thrown from a
@@ -114,7 +117,8 @@ export function MatchSummary({ game }: { game: GameState }) {
         player-reported; their segments are unknown. First-nine is unavailable
         when a typed total crosses dart nine and its points cannot be split.
         Best legs include completed wins only.
-      </p>
+        </p>
+      </details>
     </section>
   );
 }

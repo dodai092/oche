@@ -61,6 +61,12 @@ export function OcheApp({ screen }: { screen: Screen }) {
     startTabSession();
     return () => window.removeEventListener("oche-storage-error", storageError);
   }, []);
+  useEffect(() => {
+    // The mobile tab strip scrolls sideways; bring the current tab into view.
+    document
+      .querySelector(".nav-item.active")
+      ?.scrollIntoView({ inline: "center", block: "nearest" });
+  }, [screen]);
   return (
     <>
       <div className={`app-shell ${screen === "match" ? "match-shell" : ""}`}>

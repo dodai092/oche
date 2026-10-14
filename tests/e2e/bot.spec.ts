@@ -3,7 +3,8 @@ test("DartBot throws legal individual darts, pauses and safely undoes its turn",
   await page.goto("/new");
   await page.getByLabel("Player 2 name").fill("");
   await page.getByLabel("Opponent",{exact:true}).selectOption("bot");
-  await page.getByLabel("Bot difficulty").selectOption("hard");
+  await page.getByLabel("Bot difficulty").fill("15");
+  await expect(page.getByText("68-78")).toBeVisible();
   await expect(page.getByRole("button",{name:"Remove player 1",exact:true})).toHaveCount(0);
   await page.getByRole("button",{name:"Start match",exact:true}).click();
   await page.getByRole("button",{name:"Score 60",exact:true}).click();
@@ -14,7 +15,7 @@ test("DartBot throws legal individual darts, pauses and safely undoes its turn",
   await expect(controls.getByText(/^Thrown:/)).toBeVisible();
   await controls.getByRole("button",{name:"Pause DartBot"}).click();
   const saved = await page.evaluate(() => JSON.parse(localStorage.getItem("oche-v1")!).state.current.game);
-  expect(saved.config.bot.difficulty).toBe("hard");
+  expect(saved.config.bot.difficulty).toBe(15);
   expect(saved.events.slice(1).every((e:{type:string}) => e.type === "dart")).toBe(true);
   await controls.getByRole("button",{name:"Undo bot turn"}).click();
   await expect(page.getByTestId("score-1")).toHaveText("501");
@@ -23,6 +24,20 @@ test("DartBot throws legal individual darts, pauses and safely undoes its turn",
   await expect(page.getByTestId("active-player")).toHaveText("Player 1 to throw");
   await page.reload();
   const config = await page.evaluate(() => JSON.parse(localStorage.getItem("oche-v1")!).state.current.game.config);
-  expect(config.bot.difficulty).toBe("hard");
+  expect(config.bot.difficulty).toBe(15);
   await expect(page.getByTestId("score-0")).toHaveText("441");
+});
+
+test("the human can undo their own visit while DartBot is paused", async ({page}) => {
+  await page.goto("/new");
+  await page.getByLabel("Player 2 name").fill("");
+  await page.getByLabel("Opponent",{exact:true}).selectOption("bot");
+  await page.getByRole("button",{name:"Start match",exact:true}).click();
+  await page.getByRole("button",{name:"Score 180",exact:true}).click();
+  await page.getByRole("button",{name:"Submit score",exact:true}).click();
+  const controls = page.getByRole("region",{name:"DartBot controls"});
+  await controls.getByRole("button",{name:"Pause DartBot"}).click();
+  await controls.getByRole("button",{name:"Undo my last visit"}).click();
+  await expect(page.getByTestId("score-0")).toHaveText("501");
+  await expect(page.getByTestId("active-player")).toHaveText("Player 1 to throw");
 });

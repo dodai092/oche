@@ -1,20 +1,57 @@
 import { checkoutSuggestions, type Dart, type GameState } from "./engine";
 
-export type BotDifficulty = "easy" | "medium" | "hard";
+/** Levels 1-20; the named tiers stay valid so older saves replay unchanged. */
+export type BotDifficulty = "easy" | "medium" | "hard" | number;
+
+export const BOT_LEVELS = 20;
+export const DEFAULT_BOT_LEVEL = 10;
 
 export function isBotDifficulty(value: unknown): value is BotDifficulty {
-  return value === "easy" || value === "medium" || value === "hard";
+  return (
+    value === "easy" ||
+    value === "medium" ||
+    value === "hard" ||
+    (Number.isInteger(value) &&
+      (value as number) >= 1 &&
+      (value as number) <= BOT_LEVELS)
+  );
 }
 
 /** Clockwise board order, starting at twelve o'clock. Dimensions are in mm. */
 const sectors = [
   20, 1, 18, 4, 13, 6, 10, 15, 2, 17, 3, 19, 7, 16, 8, 11, 14, 9, 12, 5,
 ];
-const spread: Record<BotDifficulty, number> = {
-  easy: 40,
-  medium: 26,
-  hard: 15,
-};
+const tierSpread = { easy: 40, medium: 26, hard: 15 };
+/** Aim error (mm) per level 1-20, calibrated so the 501 three-dart average is
+ * about 13 + 4 * level (level 20 about 98), measured over seeded simulations. */
+const levelSpread = [
+  41.3, 32.7, 28.3, 25.5, 23.2, 20.6, 18.5, 17.4, 15.6, 14.3, 13.4, 12.1, 11.3,
+  10.9, 9.8, 9.2, 8.7, 8.2, 7, 6.2,
+];
+/** Measured 501 double-out checkout percentage per level, for display. */
+const levelCheckout = [
+  4, 5, 7, 8, 11, 13, 14, 17, 19, 20, 22, 23, 26, 30, 31, 31, 33, 39, 38, 47,
+];
+
+function botSpread(difficulty: BotDifficulty) {
+  return typeof difficulty === "number"
+    ? levelSpread[difficulty - 1]
+    : tierSpread[difficulty];
+}
+
+/** Expected statistics shown beside the level slider. */
+export function botLevelStats(level: number) {
+  const average = 13 + 4 * level;
+  const checkout = levelCheckout[level - 1];
+  return {
+    average: level === BOT_LEVELS ? "90+" : `${average - 5}-${average + 5}`,
+    checkout: `${Math.max(0, checkout - 8)}-${checkout + 8}%`,
+  };
+}
+
+export function botLabel(difficulty: BotDifficulty) {
+  return typeof difficulty === "number" ? `Level ${difficulty}` : difficulty;
+}
 
 export function botTarget(game: GameState): Dart {
   const score = game.players[game.activePlayer].score;
@@ -53,7 +90,9 @@ export function chooseBotDart(
           ? 166
           : 130;
   const angle = (sectors.indexOf(target.value) * Math.PI) / 10;
-  const error = spread[difficulty] * Math.sqrt(-2 * Math.log(1 - rng()));
+  const error =
+    botSpread(difficulty) *
+    Math.sqrt(-2 * Math.log(1 - rng()));
   const direction = rng() * Math.PI * 2;
   const x = radius * Math.sin(angle) + error * Math.cos(direction);
   const y = radius * Math.cos(angle) + error * Math.sin(direction);
