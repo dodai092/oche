@@ -11,12 +11,14 @@ try {
   });
   const errors = [];
   const failed = [];
+
   page.on("pageerror", (e) => errors.push(e.message));
   page.on("response", (r) => {
     if (new URL(r.url()).origin === root.origin && r.status() >= 400)
       failed.push(`${r.status()} ${r.url()}`);
   });
-  await page.goto(root.href, { waitUntil: "networkidle" });
+  // Next prefetch traffic may remain active; assert rendered UI and real interactions instead.
+  await page.goto(root.href, { waitUntil: "domcontentloaded" });
   await page.getByRole("heading", { name: "A good day for darts." }).waitFor();
   assert.equal(await page.getByAltText("Dodai").count(), 0);
   await page.getByRole("link", { name: "Start a match", exact: true }).click();
@@ -29,7 +31,7 @@ try {
   }
   await score(180);
   await page.getByTestId("score-0").filter({ hasText: "321" }).waitFor();
-  await page.reload({ waitUntil: "networkidle" });
+  await page.reload({ waitUntil: "domcontentloaded" });
   await page.getByTestId("score-0").filter({ hasText: "321" }).waitFor();
   await score(0);
   await score(180);
@@ -37,7 +39,7 @@ try {
   await score(141);
   await page.getByRole("button", { name: "Confirm double-out" }).click();
   await page.getByRole("heading", { name: "Player 1 wins!" }).waitFor();
-  await page.reload({ waitUntil: "networkidle" });
+  await page.reload({ waitUntil: "domcontentloaded" });
   await page.getByRole("heading", { name: "Player 1 wins!" }).waitFor();
   await page.getByRole("button", { name: "Undo winning score" }).click();
   await page.getByTestId("score-0").filter({ hasText: "141" }).waitFor();
@@ -50,7 +52,7 @@ try {
     "settings/",
   ]) {
     const response = await page.goto(new URL(path, root).href, {
-      waitUntil: "networkidle",
+      waitUntil: "domcontentloaded",
     });
     assert.equal(response.status(), 200, path);
     await page.locator("h1,h2").first().waitFor();

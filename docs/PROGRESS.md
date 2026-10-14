@@ -50,7 +50,7 @@ cd /Users/antunzebec/Work/Private/oche
 npm run dev
 ```
 
-Dependencies are installed. `npm ci` reproduces the pinned install on a fresh checkout. No deployment, push, merge or global MCP configuration change was performed. Git was initialized for this project; files remain uncommitted for review.
+Dependencies are installed. `npm ci` reproduces the pinned install on a fresh checkout. This initial milestone preceded publication. The app is now committed and published as recorded in the deployment section. No global MCP configuration was changed.
 
 ## Known observations
 
@@ -84,9 +84,17 @@ Typed-entry verification complete: 39 unit tests, 26 desktop/mobile Chromium che
 - [x] Add static screen generation and optional Pages export with /oche base path.
 - [x] Add GitHub Actions build, checks and Pages deployment workflow.
 - [x] Verify the exported site under /oche, including refresh and scoring (Chromium and WebKit).
-- [ ] Create repository, push and enable GitHub Pages.
-- [ ] Verify the published mobile site.
+- [x] Create repository, push and enable GitHub Pages.
+- [x] Verify the published mobile site in Chromium; record the public WebKit connection limitation.
 
 User explicitly authorized GitHub push and GitHub Pages publication. Target repository is public dodai092/oche. Raw research cache, local match data, dependencies and build outputs are excluded.
 
 Pages pre-push verification: all routes exported, 39 unit tests passed, lint passed, and mobile Chromium/WebKit checks completed a 501 match, undo, refresh and direct-route/asset checks. Public repository and Pages workflow source are configured; publishing verification follows the push.
+
+Published site: https://dodai092.github.io/oche/
+
+Repository: https://github.com/dodai092/oche
+
+Deployment run: https://github.com/dodai092/oche/actions/runs/38629214472, successful build and Pages deployment from app commit 2fe7b67. Public HTTP returned 200. The live mobile Chromium check passed scoring, completion, undo, refresh, every screen and asset checks. WebKit passed the same local static export but could not complete the public-site connection, reporting "The network connection was lost" on retry, including after the user's request to ask for access again. No physical iPhone test is claimed.
+
+A fresh explicit WebKit access request was approved after the initial retries. The public WebKit test still returned the same network-connection error after approval, so it is not reported as a permission denial or a passing test.

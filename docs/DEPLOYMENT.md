@@ -42,3 +42,11 @@ Scores use browser-local storage on the published HTTPS origin. They do not sync
 
 - https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages
 - Next.js version-matched static export and basePath documentation in node_modules/next/dist/docs/.
+
+## Published verification result
+
+GitHub Actions run 38629214472 completed successfully. The public site returns HTTP 200 and passed scripts/verify-pages.mjs in mobile Chromium, including a full match, completion undo, refresh and all direct routes/assets. Both Chromium and WebKit passed the local static export under /oche/.
+
+The public WebKit check did not pass: the test browser reported "The network connection was lost", including on an explicitly requested access retry. This is recorded separately from the successful local WebKit and live Chromium checks. Physical iPhone verification remains for the user.
+
+A fresh explicit WebKit access request was approved after the initial retries. The public WebKit test still returned the same network-connection error after approval, so it is not reported as a permission denial or a passing test.
