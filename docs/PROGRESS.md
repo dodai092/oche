@@ -110,8 +110,12 @@ User authorized implementing the five review priorities. Preserve the original c
 - [x] Provide one active mobile keyboard and common-score presets.
 - [x] Show immediate last-score, turn and bust feedback with visible undo.
 - [x] Test rematch, profile selection, both entry modes, storage compatibility and mobile layout.
-- [ ] Publish verified changes to GitHub Pages.
+- [x] Publish verified changes to GitHub Pages.
 
 Work ledger: parent implements live layout, feedback, preferences and rematch; parallel saved-player picker task completed and reviewed. Review fixes reset Guest selection to a guest name and accept trailing-slash URLs in tests. No additional task dispatch is required.
 
 Verification: 43 unit tests passed; 33 desktop/mobile browser tests passed with one intentional desktop skip for the mobile-only layout case. TypeScript and ESLint passed with no errors or warnings. Pages production export passed. Updated desktop and mobile scoring screenshots were inspected. Mobile tests cover control bounds, keyboard exclusivity, presets, persisted preferences and the details drawer. The exported site passed mobile Chromium scoring, completion, undo, refresh, routes and asset checks.
+
+WebKit export verification passed on retry. Its first run completed gameplay but reported an access-control error for a Next route-data request during navigation. The unchanged retry passed all assertions; this intermittent navigation error remains recorded rather than being treated as a code fix or physical Safari verification.
+
+Published app commit d00c9a3. GitHub Pages run https://github.com/dodai092/oche/actions/runs/38634943538 completed successfully. The published mobile Chromium check passed scoring, completion, undo, refresh, all routes and assets. Physical iPhone verification remains outstanding.
