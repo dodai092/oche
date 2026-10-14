@@ -136,6 +136,14 @@ try {
   cold.setDefaultTimeout(15000);
   await cold.goto(`${root}players/`, { waitUntil: "domcontentloaded" });
   await cold.locator("h1").waitFor();
+  // An unknown route offline shows the app's own 404 page, not a browser error.
+  const missing = await cold.context().newPage();
+  const missingResponse = await missing.goto(`${root}nope/`, {
+    waitUntil: "domcontentloaded",
+  });
+  assert.equal(missingResponse?.status(), 404, "Unknown offline route is a 404");
+  assert.match(await missing.content(), /404|not found/i);
+  await missing.close();
   await cold.close();
   assert.equal(await readiness(), true);
   await context.setOffline(false);

@@ -163,3 +163,5 @@ Layout pass (setup): on screens up to 900px the match summary collapses into a s
 Distill pass (live entry): after a typed total only one Undo score shows (Undo turn appears only after dart-by-dart input), the keypad hint is screen-reader-only, and the desktop scoreboard is compacted on screens up to 960px tall. Committed locally, not pushed.
 
 Clarify pass: plurals ("1 leg", "1 set"), solo completion reads "Match complete!", "Darts / attempts" became "Visit details" with a plain definition of a checkout attempt, backup import separates "not an Oche backup" from "different version", and Settings dates use the same en-GB format as History. Committed locally, not pushed.
+
+Harden pass: offline unknown routes serve the app's own 404 page (checked in verify-offline), skip link, named details dialog and an sr-only h1 on the live match page, manifest theme color matches the meta tag, explicit favicon link, apple-touch icon flattened onto the charcoal background, and Statistics groups same-name guests with a Date column. Not done: maskable manifest icon (needs a padded asset). Committed locally, not pushed.

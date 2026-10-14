@@ -3313,3 +3313,18 @@ fieldset.scoring-panel[hidden] {
     margin-bottom: 14px;
   }
 }
+
+.skip-link {
+  position: absolute;
+  left: 12px;
+  top: -60px;
+  z-index: 100;
+  padding: 12px 16px;
+  border-radius: 8px;
+  background: var(--lime);
+  color: #101212;
+  font-weight: 600;
+}
+.skip-link:focus {
+  top: 12px;
+}

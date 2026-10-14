@@ -55,6 +55,7 @@ const PREFIX = ${JSON.stringify(`oche-offline:${base || "/"}:`)};
 const CACHE = PREFIX + ${JSON.stringify(version)};
 const URLS = ${JSON.stringify(urls)};
 const ALIASES = ${JSON.stringify(aliases)};
+const NOT_FOUND = ${JSON.stringify(files.includes("404.html") ? `${base}/404.html` : null)};
 const MARKER = new URL(${JSON.stringify(`${base}/__offline_complete__`)}, self.location.origin).href;
 async function complete() {
   if (!(await caches.has(CACHE))) return false;
@@ -114,7 +115,15 @@ self.addEventListener("fetch", event => {
   event.respondWith((async () => {
     const cache = await caches.open(CACHE);
     const response = await cache.match(key);
-    return response || fetch(request);
+    if (response) return response;
+    try {
+      return await fetch(request);
+    } catch (error) {
+      // Offline and never cached: show the app's own 404 page, not a browser error.
+      const missing = navigation && NOT_FOUND && await cache.match(NOT_FOUND);
+      if (!missing) throw error;
+      return new Response(missing.body, { status: 404, headers: missing.headers });
+    }
   })());
 });
 `;

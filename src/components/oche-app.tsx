@@ -69,6 +69,9 @@ export function OcheApp({ screen }: { screen: Screen }) {
   }, [screen]);
   return (
     <>
+      <a className="skip-link" href="#main-content">
+        Skip to content
+      </a>
       <div className={`app-shell ${screen === "match" ? "match-shell" : ""}`}>
         <aside className="sidebar">
           <Link href="/" className="wordmark" aria-label="Oche home">

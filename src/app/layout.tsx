@@ -5,7 +5,9 @@ export const metadata: Metadata = {
   description:
     "Your local darts room. Score x01 matches, track your progress, and find your finish.",
   appleWebApp: { capable: true, statusBarStyle: "black-translucent", title: "Oche" },
-  icons: { apple: `${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/apple-touch-icon.png` },
+  icons: {
+    icon: `${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/icon.svg`,
+    apple: `${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/apple-touch-icon.png` },
 };
 export const viewport: Viewport = {
   width: "device-width",

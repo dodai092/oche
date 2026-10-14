@@ -159,3 +159,28 @@ test("single-out solo game advances legs and sets, then completes", async ({
     page.getByRole("heading", { name: "Match complete!" }),
   ).toBeVisible();
 });
+
+test("statistics groups repeated guest names into one player", async ({ page }) => {
+  for (let match = 0; match < 2; match++) {
+    await page.goto("/new");
+    await page.getByRole("button", { name: "301", exact: true }).click();
+    await page.getByRole("button", { name: "Single out", exact: false }).click();
+    await page.getByRole("button", { name: "Remove player 2", exact: true }).click();
+    await page.getByLabel("Player 1 name").fill("Antun");
+    await page.getByRole("button", { name: "Start match", exact: true }).click();
+    await page.getByRole("button", { name: "Dart-by-dart", exact: true }).click();
+    await page.getByRole("button", { name: "Triple", exact: true }).click();
+    for (let i = 0; i < 3; i++)
+      await page.getByRole("button", { name: "Hit 20", exact: true }).click();
+    await page.getByRole("button", { name: "Triple", exact: true }).click();
+    for (let i = 0; i < 2; i++)
+      await page.getByRole("button", { name: "Hit 20", exact: true }).click();
+    await page.getByRole("button", { name: "Single", exact: true }).click();
+    await page.getByRole("button", { name: "Hit 1", exact: true }).click();
+    await expect(page.getByRole("heading", { name: "Match complete!" })).toBeVisible();
+  }
+  await page.goto("/statistics");
+  await expect(page.locator("#stats-player option")).toHaveCount(2);
+  await expect(page.getByRole("columnheader", { name: "Date" })).toBeVisible();
+  await expect(page.locator("tbody tr")).toHaveCount(2);
+});

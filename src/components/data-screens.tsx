@@ -34,8 +34,11 @@ export function DataScreens({
   const matches = store.history;
   const uniquePlayers = Array.from(
     new Map(
+      // Guests get a new id every match, so group by name.
       matches.flatMap((m) =>
-        m.game.players.map((p) => [p.id, p.name] as const),
+        m.game.players.map(
+          (p) => [p.name.trim().toLowerCase(), p.name.trim()] as const,
+        ),
       ),
     ).entries(),
   );
@@ -47,7 +50,8 @@ export function DataScreens({
         stats: playerStats(m.game, i),
       })),
     )
-    .filter((r) => playerFilter === "all" || r.player.id === playerFilter);
+    .filter((r) => playerFilter === "all" ||
+        r.player.name.trim().toLowerCase() === playerFilter);
   const darts = rows.reduce((s, r) => s + r.stats.darts, 0),
     points = rows.reduce((s, r) => s + r.stats.points, 0),
     attempts = rows.reduce((s, r) => s + r.stats.checkoutAttempts, 0),
@@ -205,6 +209,7 @@ export function DataScreens({
                     <thead>
                       <tr>
                         <th>Player</th>
+                        <th>Date</th>
                         <th>3-dart avg</th>
                         <th>First 9 avg</th>
                         <th>180s</th>
@@ -215,6 +220,11 @@ export function DataScreens({
                       {rows.map((r) => (
                         <tr key={`${r.match.id}-${r.player.id}`}>
                           <td>{r.player.name}</td>
+                          <td>
+                            {new Date(r.match.startedAt).toLocaleDateString(
+                              "en-GB",
+                            )}
+                          </td>
                           <td>{r.stats.average.toFixed(2)}</td>
                           <td>
                             {r.stats.first9 === null

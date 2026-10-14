@@ -124,6 +124,7 @@ export function LiveMatch() {
   }
   return (
     <div className="page-content match-page">
+      <h1 className="sr-only">Live match</h1>
       <div className="match-heading">
         <Link href="/" className="back-link" aria-label="Back to overview">
           <ArrowLeft size={19} />
@@ -368,10 +369,11 @@ export function LiveMatch() {
         id="match-details"
         ref={detailsRef}
         className="match-drawer"
+        aria-labelledby="match-details-title"
         onClose={() => detailsButtonRef.current?.focus({ preventScroll: true })}
       >
         <header>
-          <h2>Match details</h2>
+          <h2 id="match-details-title">Match details</h2>
           <Button
             variant="ghost"
             size="icon"
