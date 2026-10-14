@@ -75,6 +75,7 @@ export function LiveMatch() {
   }
   if (game.status === "complete") {
     const winner = game.players[game.winner ?? 0];
+    const legsPlayed = game.turns.filter((t) => t.checkout).length;
     return (
       <div className="page-content">
         <section className="completion panel">
@@ -82,11 +83,15 @@ export function LiveMatch() {
             <Trophy size={40} />
           </span>
           <div className="eyebrow">GAME. SHOT. MATCH.</div>
-          <h1>{winner.name} wins!</h1>
+          <h1>
+            {game.players.length === 1
+              ? "Match complete!"
+              : `${winner.name} wins!`}
+          </h1>
           <p>
             {game.config.startScore} ·{" "}
             {game.config.doubleOut ? "Double out" : "Single out"} ·{" "}
-            {game.turns.filter((t) => t.checkout).length} legs played
+            {legsPlayed} {legsPlayed === 1 ? "leg" : "legs"} played
           </p>
           <div className="action-row">
             <Button

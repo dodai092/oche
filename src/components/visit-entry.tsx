@@ -128,8 +128,8 @@ export function VisitEntry({ game }: { game: GameState }) {
         >
           <h3 id="finish-confirmation-title">Confirm your finish</h3>
           <p>
-            Did your final dart hit a double or inner bull? Set the darts thrown
-            and checkout attempts below.
+            Did your final dart hit a double or inner bull? If you threw fewer
+            than three darts, or missed doubles first, update the details below.
           </p>
           <div className="action-row">
             <Button type="button" onClick={() => commit(true)}>
@@ -235,10 +235,13 @@ export function VisitEntry({ game }: { game: GameState }) {
         </Button>
         <details className="visit-details" open={confirming ? true : undefined}>
           <summary>
-            Darts / attempts{" "}
+            Visit details{" "}
             <span>
-              {dartsUsed} darts /{" "}
-              {confirming ? Math.max(1, attempts) : attempts} attempts
+              {dartsUsed} {dartsUsed === 1 ? "dart" : "darts"},{" "}
+              {confirming ? Math.max(1, attempts) : attempts} checkout{" "}
+              {(confirming ? Math.max(1, attempts) : attempts) === 1
+                ? "attempt"
+                : "attempts"}
             </span>
           </summary>
           <div className="two-fields">
@@ -279,8 +282,9 @@ export function VisitEntry({ game }: { game: GameState }) {
             </label>
           </div>
           <p className="visit-options-help">
-            Report how many darts you threw at a checkout. Defaults are three
-            darts and no checkout attempts.
+            A checkout attempt is a dart thrown at a finishing double. Leave
+            these as they are unless you finished or threw fewer than three
+            darts.
           </p>
         </details>
       </div>

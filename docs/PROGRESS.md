@@ -161,3 +161,5 @@ Adapt pass (same day): landscape phones (max-height 500px) use two columns, scor
 Layout pass (setup): on screens up to 900px the match summary collapses into a sticky bottom bar so Start match is always reachable; lineup rows show the name field first with the saved-player select under it, and the remove button is 44px. Committed locally. Release f69f3af is live and verified (bot levels and landscape Submit in view on the public site).
 
 Distill pass (live entry): after a typed total only one Undo score shows (Undo turn appears only after dart-by-dart input), the keypad hint is screen-reader-only, and the desktop scoreboard is compacted on screens up to 960px tall. Committed locally, not pushed.
+
+Clarify pass: plurals ("1 leg", "1 set"), solo completion reads "Match complete!", "Darts / attempts" became "Visit details" with a plain definition of a checkout attempt, backup import separates "not an Oche backup" from "different version", and Settings dates use the same en-GB format as History. Committed locally, not pushed.

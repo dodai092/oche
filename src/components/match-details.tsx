@@ -28,8 +28,10 @@ export function MatchDetails({
           {game.config.doubleOut ? "Double out" : "Single out"}
         </p>
         <p>
-          First to {game.config.legsToWin} legs per set, {game.config.setsToWin}{" "}
-          sets to win.
+          First to {game.config.legsToWin}{" "}
+          {game.config.legsToWin === 1 ? "leg" : "legs"} per set,{" "}
+          {game.config.setsToWin}{" "}
+          {game.config.setsToWin === 1 ? "set" : "sets"} to win.
         </p>
         <div className="detail-player-list">
           {game.players.map((p, i) => {

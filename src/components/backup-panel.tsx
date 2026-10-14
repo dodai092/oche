@@ -63,7 +63,7 @@ export function BackupPanel() {
       <p className="small muted">
         Last export requested:{" "}
         {store.lastBackupAt
-          ? new Date(store.lastBackupAt).toLocaleString()
+          ? new Date(store.lastBackupAt).toLocaleString("en-GB")
           : "Never"}
         . Keep the downloaded file somewhere safe.
       </p>

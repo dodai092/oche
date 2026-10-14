@@ -156,6 +156,6 @@ test("single-out solo game advances legs and sets, then completes", async ({
     }
   }
   await expect(
-    page.getByRole("heading", { name: "Player 1 wins!" }),
+    page.getByRole("heading", { name: "Match complete!" }),
   ).toBeVisible();
 });

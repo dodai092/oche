@@ -9,8 +9,10 @@ export function parseBackup(raw: string) {
   } catch {
     throw Error("Choose a valid Oche JSON backup.");
   }
-  if (!value || typeof value !== "object" || value.version !== 1)
-    throw Error("This backup version is not supported.");
+  if (!value || typeof value !== "object" || !("version" in value))
+    throw Error("This file is not an Oche backup. Choose a file exported from Settings.");
+  if (value.version !== 1)
+    throw Error("This backup comes from a different version of Oche and cannot be restored.");
   try {
     return restorePersistedData(value);
   } catch {

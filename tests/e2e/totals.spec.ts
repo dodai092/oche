@@ -56,11 +56,11 @@ test("reject impossible totals and confirm a typed double-out finish", async ({
     .getByRole("button", { name: "Confirm double-out", exact: true })
     .click();
   await expect(
-    page.getByRole("heading", { name: "Player 1 wins!" }),
+    page.getByRole("heading", { name: "Match complete!" }),
   ).toBeVisible();
   await page.reload();
   await expect(
-    page.getByRole("heading", { name: "Player 1 wins!" }),
+    page.getByRole("heading", { name: "Match complete!" }),
   ).toBeVisible();
   await page.getByRole("button", { name: "Undo winning score" }).click();
   await expect(page.getByTestId("score-0")).toHaveText("121");

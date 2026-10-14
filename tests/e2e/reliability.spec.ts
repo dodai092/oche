@@ -25,7 +25,7 @@ test("backup import previews, validates and restores the complete scorebook", as
     buffer: Buffer.from("{}"),
   });
   await expect(
-    page.getByText("This backup version is not supported."),
+    page.getByText("This file is not an Oche backup. Choose a file exported from Settings."),
   ).toBeVisible();
   await input.setInputFiles({
     name: "oche.json",
