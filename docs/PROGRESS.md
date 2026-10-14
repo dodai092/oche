@@ -132,7 +132,7 @@ Approved scope: implement the six follow-up priorities. See RELIABILITY-PLAN.md 
 - [x] Reusable match comparison and per-leg summaries in completion/history; typed-total uncertainty is explained.
 - [x] DartBot Easy/Medium/Hard, real segment events, cancellable darts, pause and bot-turn undo, hidden-page suspension.
 - [x] Opt-in screen wake lock and spoken scores with lifecycle cleanup and capability/error feedback.
-- [ ] Complete final checks and publish.
+- [x] Complete final checks and publish.
 
 Focused unit coverage includes backup validation, read-only mutation guards, failed restore writes, bot configuration and difficulty ordering, timer cancellation, announcements and multi-set summaries. Browser checks exercise backup preview/restore, two-tab handover, bot turns, short/landscape layouts, enlarged text, dialog focus and mocked wake/speech APIs. A full run found WebKit's native dialog did not restore focus to a mouse-clicked button; an explicit onClose focus restoration fixed the targeted WebKit test.
 
@@ -141,3 +141,5 @@ Offline verification passed in Chromium and WebKit: initial download, offline sc
 Physical iPhone, VoiceOver, real spoken audio and device wake behavior are not claimed as tested. Browser mocks verify API requests and cleanup, not hardware behavior. Browser-supplied speech voices can require a connection. Unsupported Web Locks browsers remain read-only. Import replaces the bounded dataset; cloud sync and archive merging remain planned.
 
 Final local checks: 66 unit tests passed across nine files; full browser suite passed 65 checks with one intentional desktop skip, using desktop Chromium, mobile Chromium and mobile WebKit. The final bot-lineup constraint also passed three targeted browser checks. TypeScript, ESLint and Pages production export passed. The final export's offline/update/repair script passed in both Chromium and WebKit. No new dependencies were added.
+
+Release commit 9d0980f deployed successfully in https://github.com/dodai092/oche/actions/runs/38638051948. The published Chromium check passed scoring, completion, undo, refresh, all routes/assets and complete offline readiness. Existing local session summaries remain outside the feature commit.

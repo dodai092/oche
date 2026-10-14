@@ -31,3 +31,15 @@ An App Store URL does not supply a binary. No authorized local DartCounter packa
 Public site research used official pages. The installed REA CLI was used for setup diagnostics only. Future UI analysis can use recordings or screenshots the user is authorized to supply. Development does not depend on connecting REA.
 
 Toolkit reference: https://github.com/morluto/rea
+
+## Claude Code handoff setup: 2026-10-14
+
+At the user's request, ran the installed 6.5.0 setup for Claude Code only after reviewing its dry run:
+
+```sh
+rtk proxy rea setup --client claude_code --yes
+```
+
+Setup reported `status: ready` and a healthy scoped doctor. It added server `rea` to `~/.claude.json`, using `/Users/antunzebec/.npm-global/bin/rea mcp`, and installed `~/.claude/skills/reverse-engineer-anything`. The inspected plan preserved unrelated configuration and specified a config backup at `~/.claude.json.rea.backup`. Restart Claude Code to load the MCP registration and skill. This does not add REA tools to the already-running Codex session.
+
+Impeccable is already present at `~/.claude/skills/impeccable`. For the next review, start with its critique workflow for design/UX, then audit for accessibility, responsive behavior and technical findings. Read the installed skill before invoking commands; do not assume slash aliases are registered. REA can inspect this owned web app and its build; native decompiler providers are optional and were not installed.

@@ -8,7 +8,7 @@ Approved scope: six priorities from the app review. Preserve the scoring rules a
 - [x] Match summaries: reusable honest comparison and leg breakdown in completion/history, calculated from engine turns, unit-tested.
 - [x] DartBot: optional single computer participant, three strengths, actual legal segment events, cancellable turns and pause/undo controls. Seeded tests establish ordering, not promised averages.
 - [x] Match-day controls: opt-in screen wake lock and speech with capability/error feedback and lifecycle cleanup.
-- [ ] Verify unit/browser regressions, WebKit mobile smoke, production export, offline/update behavior, screenshots, then publish.
+- [x] Verify unit/browser regressions, WebKit mobile smoke, production export, offline/update behavior, screenshots, then publish.
 
 Ownership ledger: parent owns persistence, tab coordination, backup UI, integration, match-day controls and verification. Parallel workers own offline generation/manager, pure summary/component, and bot model/controller in disjoint files. Each result receives inline review before integration; no additional dispatch is needed.
 
