@@ -192,6 +192,23 @@ export function MatchSetup() {
                 <div className="player-input" key={i}>
                   <span className={`avatar color-${i}`}>{i + 1}</span>
                   <div className="player-lineup-fields">
+                    <label>
+                      <span className="sr-only">Player {i + 1}</span>
+                      <input
+                        required
+                        maxLength={40}
+                        aria-label={`Player ${i + 1} name`}
+                        value={name}
+                        onChange={(e) => {
+                          setProfileIds(
+                            profileIds.map((p, j) => (j === i ? "" : p)),
+                          );
+                          setNames(
+                            names.map((n, j) => (j === i ? e.target.value : n)),
+                          );
+                        }}
+                      />
+                    </label>
                     <select
                       className="player-profile-select"
                       aria-label={`Player ${i + 1} profile`}
@@ -216,23 +233,6 @@ export function MatchSetup() {
                         </option>
                       ))}
                     </select>
-                    <label>
-                      Player {i + 1}
-                      <input
-                        required
-                        maxLength={40}
-                        aria-label={`Player ${i + 1} name`}
-                        value={name}
-                        onChange={(e) => {
-                          setProfileIds(
-                            profileIds.map((p, j) => (j === i ? "" : p)),
-                          );
-                          setNames(
-                            names.map((n, j) => (j === i ? e.target.value : n)),
-                          );
-                        }}
-                      />
-                    </label>
                   </div>
                   {names.length > (opponent === "bot" ? 2 : 1) && (
                     <Button
