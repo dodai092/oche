@@ -165,3 +165,5 @@ Distill pass (live entry): after a typed total only one Undo score shows (Undo t
 Clarify pass: plurals ("1 leg", "1 set"), solo completion reads "Match complete!", "Darts / attempts" became "Visit details" with a plain definition of a checkout attempt, backup import separates "not an Oche backup" from "different version", and Settings dates use the same en-GB format as History. Committed locally, not pushed.
 
 Harden pass: offline unknown routes serve the app's own 404 page (checked in verify-offline), skip link, named details dialog and an sr-only h1 on the live match page, manifest theme color matches the meta tag, explicit favicon link, apple-touch icon flattened onto the charcoal background, and Statistics groups same-name guests with a Date column. Not done: maskable manifest icon (needs a padded asset). Committed locally, not pushed.
+
+Polish pass: removed the blank band above the leg table (global table margin), spacing between the completion summary line and buttons, a chevron on "How these are calculated", and the unused `.score-progress` styles (which was the only detector finding). Committed locally.

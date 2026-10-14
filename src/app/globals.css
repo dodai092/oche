@@ -1007,17 +1007,6 @@ dd {
   letter-spacing: 0.07em;
   margin-left: 5px;
 }
-.score-progress {
-  height: 3px;
-  background: #2d3728;
-  margin: 0 -25px;
-}
-.score-progress span {
-  display: block;
-  height: 100%;
-  background: var(--lime);
-  transition: width 0.2s;
-}
 .live-grid {
   display: grid;
   grid-template-columns: minmax(0, 1.6fr) minmax(240px, 1fr);
@@ -1735,9 +1724,6 @@ td {
   .player-score {
     padding: 18px 20px 0;
   }
-  .score-progress {
-    margin: 0 -20px;
-  }
 }
 @media (max-width: 700px) {
   body {
@@ -2054,9 +2040,6 @@ td {
     display: block;
     font-size: 12px;
     margin: 3px 0 0;
-  }
-  .score-progress {
-    margin: 0 -13px;
   }
   .live-grid {
     gap: 17px;
@@ -3327,4 +3310,8 @@ fieldset.scoring-panel[hidden] {
 }
 .skip-link:focus {
   top: 12px;
+}
+
+.completion > p {
+  margin: 0 0 22px;
 }

@@ -53,6 +53,7 @@
   border-radius: 8px;
 }
 .table {
+  margin: 0;
   width: 100%;
   border-collapse: collapse;
   font-size: 13px;
@@ -93,4 +94,23 @@
   .player {
     padding: 12px;
   }
+}
+.note summary::after {
+  content: "";
+  width: 7px;
+  height: 7px;
+  margin: -3px 0 0 10px;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: rotate(45deg);
+}
+.note[open] summary::after {
+  margin-top: 3px;
+  transform: rotate(-135deg);
+}
+.note summary {
+  list-style: none;
+}
+.note summary::-webkit-details-marker {
+  display: none;
 }
