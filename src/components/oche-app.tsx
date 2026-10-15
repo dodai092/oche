@@ -29,19 +29,21 @@ export type Screen =
   | "history"
   | "settings";
 const navigation = [
-  { screen: "dashboard", href: "/", label: "Overview", icon: LayoutDashboard },
-  { screen: "new", href: "/new", label: "Play darts", icon: Crosshair },
-  { screen: "players", href: "/players", label: "Players", icon: UsersRound },
+  { screen: "dashboard", href: "/", label: "Overview", short: "Overview", icon: LayoutDashboard },
+  { screen: "new", href: "/new", label: "Play darts", short: "Play", icon: Crosshair },
+  { screen: "players", href: "/players", label: "Players", short: "Players", icon: UsersRound },
   {
     screen: "statistics",
     href: "/statistics",
     label: "Statistics",
+    short: "Stats",
     icon: ChartNoAxesCombined,
   },
   {
     screen: "history",
     href: "/history",
     label: "Match history",
+    short: "History",
     icon: History,
   },
   { screen: "settings", href: "/settings", label: "Settings", icon: Settings2 },
@@ -61,12 +63,6 @@ export function OcheApp({ screen }: { screen: Screen }) {
     startTabSession();
     return () => window.removeEventListener("oche-storage-error", storageError);
   }, []);
-  useEffect(() => {
-    // The mobile tab strip scrolls sideways; bring the current tab into view.
-    document
-      .querySelector(".nav-item.active")
-      ?.scrollIntoView({ inline: "center", block: "nearest" });
-  }, [screen]);
   return (
     <>
       <a className="skip-link" href="#main-content">
@@ -86,10 +82,12 @@ export function OcheApp({ screen }: { screen: Screen }) {
               <Link
                 key={item.screen}
                 href={item.href}
+                data-screen={item.screen}
                 className={`nav-item ${screen === item.screen || (screen === "match" && item.screen === "new") ? "active" : ""}`}
               >
                 <item.icon size={19} />
-                <span>{item.label}</span>
+                <span className="nav-full">{item.label}</span>
+                {item.short && <span className="nav-short">{item.short}</span>}
                 {item.screen === "new" && (
                   <ArrowUpRight size={15} className="nav-arrow" />
                 )}
@@ -117,6 +115,9 @@ export function OcheApp({ screen }: { screen: Screen }) {
               <span className="status-dot" />{" "}
               {error ? "Storage unavailable" : "Saved on this device"}
             </div>
+            <Link href="/settings" className="topbar-settings" aria-label="Settings">
+              <Settings2 size={18} />
+            </Link>
           </header>
           {error && (
             <div role="alert" className="error-banner">

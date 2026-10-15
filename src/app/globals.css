@@ -3777,3 +3777,67 @@ fieldset.scoring-panel[hidden] {
 .checkout-input .scoring-actions {
   flex-wrap: wrap;
 }
+
+/* Phone navigation: five tabs in a fixed bottom bar, Settings moves to the Overview header. */
+.nav-short,
+.topbar-settings {
+  display: none;
+}
+@media (max-width: 700px) {
+  .sidebar nav {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 20;
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 0;
+    padding: 6px 6px max(6px, env(safe-area-inset-bottom));
+    border-top: 1px solid var(--line);
+    border-bottom: 0;
+    background: var(--surface, #191c1b);
+    overflow: visible;
+    mask-image: none;
+  }
+  .sidebar nav > .nav-item[data-screen="settings"] {
+    display: none;
+  }
+  .nav-item {
+    flex-direction: column;
+    justify-content: center;
+    gap: 3px;
+    min-height: 52px;
+    padding: 4px 2px;
+    font-size: 11px;
+    border-radius: 8px;
+  }
+  .nav-item svg {
+    width: 20px;
+  }
+  .nav-full {
+    display: none;
+  }
+  .nav-short {
+    display: inline;
+  }
+  .app-shell main {
+    padding-bottom: calc(76px + env(safe-area-inset-bottom));
+  }
+  .topbar-settings {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 44px;
+    min-height: 44px;
+    margin-right: -12px;
+    color: var(--muted);
+  }
+  .topbar-settings:hover,
+  .topbar-settings:focus-visible {
+    color: var(--lime);
+  }
+  .app-shell.match-shell main {
+    padding-bottom: 0;
+  }
+}
