@@ -32,6 +32,16 @@ import {
   type AtcGame,
 } from "./atc-engine";
 import {
+  createCheckoutGame,
+  endCheckoutRun,
+  endCheckoutTurn,
+  throwCheckoutDart,
+  undoCheckoutDart,
+  undoCheckoutTurn,
+  type CheckoutConfig,
+  type CheckoutGame,
+} from "./checkout-engine";
+import {
   createCricketGame,
   endCricketTurn,
   throwCricketDart,
@@ -61,16 +71,35 @@ export type AtcMatch = {
   mode: "atc";
   atc: AtcGame;
 };
-export type AnyMatch = SavedMatch | CricketMatch | AtcMatch;
+export type CheckoutMatch = {
+  id: string;
+  startedAt: string;
+  finishedAt?: string;
+  mode: "checkout";
+  checkout: CheckoutGame;
+};
+export type AnyMatch = SavedMatch | CricketMatch | AtcMatch | CheckoutMatch;
 export const isCricket = (m: AnyMatch | null | undefined): m is CricketMatch =>
   m?.mode === "cricket";
 export const isAtc = (m: AnyMatch | null | undefined): m is AtcMatch =>
   m?.mode === "atc";
+export const isCheckout = (
+  m: AnyMatch | null | undefined,
+): m is CheckoutMatch => m?.mode === "checkout";
 export const isX01 = (m: AnyMatch | null | undefined): m is SavedMatch =>
-  !!m && m.mode !== "cricket" && m.mode !== "atc";
-/** The mode's game state. Every mode's game has players, events, status and winner. */
+  !!m &&
+  m.mode !== "cricket" &&
+  m.mode !== "atc" &&
+  m.mode !== "checkout";
+/** The mode's game state. Every game has players, events and status. Only x01, Cricket and Around the Clock have a winner. */
 export const matchGame = (m: AnyMatch) =>
-  isCricket(m) ? m.cricket : isAtc(m) ? m.atc : m.game;
+  isCricket(m)
+    ? m.cricket
+    : isAtc(m)
+      ? m.atc
+      : isCheckout(m)
+        ? m.checkout
+        : m.game;
 export const matchStatus = (m: AnyMatch | null | undefined) =>
   m ? matchGame(m).status : null;
 export const matchEventCount = (m: AnyMatch | null | undefined) =>
@@ -82,11 +111,23 @@ export const matchLabel = (m: AnyMatch) =>
     ? "Cricket"
     : isAtc(m)
       ? "Around the Clock"
-      : String(m.game.config.startScore);
-export const matchWinnerName = (m: AnyMatch) => {
-  const g = matchGame(m);
-  return g.players[g.winner ?? 0].name;
+      : isCheckout(m)
+        ? "121 Checkout"
+        : String(m.game.config.startScore);
+/** The winning player of a match, or null for 121 Checkout, which has no winner. */
+export const matchWinner = (m: AnyMatch) => {
+  if (isCheckout(m)) return null;
+  const g = isCricket(m) ? m.cricket : isAtc(m) ? m.atc : m.game;
+  return g.players[g.winner ?? 0];
 };
+export const matchWinnerName = (m: AnyMatch) => matchWinner(m)?.name ?? null;
+/** One line for a finished match: "<name> wins", or the best checkout of a 121 run. */
+export const matchResultLine = (m: AnyMatch) =>
+  isCheckout(m)
+    ? m.checkout.best
+      ? `Best checkout ${m.checkout.best}`
+      : "No checkout"
+    : `${matchWinnerName(m)} wins`;
 export type Profile = { id: string; name: string };
 export type Settings = {
   entryMode: "total" | "darts";
@@ -123,6 +164,11 @@ type Store = {
   atcDart: (dart: Dart) => void;
   atcFinishTurn: () => void;
   atcUndo: (turn?: boolean) => void;
+  startCheckout: (config: CheckoutConfig) => void;
+  checkoutDart: (dart: Dart) => void;
+  checkoutFinishTurn: () => void;
+  checkoutEndRun: () => void;
+  checkoutUndo: (turn?: boolean) => void;
   addPlayer: (name: string) => void;
   removePlayer: (id: string) => void;
   updateSettings: (settings: Partial<Settings>) => void;
@@ -186,6 +232,19 @@ export const useGameStore = create<Store>()(
         const current = get().current;
         return isAtc(current) ? current.atc : undefined;
       };
+      const updateCheckout = (checkout: CheckoutGame) => {
+        const current = get().current;
+        if (!isCheckout(current)) return;
+        commit(
+          current,
+          { ...current, checkout },
+          checkout.status === "complete",
+        );
+      };
+      const checkoutGame = () => {
+        const current = get().current;
+        return isCheckout(current) ? current.checkout : undefined;
+      };
       return {
         current: null,
         history: [],
@@ -241,6 +300,8 @@ export const useGameStore = create<Store>()(
           if (!current || matchStatus(current) !== "complete") return;
           if (isCricket(current)) get().startCricket(current.cricket.config);
           else if (isAtc(current)) get().startAtc(current.atc.config);
+          else if (isCheckout(current))
+            get().startCheckout(current.checkout.config);
           else get().start(current.game.config);
         },
         visit: (score, options) => {
@@ -315,6 +376,40 @@ export const useGameStore = create<Store>()(
           if (get().readOnly) return;
           const game = atcGame();
           if (game) updateAtc(turn ? undoAtcTurn(game) : undoAtcDart(game));
+        },
+        startCheckout: (config) => {
+          if (get().readOnly) return;
+          set({
+            current: {
+              id: crypto.randomUUID(),
+              startedAt: new Date().toISOString(),
+              mode: "checkout",
+              checkout: createCheckoutGame(config),
+            },
+          });
+        },
+        checkoutDart: (dart) => {
+          if (get().readOnly) return;
+          const game = checkoutGame();
+          if (game) updateCheckout(throwCheckoutDart(game, dart));
+        },
+        checkoutFinishTurn: () => {
+          if (get().readOnly) return;
+          const game = checkoutGame();
+          if (game) updateCheckout(endCheckoutTurn(game));
+        },
+        checkoutEndRun: () => {
+          if (get().readOnly) return;
+          const game = checkoutGame();
+          if (game) updateCheckout(endCheckoutRun(game));
+        },
+        checkoutUndo: (turn = false) => {
+          if (get().readOnly) return;
+          const game = checkoutGame();
+          if (game)
+            updateCheckout(
+              turn ? undoCheckoutTurn(game) : undoCheckoutDart(game),
+            );
         },
         addPlayer: (name) => {
           if (get().readOnly) return;

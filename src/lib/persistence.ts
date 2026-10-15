@@ -9,6 +9,11 @@ import {
   type AtcConfig,
   type AtcEvent,
 } from "./atc-engine";
+import {
+  restoreCheckoutGame,
+  type CheckoutConfig,
+  type CheckoutEvent,
+} from "./checkout-engine";
 import type { AnyMatch, Profile, Settings } from "./store";
 type StorageBackend = {
   getItem: (key: string) => string | null;
@@ -85,7 +90,8 @@ function match(value: unknown): AnyMatch {
     v.mode !== undefined &&
     v.mode !== "x01" &&
     v.mode !== "cricket" &&
-    v.mode !== "atc"
+    v.mode !== "atc" &&
+    v.mode !== "checkout"
   )
     throw Error("Invalid saved match mode");
   const base = {
@@ -114,6 +120,19 @@ function match(value: unknown): AnyMatch {
       ...base,
       mode: "atc",
       atc: restoreAtcGame(config as AtcConfig, a.events as AtcEvent[]),
+    };
+  }
+  if (v.mode === "checkout") {
+    const c = record(v.checkout),
+      config = record(c.config);
+    players(config);
+    return {
+      ...base,
+      mode: "checkout",
+      checkout: restoreCheckoutGame(
+        config as CheckoutConfig,
+        c.events as CheckoutEvent[],
+      ),
     };
   }
   const g = record(v.game),
@@ -164,7 +183,9 @@ export function restorePersistedData(value: unknown): {
       ? m.cricket.status
       : m.mode === "atc"
         ? m.atc.status
-        : m.game.status;
+        : m.mode === "checkout"
+          ? m.checkout.status
+          : m.game.status;
   if (history.some((m) => status(m) !== "complete"))
     throw Error("Incomplete archived match");
   return {
