@@ -22,8 +22,10 @@ import {
 } from "@/lib/bot";
 import type { CricketStyle } from "@/lib/cricket-engine";
 import { matchStatus, useGameStore } from "@/lib/store";
+import { makeAtcOrder } from "@/lib/atc-engine";
+import { AtcSettings, type AtcSettingsValue } from "./atc-settings";
 export function MatchSetup() {
-  const { settings, profiles, current, start, startCricket, readOnly } =
+  const { settings, profiles, current, start, startCricket, startAtc, readOnly } =
     useGameStore();
   const [score, setScore] = useState<301 | 501 | 701>(settings.startScore);
   const [doubleOut, setDoubleOut] = useState(settings.doubleOut);
@@ -35,19 +37,26 @@ export function MatchSetup() {
   const [replace, setReplace] = useState(false);
   const [opponent, setOpponent] = useState("local");
   const [difficulty, setDifficulty] = useState(DEFAULT_BOT_LEVEL);
-  const [gameMode, setGameMode] = useState<"x01" | "cricket">("x01");
+  const [gameMode, setGameMode] = useState<"x01" | "cricket" | "atc">("x01");
+  const [atc, setAtc] = useState<AtcSettingsValue>({
+    finish: "bullseye",
+    field: "any",
+    hitsPerTarget: 1,
+    increase: false,
+    orderMode: "low-high",
+  });
   const [cricketStyle, setCricketStyle] = useState<CricketStyle>("standard");
   const router = useRouter();
-  function chooseMode(mode: "x01" | "cricket") {
+  function chooseMode(mode: "x01" | "cricket" | "atc") {
     setGameMode(mode);
-    if (mode !== "cricket") return;
-    // Cricket has no bot: turn a DartBot slot back into a normal player.
+    if (mode === "x01") return;
+    // Cricket and Around the Clock have no bot: turn a DartBot slot back into a normal player.
     if (opponent === "bot")
       setNames(
         names.map((n, i) => (i === names.length - 1 ? `Player ${i + 1}` : n)),
       );
     setOpponent("local");
-    if (names.length < 2) {
+    if (mode === "cricket" && names.length < 2) {
       setNames([...names, `Player ${names.length + 1}`]);
       setProfileIds([...profileIds, ""]);
     }
@@ -74,6 +83,16 @@ export function MatchSetup() {
     }
     if (gameMode === "cricket") {
       startCricket({ style: cricketStyle, legsToWin: legs, players });
+      router.push("/match");
+      return;
+    }
+    if (gameMode === "atc") {
+      startAtc({
+        ...atc,
+        order: makeAtcOrder(atc.orderMode, Math.random),
+        legsToWin: legs,
+        players,
+      });
       router.push("/match");
       return;
     }
@@ -124,6 +143,7 @@ export function MatchSetup() {
                 [
                   { mode: "x01", label: "x01" },
                   { mode: "cricket", label: "Cricket" },
+                  { mode: "atc", label: "Around the Clock" },
                 ] as const
               ).map((g) => (
                 <button
@@ -213,6 +233,13 @@ export function MatchSetup() {
               </label>
             </div>
               </>
+            ) : gameMode === "atc" ? (
+              <AtcSettings
+                value={atc}
+                onChange={setAtc}
+                legs={legs}
+                onLegs={setLegs}
+              />
             ) : (
               <>
             <label className="field-label">SCORING STYLE</label>
@@ -416,9 +443,9 @@ export function MatchSetup() {
         <aside className="panel match-summary">
           <span className="eyebrow">YOUR MATCH</span>
           <div className="summary-score">
-            {gameMode === "cricket" ? "20-15" : score}
+            {gameMode === "cricket" ? "20-15" : gameMode === "atc" ? "1-20" : score}
             <span>
-              {gameMode === "cricket" ? "CRICKET / LOCAL" : "X01 / LOCAL"}
+              {gameMode === "cricket" ? "CRICKET / LOCAL" : gameMode === "atc" ? "AROUND THE CLOCK / LOCAL" : "X01 / LOCAL"}
             </span>
           </div>
           <dl>
@@ -426,7 +453,26 @@ export function MatchSetup() {
               <dt>Players</dt>
               <dd>{names.length}</dd>
             </div>
-            {gameMode === "cricket" ? (
+            {gameMode === "atc" ? (
+              <>
+                <div>
+                  <dt>Finish</dt>
+                  <dd>
+                    {atc.finish === "single-bull"
+                      ? "Single bull"
+                      : atc.finish === "bullseye"
+                        ? "Bullseye"
+                        : "All"}
+                  </dd>
+                </div>
+                <div>
+                  <dt>Format</dt>
+                  <dd>
+                    First to {legs} {legs === 1 ? "leg" : "legs"}
+                  </dd>
+                </div>
+              </>
+            ) : gameMode === "cricket" ? (
               <>
                 <div>
                   <dt>Style</dt>
