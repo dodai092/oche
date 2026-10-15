@@ -22,11 +22,46 @@ import {
   type MatchConfig,
   type Dart,
 } from "./engine";
+import {
+  createCricketGame,
+  endCricketTurn,
+  throwCricketDart,
+  undoCricketDart,
+  undoCricketTurn,
+  type CricketConfig,
+  type CricketGame,
+} from "./cricket-engine";
 export type SavedMatch = {
   id: string;
   startedAt: string;
   finishedAt?: string;
+  mode?: "x01";
   game: GameState;
+};
+export type CricketMatch = {
+  id: string;
+  startedAt: string;
+  finishedAt?: string;
+  mode: "cricket";
+  cricket: CricketGame;
+};
+export type AnyMatch = SavedMatch | CricketMatch;
+export const isCricket = (m: AnyMatch | null | undefined): m is CricketMatch =>
+  m?.mode === "cricket";
+export const isX01 = (m: AnyMatch | null | undefined): m is SavedMatch =>
+  !!m && m.mode !== "cricket";
+const gameOf = (m: AnyMatch) => (isCricket(m) ? m.cricket : m.game);
+export const matchStatus = (m: AnyMatch | null | undefined) =>
+  m ? gameOf(m).status : null;
+export const matchEventCount = (m: AnyMatch | null | undefined) =>
+  m ? gameOf(m).events.length : 0;
+export const matchPlayerNames = (m: AnyMatch) =>
+  gameOf(m).players.map((p) => p.name);
+export const matchLabel = (m: AnyMatch) =>
+  isCricket(m) ? "Cricket" : String(m.game.config.startScore);
+export const matchWinnerName = (m: AnyMatch) => {
+  const g = gameOf(m);
+  return g.players[g.winner ?? 0].name;
 };
 export type Profile = { id: string; name: string };
 export type Settings = {
@@ -38,8 +73,8 @@ export type Settings = {
   keepAwake: boolean;
 };
 type Store = {
-  current: SavedMatch | null;
-  history: SavedMatch[];
+  current: AnyMatch | null;
+  history: AnyMatch[];
   profiles: Profile[];
   settings: Settings;
   hydrated: boolean;
@@ -56,6 +91,10 @@ type Store = {
   dart: (dart: Dart) => void;
   finishTurn: () => void;
   undo: (turn?: boolean) => void;
+  startCricket: (config: CricketConfig) => void;
+  cricketDart: (dart: Dart) => void;
+  cricketFinishTurn: () => void;
+  cricketUndo: (turn?: boolean) => void;
   addPlayer: (name: string) => void;
   removePlayer: (id: string) => void;
   updateSettings: (settings: Partial<Settings>) => void;
@@ -81,20 +120,34 @@ const storage: StateStorage = {
 export const useGameStore = create<Store>()(
   persist(
     (set, get) => {
-      const updateGame = (game: GameState) => {
-        const current = get().current;
-        if (!current) return;
+      const commit = (current: AnyMatch, next: AnyMatch, complete: boolean) => {
         const updated = {
-          ...current,
-          game,
-          finishedAt:
-            game.status === "complete"
-              ? (current.finishedAt ?? new Date().toISOString())
-              : undefined,
+          ...next,
+          finishedAt: complete
+            ? (current.finishedAt ?? new Date().toISOString())
+            : undefined,
         };
         const history = get().history.filter((m) => m.id !== current.id);
-        if (game.status === "complete") history.unshift(updated);
+        if (complete) history.unshift(updated);
         set({ current: updated, history: history.slice(0, 100) });
+      };
+      const updateGame = (game: GameState) => {
+        const current = get().current;
+        if (!current || isCricket(current)) return;
+        commit(current, { ...current, game }, game.status === "complete");
+      };
+      const updateCricket = (cricket: CricketGame) => {
+        const current = get().current;
+        if (!isCricket(current)) return;
+        commit(current, { ...current, cricket }, cricket.status === "complete");
+      };
+      const x01Game = () => {
+        const current = get().current;
+        return current && !isCricket(current) ? current.game : undefined;
+      };
+      const cricketGame = () => {
+        const current = get().current;
+        return isCricket(current) ? current.cricket : undefined;
       };
       return {
         current: null,
@@ -148,28 +201,56 @@ export const useGameStore = create<Store>()(
         rematch: () => {
           if (get().readOnly) return;
           const current = get().current;
-          if (current?.game.status === "complete")
-            get().start(current.game.config);
+          if (!current || matchStatus(current) !== "complete") return;
+          if (isCricket(current)) get().startCricket(current.cricket.config);
+          else get().start(current.game.config);
         },
         visit: (score, options) => {
           if (get().readOnly) return;
-          const game = get().current?.game;
+          const game = x01Game();
           if (game) updateGame(submitVisit(game, score, options));
         },
         dart: (dart) => {
           if (get().readOnly) return;
-          const game = get().current?.game;
+          const game = x01Game();
           if (game) updateGame(throwDart(game, dart));
         },
         finishTurn: () => {
           if (get().readOnly) return;
-          const game = get().current?.game;
+          const game = x01Game();
           if (game) updateGame(endTurn(game));
         },
         undo: (turn = false) => {
           if (get().readOnly) return;
-          const game = get().current?.game;
+          const game = x01Game();
           if (game) updateGame(turn ? undoTurn(game) : undoDart(game));
+        },
+        startCricket: (config) => {
+          if (get().readOnly) return;
+          set({
+            current: {
+              id: crypto.randomUUID(),
+              startedAt: new Date().toISOString(),
+              mode: "cricket",
+              cricket: createCricketGame(config),
+            },
+          });
+        },
+        cricketDart: (dart) => {
+          if (get().readOnly) return;
+          const game = cricketGame();
+          if (game) updateCricket(throwCricketDart(game, dart));
+        },
+        cricketFinishTurn: () => {
+          if (get().readOnly) return;
+          const game = cricketGame();
+          if (game) updateCricket(endCricketTurn(game));
+        },
+        cricketUndo: (turn = false) => {
+          if (get().readOnly) return;
+          const game = cricketGame();
+          if (game)
+            updateCricket(turn ? undoCricketTurn(game) : undoCricketDart(game));
         },
         addPlayer: (name) => {
           if (get().readOnly) return;

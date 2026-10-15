@@ -1,5 +1,10 @@
 import { restoreGame, type MatchConfig, type GameEvent } from "./engine";
-import type { SavedMatch, Profile, Settings } from "./store";
+import {
+  restoreCricketGame,
+  type CricketConfig,
+  type CricketEvent,
+} from "./cricket-engine";
+import type { AnyMatch, Profile, Settings } from "./store";
 type StorageBackend = {
   getItem: (key: string) => string | null;
   setItem: (key: string, value: string) => void;
@@ -61,26 +66,47 @@ function date(value: unknown): string {
   if (!Number.isFinite(Date.parse(result))) throw Error("Invalid saved date");
   return result;
 }
-function match(value: unknown): SavedMatch {
-  const v = record(value),
-    g = record(v.game),
-    config = record(g.config);
+function players(config: Record<string, unknown>) {
   if (!Array.isArray(config.players)) throw Error("Invalid saved players");
   config.players.forEach((p) => {
     const player = record(p);
     text(player.id);
     text(player.name, 40);
   });
-  return {
+}
+function match(value: unknown): AnyMatch {
+  const v = record(value);
+  if (v.mode !== undefined && v.mode !== "x01" && v.mode !== "cricket")
+    throw Error("Invalid saved match mode");
+  const base = {
     id: text(v.id),
     startedAt: date(v.startedAt),
     ...(v.finishedAt ? { finishedAt: date(v.finishedAt) } : {}),
+  };
+  if (v.mode === "cricket") {
+    const c = record(v.cricket),
+      config = record(c.config);
+    players(config);
+    return {
+      ...base,
+      mode: "cricket",
+      cricket: restoreCricketGame(
+        config as CricketConfig,
+        c.events as CricketEvent[],
+      ),
+    };
+  }
+  const g = record(v.game),
+    config = record(g.config);
+  players(config);
+  return {
+    ...base,
     game: restoreGame(config as MatchConfig, g.events as GameEvent[]),
   };
 }
 export function restorePersistedData(value: unknown): {
-  current: SavedMatch | null;
-  history: SavedMatch[];
+  current: AnyMatch | null;
+  history: AnyMatch[];
   profiles: Profile[];
   settings: Settings;
   lastBackupAt: string | null;
@@ -113,7 +139,9 @@ export function restorePersistedData(value: unknown): {
   if (new Set(profiles.map((p) => p.id)).size !== profiles.length)
     throw Error("Duplicate saved players");
   const history = v.history.map(match);
-  if (history.some((m) => m.game.status !== "complete"))
+  const status = (m: AnyMatch) =>
+    m.mode === "cricket" ? m.cricket.status : m.game.status;
+  if (history.some((m) => status(m) !== "complete"))
     throw Error("Incomplete archived match");
   return {
     current: v.current === null ? null : match(v.current),
