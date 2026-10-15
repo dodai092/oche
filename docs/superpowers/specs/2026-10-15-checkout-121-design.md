@@ -23,13 +23,13 @@ Out of this version: bot, speech, statistics for this mode, single-out finishing
 ## Rules
 
 - The start target is 121 by default. A custom start is any whole number from 2 to 170 that can be checked out with three darts and a double (the existing `checkoutSuggestions(score, 3, true)` returns a route). Other values are rejected.
-- Darts per attempt: 3, 6, 9, 12 or 15. Rounds: 10, a custom whole number from 1 to 99, or infinite.
+- Darts per attempt: 3, 6, 9, 12 or 15. Rounds: 10, a custom whole number from 1 to 99, or infinite. Setup defaults: start 121, 9 darts per attempt, 10 rounds.
 - Finish: double out only. A dart on the bullseye counts as a double. Reaching exactly zero with anything other than a double, reaching 1, or going below zero is a bust.
 - A bust puts remaining back to where it was at the start of the current three-dart turn and ends that turn. Darts thrown and darts left unthrown in that turn both count against the attempt budget ("the budget keeps burning"). The attempt is still alive if budget is left.
 - Turns are up to three darts. With more than one player, players alternate turns on one shared remaining score and one shared budget. Turn order carries across attempts: the next attempt starts with the player after the one who threw the last turn. An early end of turn counts the unthrown darts against the budget, as in Cricket.
 - Success: remaining reaches zero on a double. The attempt ends immediately, even mid-turn. The target rises by 1 for the next attempt. The darts used in this attempt decide the safehouse: 3 or fewer, the cleared target becomes the new safehouse; more than 3, the safehouse does not move.
 - Failure: the budget is spent without a checkout. The target falls back to the safehouse for the next attempt.
-- Targets rise by exactly 1 and are never skipped. Some totals cannot be checked out in three darts (159, 162, 163, 165, 166, 168, 169). Reaching one of them means that attempt cannot succeed and falls back to the safehouse, so in practice a run tops out at 158. This follows the agreed rule and is isolated in one function so skipping can be added later.
+- Targets rise by exactly 1 and are never skipped. Some totals cannot be checked out in one turn of three darts (159, 162, 163, 165, 166, 168, 169). With 3 darts per attempt such a target cannot succeed and falls back to the safehouse, so a 3-dart run tops out at 158. With 6 or more darts per attempt it can still be cleared over two turns. This follows the agreed rule and is isolated in one function (`nextTarget`) so skipping can be added later.
 - Clearing 170 ends the run immediately as a perfect result.
 - The run ends when the last attempt is finished (finite rounds), when 170 is cleared, or when the players end it (infinite rounds, and also available at any time as "End run"). Ending the run mid-attempt discards that partial attempt from the results but keeps its events.
 - Result: the highest target cleared. Alongside it: attempts played, attempts cleared, darts thrown, and per player the darts thrown and the checkouts they finished. No winner. Ties on the result are not broken.
@@ -49,7 +49,7 @@ Config validation rejects: 0 or more than 4 players, duplicate player ids, a sta
 ## Screens
 
 - Setup: the game selector gains 121 Checkout. Controls: start target (121 or a custom field with validation and an inline hint when the number cannot be checked out), darts per attempt, rounds (10, custom, infinite), with a one-line explanation of the safehouse. 1 to 4 players with the saved-player picker. No bot, scoring style or legs. Switching from DartBot resets the bot slot, as for Cricket and Around the Clock.
-- Live: the target and remaining, large. Darts left in the attempt and the attempt number (of N, or just a count for infinite). The safehouse. The active player and the turn strip. A keypad of 1 to 20 with Bull, Miss and the multiplier buttons, Undo dart, Undo turn, End turn, End run. The existing checkout route hint is shown for the remaining score when three darts or fewer are left in the turn. Landscape and mobile follow the existing adaptations.
+- Live: the target and remaining, large. Darts left in the attempt and the attempt number (of N, or just a count for infinite). The safehouse. The active player and the turn strip. A keypad of 1 to 20 with Bull, Miss and the multiplier buttons, Undo dart, Undo turn, End turn (disabled until the first dart of a turn is thrown; Miss passes a dart), End run. After a run ends, a Resume run button undoes the end. The existing checkout route hint is shown for the remaining score when three darts or fewer are left in the turn. Landscape and mobile follow the existing adaptations.
 - Between attempts: a short notice ("Cleared 121 in 5 darts. Next target 122." or "Missed 130. Back to 121.") announced to screen readers.
 - Completion: the highest target cleared, attempts cleared of played, darts thrown, per-player darts and checkouts, Rematch.
 - History: all modes listed with a mode label, the detail shows the result and the attempt list (target, darts used, cleared or missed). Statistics stays x01 only and says other modes are not tracked yet.
@@ -70,6 +70,6 @@ Stages, one commit each: engine with tests, storage and validation, setup, live 
 
 - The union grows a fourth time, so every `isX01`, `isCricket` and `isAtc` branch needs a decision. History detail, statistics and the dashboard are the likeliest to miss one.
 - "No winner" breaks the assumption in `matchWinnerName` and in completion screens that every finished match has a winner. Every consumer of a finished match must be checked.
-- With +1 and no skipping, a run effectively tops out at 158 because 159 cannot be checked out. If that feels wrong in play, the fix is one function (`nextTarget`).
+- With +1 and no skipping, a 3-dart run tops out at 158 because 159 cannot be checked out in one turn. If that feels wrong in play, the fix is one function (`nextTarget`).
 - The safehouse and the "3 darts or fewer" rule are our reading of the reference app. They are isolated in one function.
 - A bust burning the rest of the turn from the attempt budget is a harsh reading; it follows the agreed rule that the budget keeps burning.
