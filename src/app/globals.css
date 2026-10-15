@@ -3619,3 +3619,84 @@ fieldset.scoring-panel[hidden] {
     display: none;
   }
 }
+
+.atc-input {
+  margin-bottom: 16px;
+}
+.keypad.atc-keypad {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+.atc-input .bull-row button {
+  flex-direction: column;
+  gap: 0;
+  line-height: 1.25;
+  text-align: center;
+}
+@media (min-width: 1000px) and (min-height: 501px) {
+  .atc-page {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    column-gap: 24px;
+    align-content: start;
+  }
+  .atc-page > .match-heading {
+    grid-column: 1 / -1;
+  }
+  .atc-page > .atc-board {
+    grid-column: 1;
+    grid-row: 2;
+    align-self: start;
+  }
+  .atc-page > .atc-sequence {
+    grid-column: 1;
+    grid-row: 3;
+    align-self: start;
+  }
+  .atc-page > .turn-feedback {
+    grid-column: 2;
+    grid-row: 2;
+    align-self: start;
+  }
+  .atc-page > .atc-input {
+    grid-column: 2;
+    grid-row: 3 / span 2;
+    align-self: start;
+  }
+}
+@media (max-height: 500px) and (orientation: landscape) {
+  .atc-page > .atc-input {
+    grid-column: 2;
+    grid-row: 2 / span 2;
+    margin-bottom: 0;
+    padding: 8px;
+  }
+  .keypad.atc-keypad {
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+  }
+  .keypad.atc-keypad button {
+    min-height: 44px;
+  }
+  .atc-input .dart-slot {
+    min-height: 0;
+    padding: 4px 6px;
+  }
+  .atc-input .dart-slot > span:first-child {
+    display: none;
+  }
+  .atc-input .dart-slots,
+  .atc-input .multiplier-options {
+    margin-bottom: 6px;
+  }
+  .atc-input .scoring-actions {
+    margin-top: 6px;
+  }
+  .atc-page > .turn-feedback {
+    padding: 6px 12px;
+  }
+}
+@media (max-width: 700px) and (min-height: 501px) {
+  .atc-board,
+  .atc-sequence {
+    margin-bottom: 10px;
+  }
+}
