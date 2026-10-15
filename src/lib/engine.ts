@@ -111,7 +111,7 @@ export function createGame(config: MatchConfig): GameState {
   };
 }
 
-function validateDart(dart: Dart): void {
+export function validateDart(dart: Dart): void {
   if (
     !Number.isInteger(dart.value) ||
     ![1, 2, 3].includes(dart.multiplier) ||
