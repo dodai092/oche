@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
-import { useGameStore } from "@/lib/store";
+import { isX01, useGameStore } from "@/lib/store";
 import {
   botTarget,
   isBotDifficulty,
@@ -19,8 +19,16 @@ const subscribeVisibility = (callback: () => void) => {
  * Parent owns config.bot and store.readOnly, and disables human scoring on bot turns.
  * Unmount on leaving the match. Pause is local to this mounted match, not persisted.
  */
+function botState(): BotTurnState {
+  const s = useGameStore.getState();
+  return { ...s, current: isX01(s.current) ? s.current : null };
+}
 export function BotTurn() {
-  const store: BotTurnState = useGameStore();
+  const raw = useGameStore();
+  const store: BotTurnState = {
+    ...raw,
+    current: isX01(raw.current) ? raw.current : null,
+  };
   const { current, hydrated, readOnly } = store;
   if (!current || !current.game.config.bot) return null;
   return (
@@ -62,7 +70,7 @@ function BotTurnControls({
   useEffect(() => {
     if (!active || paused || !hydrated || readOnly || !visible) return;
     return scheduleBotDart(
-      useGameStore.getState,
+      botState,
       current,
       () => pauseRef.current,
     );
@@ -112,6 +120,7 @@ function BotTurnControls({
             const latest = useGameStore.getState();
             if (
               latest.current?.id === current.id &&
+              isX01(latest.current) &&
               latest.current.game === game
             )
               latest.undo(true);

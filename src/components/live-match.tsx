@@ -17,7 +17,8 @@ import { MatchSummary } from "./match-summary";
 import { useMatchDay } from "./match-day";
 import { BotTurn } from "./bot-turn";
 import { Button } from "./ui/button";
-import { useGameStore } from "@/lib/store";
+import { CricketMatchView } from "./cricket-match";
+import { useGameStore, isCricket, isX01 } from "@/lib/store";
 import { checkoutSuggestions, dartLabel, playerStats } from "@/lib/engine";
 export function LiveMatch() {
   const {
@@ -50,6 +51,7 @@ export function LiveMatch() {
         </div>
       </div>
     );
+  if (isCricket(current)) return <CricketMatchView match={current} />;
   const game = current.game,
     active = game.players[game.activePlayer];
   const routes = checkoutSuggestions(
@@ -63,8 +65,8 @@ export function LiveMatch() {
     game.players[game.activePlayer].id === game.config.bot?.playerId;
   function hit(value: number, mult: 1 | 2 | 3 = multiplier) {
     dart({ value, multiplier: mult });
-    if (!useGameStore.getState().current?.game.turnDarts.length)
-      setMultiplier(1);
+    const now = useGameStore.getState().current;
+    if (isX01(now) && !now.game.turnDarts.length) setMultiplier(1);
   }
   function endVisit() {
     if (!game.turnDarts.length) {

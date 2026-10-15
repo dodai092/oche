@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useGameStore } from "@/lib/store";
+import { matchStatus, useGameStore } from "@/lib/store";
 
 const base = (process.env.NEXT_PUBLIC_BASE_PATH ?? "").replace(/\/$/, "");
 
@@ -11,7 +11,7 @@ export function OfflineManager({
   showStatus?: boolean;
 }) {
   const activeMatch = useGameStore(
-    (state) => state.current?.game.status === "playing",
+    (state) => matchStatus(state.current) === "playing",
   );
   const hydrated = useGameStore((state) => state.hydrated);
   const readOnly = useGameStore((state) => state.readOnly);
@@ -141,7 +141,7 @@ export function OfflineManager({
             if (
               !useGameStore.getState().hydrated ||
               useGameStore.getState().readOnly ||
-              useGameStore.getState().current?.game.status === "playing"
+              matchStatus(useGameStore.getState().current) === "playing"
             )
               return;
             requested.current = true;

@@ -2,7 +2,7 @@
 import { useRef, useState } from "react";
 import { Download } from "lucide-react";
 import { parseBackup, MAX_BACKUP_BYTES } from "@/lib/backup";
-import { useGameStore } from "@/lib/store";
+import { matchStatus, useGameStore } from "@/lib/store";
 import { Button } from "./ui/button";
 export function BackupPanel() {
   const store = useGameStore();
@@ -83,7 +83,7 @@ export function BackupPanel() {
           <p>
             {preview.profiles.length} players, {preview.history.length}{" "}
             completed matches,{" "}
-            {preview.current?.game.status === "playing"
+            {matchStatus(preview.current) === "playing"
               ? "1 active match"
               : "no active match"}
             .

@@ -1,6 +1,7 @@
 import { expect, it } from "vitest";
 import { parseBackup } from "./backup";
 import { createGame } from "./engine";
+import type { SavedMatch } from "./store";
 const data = {
   version: 1,
   exportedAt: "2026-10-14T12:00:00Z",
@@ -37,5 +38,5 @@ it("rejects invalid, oversized and unsupported backups without trusting scores",
       current: { id: "m", startedAt: data.exportedAt, game },
     }),
   );
-  expect(restored.current?.game.players[0].score).toBe(501);
+  expect((restored.current as SavedMatch).game.players[0].score).toBe(501);
 });

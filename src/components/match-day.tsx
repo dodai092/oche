@@ -1,6 +1,11 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import { useGameStore } from "@/lib/store";
+import {
+  isX01,
+  matchEventCount,
+  matchStatus,
+  useGameStore,
+} from "@/lib/store";
 import { scoreAnnouncement } from "@/lib/announcements";
 export function useMatchDay() {
   const { current, settings, readOnly, updateSettings } = useGameStore();
@@ -13,9 +18,9 @@ export function useMatchDay() {
   }));
   const previous = useRef({
     id: current?.id,
-    events: current?.game.events.length ?? 0,
+    events: matchEventCount(current),
   });
-  const playing = current?.game.status === "playing" && !readOnly;
+  const playing = matchStatus(current) === "playing" && !readOnly;
   useEffect(() => {
     if (!settings.keepAwake || !playing || !capabilities.wake) return;
     let disposed = false;
@@ -65,7 +70,7 @@ export function useMatchDay() {
     const before = previous.current;
     previous.current = {
       id: current?.id,
-      events: current?.game.events.length ?? 0,
+      events: matchEventCount(current),
     };
     if (!capabilities.speech) return;
     if (
@@ -73,13 +78,13 @@ export function useMatchDay() {
       readOnly ||
       document.visibilityState !== "visible" ||
       before.id !== current?.id ||
-      (current?.game.events.length ?? 0) < before.events
+      matchEventCount(current) < before.events
     ) {
       window.speechSynthesis.cancel();
       return;
     }
-    if ((current?.game.events.length ?? 0) === before.events) return;
-    const message = current && scoreAnnouncement(current.game);
+    if (matchEventCount(current) === before.events) return;
+    const message = current && isX01(current) && scoreAnnouncement(current.game);
     if (!message) return;
     const utterance = new SpeechSynthesisUtterance(message);
     utterance.lang = "en-GB";

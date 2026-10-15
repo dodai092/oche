@@ -11,11 +11,18 @@ import {
   Zap,
 } from "lucide-react";
 import { Button } from "./ui/button";
-import { useGameStore } from "@/lib/store";
+import {
+  isX01,
+  matchLabel,
+  matchPlayerNames,
+  matchStatus,
+  matchWinnerName,
+  useGameStore,
+} from "@/lib/store";
 import { playerStats } from "@/lib/engine";
 export function Dashboard() {
   const { current, history, profiles } = useGameStore();
-  const stats = history.flatMap((m) =>
+  const stats = history.filter(isX01).flatMap((m) =>
     m.game.players.map((_, i) => playerStats(m.game, i)),
   );
   const darts = stats.reduce((s, x) => s + x.darts, 0),
@@ -161,21 +168,19 @@ export function Dashboard() {
               <ArrowRight size={18} />
             </Link>
           </div>
-          {current?.game.status === "playing" ? (
+          {matchStatus(current) === "playing" && current ? (
             <Link href="/match" className="resume-card">
               <span className="eyebrow lime">MATCH IN PROGRESS</span>
-              <h3>{current.game.players.map((p) => p.name).join(" vs ")}</h3>
+              <h3>{matchPlayerNames(current).join(" vs ")}</h3>
               <span>
-                Resume your {current.game.config.startScore} match{" "}
+                Resume your {matchLabel(current)} match{" "}
                 <ChevronRight size={16} />
               </span>
             </Link>
           ) : history[0] ? (
             <Link href="/history" className="resume-card">
               <span className="eyebrow">LAST MATCH</span>
-              <h3>
-                {history[0].game.players[history[0].game.winner ?? 0].name} wins
-              </h3>
+              <h3>{matchWinnerName(history[0])} wins</h3>
               <span>
                 See the scores <ChevronRight size={16} />
               </span>

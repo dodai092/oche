@@ -5,6 +5,7 @@ import {
   validateSavedEnvelope,
 } from "./persistence";
 import { createGame, throwDart } from "./engine";
+import type { SavedMatch } from "./store";
 function memory() {
   const values = new Map<string, string>();
   return {
@@ -117,7 +118,7 @@ describe("persisted data validation", () => {
       ...defaults,
       current: { id: "m", startedAt: "2026-10-14T12:00:00Z", game },
     });
-    expect(saved.current?.game.players[0].score).toBe(441);
+    expect((saved.current as SavedMatch).game.players[0].score).toBe(441);
   });
 });
 

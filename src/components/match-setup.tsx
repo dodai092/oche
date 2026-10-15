@@ -20,7 +20,7 @@ import {
   botLabel,
   botLevelStats,
 } from "@/lib/bot";
-import { useGameStore } from "@/lib/store";
+import { matchStatus, useGameStore } from "@/lib/store";
 export function MatchSetup() {
   const { settings, profiles, current, start, readOnly } = useGameStore();
   const [score, setScore] = useState<301 | 501 | 701>(settings.startScore);
@@ -50,7 +50,7 @@ export function MatchSetup() {
       return;
     }
     setValidationError(null);
-    if (current?.game.status === "playing" && !replace) {
+    if (matchStatus(current) === "playing" && !replace) {
       setReplace(true);
       return;
     }

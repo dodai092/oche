@@ -10,7 +10,12 @@ import {
   Trophy,
   ChartNoAxesCombined,
 } from "lucide-react";
-import { useGameStore, safeStorage, type SavedMatch } from "@/lib/store";
+import {
+  isX01,
+  useGameStore,
+  safeStorage,
+  type SavedMatch,
+} from "@/lib/store";
 import { playerStats } from "@/lib/engine";
 import { Button } from "./ui/button";
 import type { Screen } from "./oche-app";
@@ -31,7 +36,8 @@ export function DataScreens({
   const [name, setName] = useState("");
   const [playerFilter, setPlayerFilter] = useState("all");
   const [title, subtitle] = titles[screen];
-  const matches = store.history;
+  const allMatches = store.history;
+  const matches = allMatches.filter(isX01);
   const uniquePlayers = Array.from(
     new Map(
       // Guests get a new id every match, so group by name.

@@ -1,4 +1,5 @@
 import { beforeEach, expect, it, vi } from "vitest";
+import type { SavedMatch } from "./store";
 beforeEach(() => {
   vi.resetModules();
   const values = new Map<string, string>();
@@ -20,11 +21,11 @@ it("rematches completed games with the same players and format while preserving 
   });
   store.getState().visit(180);
   store.getState().visit(121);
-  const finished = store.getState().current!;
+  const finished = store.getState().current! as SavedMatch;
   expect(finished.game.status).toBe("complete");
   store.getState().updateSettings({ entryMode: "darts" });
   store.getState().rematch();
-  const next = store.getState().current!;
+  const next = store.getState().current! as SavedMatch;
   expect(next.id).not.toBe(finished.id);
   expect(next.game.config).toEqual(finished.game.config);
   expect(next.game.players[0]).toMatchObject({
