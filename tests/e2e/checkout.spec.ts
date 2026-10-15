@@ -230,3 +230,71 @@ test("landscape phone keeps the board and the keypad reachable", async ({ page }
   expect(miss!.y + miss!.height).toBeLessThanOrEqual(390);
   await expect(page.getByTestId("checkout-target")).toBeInViewport();
 });
+
+test("history lists x01, Around the Clock and 121 Checkout together, statistics stay x01 only, backup round-trips", async ({
+  page,
+}) => {
+  // One solo Around the Clock leg.
+  await page.goto("/new");
+  await page.getByRole("button", { name: "Around the Clock", exact: true }).click();
+  await page.getByRole("button", { name: "Remove player 2", exact: true }).click();
+  await page.getByRole("button", { name: "Start match", exact: true }).click();
+  for (let n = 1; n <= 20; n++) await hit(page, n);
+  await page.getByRole("button", { name: "Inner bull", exact: true }).click();
+  await expect(page.getByRole("heading", { name: "Player 1 wins!" })).toBeVisible();
+
+  // One 121 Checkout run, one attempt.
+  await startRun(page, { start: "40", darts: "3", rounds: "1" });
+  await dbl(page, 20);
+  await expect(page.getByRole("heading", { name: "Best checkout 40" })).toBeVisible();
+
+  // One solo single-out 301 match for the x01 side.
+  await page.goto("/new");
+  await page.getByRole("button", { name: "301", exact: true }).click();
+  await page.getByRole("button", { name: "Single out", exact: false }).click();
+  await page.getByRole("button", { name: "Remove player 2", exact: true }).click();
+  await page.getByLabel("Player 1 name").fill("Antun");
+  await page.getByRole("button", { name: "Start match", exact: true }).click();
+  await page.getByRole("button", { name: "Dart-by-dart", exact: true }).click();
+  await page.getByRole("button", { name: "Triple", exact: true }).click();
+  for (let i = 0; i < 3; i++) await hit(page, 20);
+  await page.getByRole("button", { name: "Triple", exact: true }).click();
+  for (let i = 0; i < 2; i++) await hit(page, 20);
+  await page.getByRole("button", { name: "Single", exact: true }).click();
+  await hit(page, 1);
+  await expect(page.getByRole("heading", { name: "Match complete!" })).toBeVisible();
+
+  await page.goto("/history");
+  await expect(page.locator(".history-record")).toHaveCount(3);
+  await expect(page.getByText("121 CHECKOUT / BEST 40")).toBeVisible();
+  await expect(page.getByText("AROUND THE CLOCK / LOW TO HIGH")).toBeVisible();
+  await page.locator(".history-record", { hasText: "121 CHECKOUT" }).locator("summary").click();
+  await expect(page.getByText("Cleared by Ann")).toBeVisible();
+
+  await page.goto("/statistics");
+  await expect(
+    page.getByText(/Cricket, Around the Clock and 121 Checkout are not tracked yet/),
+  ).toBeVisible();
+  await expect(page.locator("tbody tr")).toHaveCount(1);
+
+  await page.goto("/");
+  await expect(page.getByText("LAST MATCH")).toBeVisible();
+
+  await page.goto("/settings");
+  const download = page.waitForEvent("download");
+  await page.getByRole("button", { name: "Export data as JSON" }).click();
+  const file = await (await download).path();
+  await page.getByLabel("Import Oche backup").setInputFiles(file!);
+  await expect(page.getByText(/3 completed matches/)).toBeVisible();
+});
+
+test("a finished 121 run as the last match shows its result, not a winner", async ({
+  page,
+}) => {
+  await startRun(page, { start: "40", darts: "3", rounds: "1" });
+  await dbl(page, 20);
+  await page.goto("/");
+  await expect(page.getByText("LAST MATCH")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Best checkout 40" })).toBeVisible();
+  await expect(page.getByText(/wins$/)).toHaveCount(0);
+});

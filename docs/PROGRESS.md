@@ -179,3 +179,9 @@ Verification: 96 unit tests, 98 browser checks passed with one intentional skip 
 Added Around the Clock as a third mode on branch `around-the-clock`: pure event-sourced engine, `mode: "atc"` in the saved-match union (missing mode still means x01), setup with every control, dart-by-dart live screen with a sequence track, undo, completion with rematch, mixed history, dashboard entry and backup round trip. Statistics stay x01 only and say so. Out of scope: bot, speech, statistics for this mode, round limits, sets, 121 Checkout.
 
 Verification: 133 unit tests, 128 browser checks passed with one intentional skip (Chromium, mobile Chromium, mobile WebKit), TypeScript and ESLint clean, Pages export and offline script passed in Chromium. Not claimed: physical iPhone, VoiceOver, real audio and wake lock.
+
+## 121 Checkout: 2026-10-15
+
+Added 121 Checkout as a fourth mode on branch `checkout-121`: pure event-sourced engine, `mode: "checkout"` in the saved-match union (missing mode still means x01), setup with start target (121 or custom), darts per attempt (3, 6, 9, 12, 15), rounds (10, custom or infinite) and the safehouse rule, 1 to 4 local players sharing one run, dart-by-dart live screen with undo dart, undo turn, end turn, end run and resume run, a completion screen with rematch, mixed history, dashboard entry and backup round trip. The mode has no winner: the result is the best target cleared, and winner helpers are not called for it. Statistics stay x01 only and say so. Out of scope: bot, speech, statistics for this mode, single out, a choice of increase step, sets, legs, skipping uncheckable targets.
+
+Verification: 182 unit tests, 164 browser checks passed with one intentional skip (Chromium, mobile Chromium, mobile WebKit), TypeScript and ESLint clean, Pages export and offline script passed in Chromium. Not claimed: physical iPhone, VoiceOver, real audio and wake lock.

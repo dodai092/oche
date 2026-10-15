@@ -5,6 +5,7 @@ import {
   ArrowRight,
   Clock,
   Crosshair,
+  Flag,
   Target,
   TrendingUp,
   Trophy,
@@ -181,6 +182,22 @@ export function Dashboard() {
               <span className="mode-meta">
                 Many ways to play <span>·</span> 1-4 players <span>·</span>{" "}
                 Legs
+              </span>
+            </div>
+            <ArrowUpRight size={23} />
+          </Link>
+          <Link href="/new" className="mode-card">
+            <span className="mode-icon">
+              <Flag size={29} />
+            </span>
+            <div>
+              <div className="mode-title">
+                121 Checkout <span className="pill">NEW</span>
+              </div>
+              <p>Check out a rising target with a fixed dart budget.</p>
+              <span className="mode-meta">
+                Safehouse fall-back <span>·</span> 1-4 players <span>·</span>{" "}
+                Practice
               </span>
             </div>
             <ArrowUpRight size={23} />

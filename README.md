@@ -49,6 +49,8 @@ Choose Cricket under Game in setup for Standard or Cut-throat scoring, 2 to 4 lo
 
 Choose Around the Clock under Game in setup. Pick the finish (single bull, bullseye or all), the target field (any, single, double or treble), hits per number (1 to 3), the order (low to high, high to low or random) and Increase by segment, where a double moves a player on two numbers and a treble three. Play 1 to 4 local players, solo included, first to N legs, dart by dart with undo dart, undo turn and end turn. A random order is fixed when the match starts and survives refresh and backup. Around the Clock shares history, backup and rematch with the other modes. There is no DartBot, speech or statistics for it yet.
 
+Choose 121 Checkout under Game in setup for checkout practice. Start at 121 or a custom target up to 170, pick 3, 6, 9, 12 or 15 darts per attempt and 10, custom or infinite rounds. Check out with a double: clear the target and it rises by 1, miss it and you fall back to your safehouse, the last target you cleared in three darts or fewer. A bust puts the score back to the start of the turn and the darts still count. One to four local players share one run and one dart budget. The result is the best target cleared, not a win. 121 Checkout shares history, backup and rematch with the other modes. There is no DartBot, speech or statistics for it yet.
+
 Choose DartBot under Opponent in setup for Easy, Medium or Hard play. The bot throws individual segments using the normal rules. These are relative strengths, not promised averages. Pause and Undo bot turn stop its next dart so you can correct a visit. Bot turns stop while the page is hidden.
 
 Open More match details during play for Keep screen awake and Spoken scores. Both are optional and depend on browser/device support. Wake lock releases when you leave play and retries when the match becomes visible. Speech starts from a user action and defaults off when you reopen the match. Device voices may require a connection.
@@ -112,7 +114,7 @@ The production dependency audit returned zero vulnerabilities. The full audit re
 
 ## Next milestones
 
-Richer longitudinal player analytics, tournaments and Supabase online play remain planned. DartBot, Cricket, Around the Clock and per-match comparisons are implemented. No simulated online controls are exposed.
+Richer longitudinal player analytics, tournaments and Supabase online play remain planned. DartBot, Cricket, Around the Clock, 121 Checkout and per-match comparisons are implemented. No simulated online controls are exposed.
 
 ## Documents
 
