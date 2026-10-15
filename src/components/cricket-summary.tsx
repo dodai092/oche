@@ -7,7 +7,7 @@ export function CricketSummary({ game }: { game: CricketGame }) {
     <section aria-label="Cricket summary">
       <CricketBoard game={game} />
       <div className="table-scroll">
-        <table>
+        <table className="cricket-results">
           <thead>
             <tr>
               <th>Player</th>

@@ -3413,3 +3413,94 @@ fieldset.scoring-panel[hidden] {
     min-height: 44px;
   }
 }
+
+/* Cricket layout pass: wide screens, landscape phones, history overflow. */
+.cricket-input .bull-row button {
+  flex-direction: column;
+  gap: 0;
+  line-height: 1.25;
+  text-align: center;
+}
+.cricket-results td {
+  text-align: left;
+}
+.history-list > * {
+  min-width: 0;
+}
+.history-record {
+  max-width: 100%;
+}
+@media (min-width: 1000px) and (min-height: 501px) {
+  .cricket-page {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    column-gap: 24px;
+    align-content: start;
+  }
+  .cricket-page > .match-heading {
+    grid-column: 1 / -1;
+  }
+  .cricket-page > .cricket-board {
+    grid-column: 1;
+    grid-row: 2 / span 2;
+    align-self: start;
+  }
+  .cricket-page > .turn-feedback {
+    grid-column: 2;
+    grid-row: 2;
+    align-self: start;
+  }
+  .cricket-page > .cricket-input {
+    grid-column: 2;
+    grid-row: 3;
+    align-self: start;
+  }
+}
+@media (max-height: 500px) and (orientation: landscape) {
+  .cricket-table th,
+  .cricket-table td {
+    padding: 1px 4px;
+  }
+  .cricket-table thead strong {
+    font-size: 20px;
+    line-height: 1.1;
+  }
+  .cricket-input {
+    padding: 8px;
+  }
+  .cricket-input .dart-slot {
+    min-height: 0;
+    padding: 4px 6px;
+  }
+  .cricket-input .dart-slot > span:first-child {
+    display: none;
+  }
+  .cricket-input .dart-slots {
+    margin-bottom: 6px;
+  }
+  .cricket-input .multiplier-options {
+    margin-bottom: 6px;
+  }
+  .keypad.cricket-keypad {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+  .cricket-input .scoring-actions {
+    margin-top: 6px;
+  }
+  .cricket-page > .turn-feedback {
+    padding: 6px 12px;
+  }
+}
+@media (max-width: 700px) and (min-height: 501px) {
+  .cricket-board {
+    margin-bottom: 10px;
+  }
+  .cricket-table th,
+  .cricket-table td {
+    padding: 4px 6px;
+  }
+  .cricket-mark {
+    width: 24px;
+    height: 24px;
+  }
+}
