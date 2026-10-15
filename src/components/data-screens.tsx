@@ -9,6 +9,8 @@ import {
   History,
   Trophy,
   ChartNoAxesCombined,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import {
   isAtc,
@@ -36,6 +38,15 @@ import {
   type StatsFilter,
   type StatsGame,
 } from "@/lib/game-stats";
+import {
+  STATS_PERIOD_LABEL,
+  inPeriod,
+  isFuturePeriod,
+  periodLabel,
+  playerRecord,
+  shiftAnchor,
+  type StatsPeriod,
+} from "@/lib/stats-period";
 import { Button } from "./ui/button";
 import type { Screen } from "./oche-app";
 import { BackupPanel } from "./backup-panel";
@@ -64,10 +75,25 @@ export function DataScreens({
       allRows.map((r) => [r.playerName.trim().toLowerCase(), r.playerName.trim()] as const),
     ).entries(),
   );
+  const [period, setPeriod] = useState<StatsPeriod>("all");
+  const [anchor, setAnchor] = useState(() => new Date());
   const gameRows = allRows.filter((r) => gameFilter === "all" || r.game === gameFilter);
-  const rows = gameRows.filter(
+  const periodRows = gameRows.filter((r) => inPeriod(r.startedAt, period, anchor));
+  const rows = periodRows.filter(
     (r) => playerFilter === "all" || r.playerName.trim().toLowerCase() === playerFilter,
   );
+  const selectedName = uniquePlayers.find(([id]) => id === playerFilter)?.[1] ?? null;
+  const playedIds = new Set(rows.map((r) => r.matchId));
+  const record = selectedName
+    ? playerRecord(
+        allMatches.filter((m) => playedIds.has(m.id)),
+        selectedName,
+      )
+    : null;
+  function choosePeriod(next: StatsPeriod) {
+    setPeriod(next);
+    setAnchor(new Date());
+  }
   function downloadRaw() {
     const raw = safeStorage.raw();
     if (raw === null) return;
@@ -199,6 +225,62 @@ export function DataScreens({
               Completed matches on this device. Each game has its own figures.
             </span>
           </div>
+          <div className="period-bar">
+            <div className="segmented period-options" role="group" aria-label="Period">
+              {(Object.keys(STATS_PERIOD_LABEL) as StatsPeriod[]).map((p) => (
+                <button
+                  key={p}
+                  type="button"
+                  aria-pressed={period === p}
+                  className={period === p ? "selected" : ""}
+                  onClick={() => choosePeriod(p)}
+                >
+                  {STATS_PERIOD_LABEL[p]}
+                </button>
+              ))}
+            </div>
+            {period !== "all" && (
+              <div className="period-step">
+                <button
+                  type="button"
+                  aria-label="Previous period"
+                  onClick={() => setAnchor((a) => shiftAnchor(period, a, -1))}
+                >
+                  <ChevronLeft size={18} />
+                </button>
+                <span>{periodLabel(period, anchor)}</span>
+                <button
+                  type="button"
+                  aria-label="Next period"
+                  disabled={isFuturePeriod(period, anchor, new Date())}
+                  onClick={() => setAnchor((a) => shiftAnchor(period, a, 1))}
+                >
+                  <ChevronRight size={18} />
+                </button>
+              </div>
+            )}
+          </div>
+          {record && record.wins + record.losses > 0 && (
+            <div
+              className="record-bar"
+              role="img"
+              aria-label={`${recordLabel(record.wins, "win")}, ${recordLabel(record.losses, "loss")}`}
+            >
+              <div className="record-track">
+                <span className="record-win" style={{ flexGrow: record.wins }} />
+                <span className="record-loss" style={{ flexGrow: record.losses }} />
+              </div>
+              <div className="record-legend">
+                <span>{recordLabel(record.wins, "win")}</span>
+                <span>{recordLabel(record.losses, "loss")}</span>
+              </div>
+            </div>
+          )}
+          {!record && playedIds.size > 0 && (
+            <p className="small muted record-count">
+              {playedIds.size} {playedIds.size === 1 ? "match" : "matches"} in this view
+            </p>
+          )}
           {!rows.length ? (
             <>
               <div className="overview-stats stats-preview" aria-hidden="true">
@@ -211,8 +293,12 @@ export function DataScreens({
               </div>
               <Empty
                 icon={<ChartNoAxesCombined size={36} />}
-                title="Find your baseline."
-                text="Complete your first match to see your scoring and checkout statistics."
+                title={period === "all" ? "Find your baseline." : "Nothing in this period."}
+                text={
+                  period === "all"
+                    ? "Complete your first match to see your scoring and checkout statistics."
+                    : `No completed matches in ${periodLabel(period, anchor)}. Step to another period.`
+                }
               />
             </>
           ) : gameFilter === "x01" ? (
@@ -514,6 +600,11 @@ function MatchRecord({ match }: { match: SavedMatch }) {
 }
 
 type X01Row = Extract<StatRow, { game: "x01" }>;
+
+function recordLabel(count: number, kind: "win" | "loss") {
+  const word = count === 1 ? kind : kind === "win" ? "wins" : "losses";
+  return `${count} ${word}`;
+}
 
 function X01Stats({ rows }: { rows: X01Row[] }) {
   const darts = rows.reduce((s, r) => s + r.stats.darts, 0),

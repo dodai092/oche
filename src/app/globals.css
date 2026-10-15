@@ -1435,6 +1435,67 @@ dd {
 .filter-bar > .small {
   margin-left: auto;
 }
+.period-bar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px 15px;
+  margin-bottom: 20px;
+}
+.period-options {
+  width: auto;
+}
+.period-options button {
+  padding: 10px 14px;
+  white-space: nowrap;
+}
+.period-step {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 600;
+}
+.period-step button {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: var(--surface);
+  color: var(--text);
+}
+.period-step button:disabled {
+  opacity: 0.35;
+}
+.record-bar {
+  margin-bottom: 20px;
+}
+.record-track {
+  display: flex;
+  height: 10px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: var(--line);
+}
+.record-track > span {
+  flex-basis: 0;
+  min-width: 0;
+  transition: flex-grow 0.2s ease;
+}
+.record-win {
+  background: var(--lime);
+}
+.record-loss {
+  background: #5d665b;
+}
+.record-legend {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 8px;
+  font-size: 14px;
+  color: var(--muted);
+}
 .table-scroll {
   overflow-x: auto;
 }
