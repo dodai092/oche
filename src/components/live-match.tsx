@@ -19,7 +19,8 @@ import { BotTurn } from "./bot-turn";
 import { Button } from "./ui/button";
 import { CricketMatchView } from "./cricket-match";
 import { AtcMatchView } from "./atc-match";
-import { useGameStore, isAtc, isCricket, isX01 } from "@/lib/store";
+import { CheckoutMatchView } from "./checkout-match";
+import { useGameStore, isAtc, isCheckout, isCricket, isX01 } from "@/lib/store";
 import { checkoutSuggestions, dartLabel, playerStats } from "@/lib/engine";
 export function LiveMatch() {
   const {
@@ -54,6 +55,7 @@ export function LiveMatch() {
     );
   if (isCricket(current)) return <CricketMatchView match={current} />;
   if (isAtc(current)) return <AtcMatchView match={current} />;
+  if (isCheckout(current)) return <CheckoutMatchView match={current} />;
   const game = current.game,
     active = game.players[game.activePlayer];
   const routes = checkoutSuggestions(

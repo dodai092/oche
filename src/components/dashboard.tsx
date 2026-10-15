@@ -17,7 +17,7 @@ import {
   matchLabel,
   matchPlayerNames,
   matchStatus,
-  matchWinnerName,
+  matchResultLine,
   useGameStore,
 } from "@/lib/store";
 import { playerStats } from "@/lib/engine";
@@ -213,7 +213,7 @@ export function Dashboard() {
           ) : history[0] ? (
             <Link href="/history" className="resume-card">
               <span className="eyebrow">LAST MATCH</span>
-              <h3>{matchWinnerName(history[0])} wins</h3>
+              <h3>{matchResultLine(history[0])}</h3>
               <span>
                 See the scores <ChevronRight size={16} />
               </span>

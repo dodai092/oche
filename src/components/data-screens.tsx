@@ -14,6 +14,7 @@ import {
   isAtc,
   isCricket,
   isX01,
+  matchWinner,
   matchGame,
   useGameStore,
   safeStorage,
@@ -142,7 +143,7 @@ export function DataScreens({
                   game(m).players.some((x) => x.id === p.id),
                 );
                 const won = played.filter(
-                  (m) => game(m).players[game(m).winner ?? 0].id === p.id,
+                  (m) => matchWinner(m)?.id === p.id,
                 ).length;
                 return (
                   <article key={p.id} className="panel profile-card">
@@ -283,9 +284,9 @@ export function DataScreens({
                   <CricketRecord key={m.id} match={m} />
                 ) : isAtc(m) ? (
                   <AtcRecord key={m.id} match={m} />
-                ) : (
+                ) : isX01(m) ? (
                   <MatchRecord key={m.id} match={m} />
-                ),
+                ) : null,
               )}
             </div>
           )}
