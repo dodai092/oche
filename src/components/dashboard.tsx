@@ -144,7 +144,7 @@ export function Dashboard() {
             </span>
             <div>
               <div className="mode-title">
-                Local x01 <span className="pill">READY TO PLAY</span>
+                501 <span className="pill">READY TO PLAY</span>
               </div>
               <p>The original race to zero. Play solo or bring your rivals.</p>
               <span className="mode-meta">
@@ -192,7 +192,7 @@ export function Dashboard() {
             </span>
             <div>
               <div className="mode-title">
-                121 Checkout <span className="pill">NEW</span>
+                121 <span className="pill">NEW</span>
               </div>
               <p>Check out a rising target with a fixed dart budget.</p>
               <span className="mode-meta">
