@@ -60,7 +60,7 @@ export function AtcMatchView({ match }: { match: AtcMatch }) {
           <span className="winner-icon">
             <Trophy size={40} />
           </span>
-          <div className="eyebrow">ROUND THE CLOCK. DONE.</div>
+          <div className="eyebrow">AROUND THE CLOCK. DONE.</div>
           <h1>{winner.name} wins!</h1>
           <p>
             Around the Clock · {game.leg} {game.leg === 1 ? "leg" : "legs"} played
@@ -126,7 +126,7 @@ export function AtcMatchView({ match }: { match: AtcMatch }) {
         <p>{message}</p>
       </div>
       <div className="atc-sequence panel">
-        <small className="muted">{atcSettingsLabel(game.config)}</small>
+        <small className="small muted">{atcSettingsLabel(game.config)}</small>
         <AtcTrack game={game} playerIndex={game.activePlayer} />
       </div>
       <fieldset disabled={readOnly} className="panel scoring-panel atc-input">

@@ -172,7 +172,7 @@ test("history lists Cricket and x01 together, statistics stay x01 only, backup r
   await expect(page.getByText("Ann wins")).toBeVisible();
 
   await page.goto("/statistics");
-  await expect(page.getByText(/Cricket is not tracked yet/)).toBeVisible();
+  await expect(page.getByText(/Cricket and Around the Clock are not tracked yet/)).toBeVisible();
   await expect(page.locator("tbody tr")).toHaveCount(1);
 
   await page.goto("/");

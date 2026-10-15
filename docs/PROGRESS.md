@@ -173,3 +173,9 @@ Polish pass: removed the blank band above the leg table (global table margin), s
 Added Cricket beside x01 on branch `cricket`: pure event-sourced engine, saved-match union tagged by `mode` (missing means x01), setup with game selector, dart-by-dart live screen with undo, completion with rematch, mixed history, dashboard entry and backup round trip. Statistics stay x01 only and say so. Out of scope: DartBot Cricket, No-score, solo, sets, Cricket statistics, speech for Cricket.
 
 Verification: 96 unit tests, 98 browser checks passed with one intentional skip (Chromium, mobile Chromium, mobile WebKit), TypeScript and ESLint clean, Pages export and offline script passed in Chromium. Not claimed: physical iPhone, VoiceOver, real audio and wake lock.
+
+## Around the Clock: 2026-10-15
+
+Added Around the Clock as a third mode on branch `around-the-clock`: pure event-sourced engine, `mode: "atc"` in the saved-match union (missing mode still means x01), setup with every control, dart-by-dart live screen with a sequence track, undo, completion with rematch, mixed history, dashboard entry and backup round trip. Statistics stay x01 only and say so. Out of scope: bot, speech, statistics for this mode, round limits, sets, 121 Checkout.
+
+Verification: 133 unit tests, 128 browser checks passed with one intentional skip (Chromium, mobile Chromium, mobile WebKit), TypeScript and ESLint clean, Pages export and offline script passed in Chromium. Not claimed: physical iPhone, VoiceOver, real audio and wake lock.

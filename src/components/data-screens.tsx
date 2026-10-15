@@ -11,15 +11,19 @@ import {
   ChartNoAxesCombined,
 } from "lucide-react";
 import {
+  isAtc,
   isCricket,
   isX01,
   matchGame,
   useGameStore,
   safeStorage,
+  type AtcMatch,
   type CricketMatch,
   type SavedMatch,
 } from "@/lib/store";
 import { CricketSummary } from "./cricket-summary";
+import { AtcSummary } from "./atc-summary";
+import { atcSettingsLabel } from "./atc-match";
 import { playerStats } from "@/lib/engine";
 import { Button } from "./ui/button";
 import type { Screen } from "./oche-app";
@@ -182,7 +186,7 @@ export function DataScreens({
               ))}
             </select>
             <span className="small muted">
-              Completed x01 matches only. Cricket is not tracked yet.
+              Completed x01 matches only. Cricket and Around the Clock are not tracked yet.
             </span>
           </div>
           {!rows.length ? (
@@ -277,9 +281,11 @@ export function DataScreens({
               {allMatches.map((m) =>
                 isCricket(m) ? (
                   <CricketRecord key={m.id} match={m} />
-                ) : isX01(m) ? (
+                ) : isAtc(m) ? (
+                  <AtcRecord key={m.id} match={m} />
+                ) : (
                   <MatchRecord key={m.id} match={m} />
-                ) : null,
+                ),
               )}
             </div>
           )}
@@ -394,6 +400,31 @@ function Empty({
         </Link>
       </Button>
     </div>
+  );
+}
+function AtcRecord({ match }: { match: AtcMatch }) {
+  const g = match.atc;
+  return (
+    <details className="panel history-record">
+      <summary>
+        <span className="history-trophy">
+          <Trophy size={21} />
+        </span>
+        <span>
+          <strong>{g.players[g.winner ?? 0].name} wins</strong>
+          <small>
+            {g.players.map((p) => p.name).join(" vs ")} ·{" "}
+            {new Date(match.startedAt).toLocaleDateString("en-GB")}
+          </small>
+        </span>
+        <span className="outline-tag">
+          AROUND THE CLOCK / {g.config.orderMode.replace("-", " TO ").toUpperCase()}
+        </span>
+        <Plus size={18} />
+      </summary>
+      <p className="small muted">{atcSettingsLabel(g.config)}</p>
+      <AtcSummary game={g} />
+    </details>
   );
 }
 function CricketRecord({ match }: { match: CricketMatch }) {

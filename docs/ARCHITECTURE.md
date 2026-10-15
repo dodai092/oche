@@ -9,6 +9,7 @@ The first milestone is x01 scoring, not online infrastructure. A backend now wou
 ## Boundaries
 
 - src/lib/engine.ts: pure deterministic state transitions, legal darts, checkout search, event replay and statistics. No browser, React, clock or randomness.
+- src/lib/atc-engine.ts: pure, event-sourced Around the Clock rules (dart and end-turn events replayed from scratch). Depends only on `Dart` and `validateDart` from engine.ts. No browser, React, clock or randomness. A random order is resolved once at setup and stored in the config, so replay stays deterministic.
 - src/lib/cricket-engine.ts: pure, event-sourced Cricket rules (dart and end-turn events replayed from scratch). Depends only on `Dart` and `validateDart` from engine.ts. No browser, React, clock or randomness.
 - src/lib/store.ts: Zustand persistence, match identity/timestamps, player profiles, settings and archived match references. Hydration occurs after mount to prevent server/client mismatch.
 - src/lib/tab-session.ts: exclusive Web Lock held for the document lifetime. Hydrate before enabling writes; secondary tabs suppress persisted writes and refresh on storage events. Page hide releases access; returning reacquires and hydrates before editing.
@@ -26,13 +27,15 @@ Support 301/501/701, 1-4 local players, single or double out, first-to legs per 
 
 Cricket (Standard and Cut-throat, 2 to 4 players, first to N legs) uses marks on 20 to 15 and the bull. A number closes at three marks. Marks beyond the third score its value while an opponent has it open (Standard) or give points to every opponent that has it open (Cut-throat). A player wins the leg by closing all seven numbers with a score equal or better than every opponent. If every player has closed everything, the best score wins and a tie goes to whoever closed their last number first; this stall rule is ours, not official. Starters rotate each leg.
 
+Around the Clock (1 to 4 players, first to N legs) runs each player through the 20 numbers in the chosen order, then the bull step or steps. A dart qualifies when it lands on the player's current number with a multiplier the target field allows (any, single, double or treble). A number is done after the chosen hits per number (1 to 3), and hits persist across turns. With Increase by segment a qualifying dart gives its multiplier in hits, surplus hits roll on to the next numbers, stop at the bull steps and are dropped past the last step; this carry is our reading of the reference app and lives in one function. Finish options: single bull (outer or inner), bullseye (inner only) or all (outer bull, then inner bull). The field setting does not apply to the bull. A player who completes the last step wins the leg mid-turn. An early end of turn records unthrown darts as misses. Starters rotate each leg.
+
 Dart events are the source of truth. Undo and derived statistics replay retained events, which also avoids stale counters after a correction. Checkout recommendations search legal sequences using the current darts remaining. Inner bull counts as a double; triple bull is invalid.
 
 See engine documentation for counting conventions, including inferred checkout opportunities. The keypad cannot know whether a missed dart was intended at a double.
 
 ## Persistence and failure modes
 
-Versioned localStorage stores a bounded archive and current match. Saved matches carry an optional `mode`; a missing value means x01, so saves from before Cricket load unchanged, and Cricket matches are rebuilt by replaying their events on hydrate and import. Data stays in this browser, is not cloud-synced and can be exported as JSON from Settings. Hydration validates the save envelope and reconstructs derived state from legal events. Storage failures latch into read-only mode before reporting an error. Unreadable raw values are preserved for download; only an explicit reset permits replacement. Hydration and storage errors are shown in the UI. Replacing an in-progress match requires a visible confirmation. No account or private API is involved.
+Versioned localStorage stores a bounded archive and current match. Saved matches carry an optional `mode` (`"cricket"` or `"atc"`); a missing value means x01, so saves from before Cricket load unchanged, and Cricket and Around the Clock matches are rebuilt by replaying their events on hydrate and import. Data stays in this browser, is not cloud-synced and can be exported as JSON from Settings. Hydration validates the save envelope and reconstructs derived state from legal events. Storage failures latch into read-only mode before reporting an error. Unreadable raw values are preserved for download; only an explicit reset permits replacement. Hydration and storage errors are shown in the UI. Replacing an in-progress match requires a visible confirmation. No account or private API is involved.
 
 ## Implementation sequence and verification
 
@@ -44,10 +47,10 @@ Versioned localStorage stores a bounded archive and current match. Saved matches
 
 ## Future online boundary
 
-Supabase would hold profiles, match membership, authoritative turn events and row-level security. Clients must submit expected revision numbers; server transactions validate darts and advance turn ownership. Realtime is delivery, not an authority. Offline play remains independent. DartBot uses the x01 engine; Cricket has its own tested engine.
+Supabase would hold profiles, match membership, authoritative turn events and row-level security. Clients must submit expected revision numbers; server transactions validate darts and advance turn ownership. Realtime is delivery, not an authority. Offline play remains independent. DartBot uses the x01 engine; Cricket and Around the Clock each have their own tested engine.
 
 ## Current limits
 
-Cricket has no bot, statistics or speech. Statistics count x01 matches only. One writer tab is enforced with Web Locks. Unsupported browsers are read-only; there is no unsafe localStorage lease fallback. History is capped at 100 matches. Checkout attempts infer opportunities, not player intent. JSON import replaces rather than merges a validated scorebook. Offline caching does not back up match data. No server authority, authentication or online synchronization is claimed.
+Cricket and Around the Clock have no bot, statistics or speech. Statistics count x01 matches only. One writer tab is enforced with Web Locks. Unsupported browsers are read-only; there is no unsafe localStorage lease fallback. History is capped at 100 matches. Checkout attempts infer opportunities, not player intent. JSON import replaces rather than merges a validated scorebook. Offline caching does not back up match data. No server authority, authentication or online synchronization is claimed.
 
 Browser API references: [Web Locks](https://developer.mozilla.org/en-US/docs/Web/API/Web_Locks_API), [Screen Wake Lock](https://developer.mozilla.org/en-US/docs/Web/API/Screen_Wake_Lock_API), [Speech synthesis](https://developer.mozilla.org/en-US/docs/Web/API/SpeechSynthesis). Physical-device behavior remains a separate verification step.

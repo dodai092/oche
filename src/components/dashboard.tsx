@@ -3,6 +3,7 @@ import Link from "next/link";
 import {
   ArrowUpRight,
   ArrowRight,
+  Clock,
   Crosshair,
   Target,
   TrendingUp,
@@ -163,6 +164,22 @@ export function Dashboard() {
               <p>Close 15 to 20 and the bull before your rivals.</p>
               <span className="mode-meta">
                 Standard or cut-throat <span>·</span> 2-4 players <span>·</span>{" "}
+                Legs
+              </span>
+            </div>
+            <ArrowUpRight size={23} />
+          </Link>
+          <Link href="/new" className="mode-card">
+            <span className="mode-icon">
+              <Clock size={29} />
+            </span>
+            <div>
+              <div className="mode-title">
+                Around the Clock <span className="pill">NEW</span>
+              </div>
+              <p>Hit every number in order, then the bull.</p>
+              <span className="mode-meta">
+                Many ways to play <span>·</span> 1-4 players <span>·</span>{" "}
                 Legs
               </span>
             </div>

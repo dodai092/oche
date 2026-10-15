@@ -3534,6 +3534,9 @@ fieldset.scoring-panel[hidden] {
   color: var(--muted);
   font-size: 14px;
 }
+.atc-player-head small {
+  font-size: 12px;
+}
 .atc-name {
   overflow: hidden;
   text-overflow: ellipsis;

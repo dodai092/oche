@@ -166,3 +166,68 @@ test("landscape phone keeps the board and the keypad reachable", async ({
   expect(miss!.y + miss!.height).toBeLessThanOrEqual(390);
   await expect(page.getByTestId("atc-target-0")).toBeInViewport();
 });
+
+test("history lists x01, Cricket and Around the Clock together, statistics stay x01 only, backup round-trips", async ({
+  page,
+}) => {
+  await startAtc(page);
+  await annWinsLeg(page);
+  await expect(page.getByRole("heading", { name: "Ann wins!" })).toBeVisible();
+
+  // One Cricket leg, won by Ann.
+  await page.goto("/new");
+  await page.getByRole("button", { name: "Cricket", exact: true }).click();
+  await page.getByLabel("Player 1 name").fill("Ann");
+  await page.getByLabel("Player 2 name").fill("Ben");
+  await page.getByRole("button", { name: "Start match", exact: true }).click();
+  const triples = async (numbers: number[]) => {
+    for (const n of numbers) {
+      await page.getByRole("button", { name: "Triple", exact: true }).click();
+      await hit(page, n);
+    }
+  };
+  await triples([20, 19, 18]);
+  await benMisses(page);
+  await triples([17, 16, 15]);
+  await benMisses(page);
+  await page.getByRole("button", { name: "Outer bull", exact: true }).click();
+  await page.getByRole("button", { name: "Inner bull", exact: true }).click();
+  await expect(page.getByRole("heading", { name: "Ann wins!" })).toBeVisible();
+
+  // One solo single-out 301 match for the x01 side.
+  await page.goto("/new");
+  await page.getByRole("button", { name: "301", exact: true }).click();
+  await page.getByRole("button", { name: "Single out", exact: false }).click();
+  await page.getByRole("button", { name: "Remove player 2", exact: true }).click();
+  await page.getByLabel("Player 1 name").fill("Antun");
+  await page.getByRole("button", { name: "Start match", exact: true }).click();
+  await page.getByRole("button", { name: "Dart-by-dart", exact: true }).click();
+  await page.getByRole("button", { name: "Triple", exact: true }).click();
+  for (let i = 0; i < 3; i++) await hit(page, 20);
+  await page.getByRole("button", { name: "Triple", exact: true }).click();
+  for (let i = 0; i < 2; i++) await hit(page, 20);
+  await page.getByRole("button", { name: "Single", exact: true }).click();
+  await hit(page, 1);
+  await expect(page.getByRole("heading", { name: "Match complete!" })).toBeVisible();
+
+  await page.goto("/history");
+  await expect(page.locator(".history-record")).toHaveCount(3);
+  await expect(page.getByText("AROUND THE CLOCK / LOW TO HIGH")).toBeVisible();
+  await expect(page.getByText("CRICKET / STANDARD")).toBeVisible();
+
+  await page.goto("/statistics");
+  await expect(
+    page.getByText(/Cricket and Around the Clock are not tracked yet/),
+  ).toBeVisible();
+  await expect(page.locator("tbody tr")).toHaveCount(1);
+
+  await page.goto("/");
+  await expect(page.getByText("LAST MATCH")).toBeVisible();
+
+  await page.goto("/settings");
+  const download = page.waitForEvent("download");
+  await page.getByRole("button", { name: "Export data as JSON" }).click();
+  const file = await (await download).path();
+  await page.getByLabel("Import Oche backup").setInputFiles(file!);
+  await expect(page.getByText(/3 completed matches/)).toBeVisible();
+});
