@@ -20,9 +20,11 @@ import {
   botLabel,
   botLevelStats,
 } from "@/lib/bot";
+import type { CricketStyle } from "@/lib/cricket-engine";
 import { matchStatus, useGameStore } from "@/lib/store";
 export function MatchSetup() {
-  const { settings, profiles, current, start, readOnly } = useGameStore();
+  const { settings, profiles, current, start, startCricket, readOnly } =
+    useGameStore();
   const [score, setScore] = useState<301 | 501 | 701>(settings.startScore);
   const [doubleOut, setDoubleOut] = useState(settings.doubleOut);
   const [names, setNames] = useState(["Player 1", "Player 2"]);
@@ -33,7 +35,23 @@ export function MatchSetup() {
   const [replace, setReplace] = useState(false);
   const [opponent, setOpponent] = useState("local");
   const [difficulty, setDifficulty] = useState(DEFAULT_BOT_LEVEL);
+  const [gameMode, setGameMode] = useState<"x01" | "cricket">("x01");
+  const [cricketStyle, setCricketStyle] = useState<CricketStyle>("standard");
   const router = useRouter();
+  function chooseMode(mode: "x01" | "cricket") {
+    setGameMode(mode);
+    if (mode !== "cricket") return;
+    // Cricket has no bot: turn a DartBot slot back into a normal player.
+    if (opponent === "bot")
+      setNames(
+        names.map((n, i) => (i === names.length - 1 ? `Player ${i + 1}` : n)),
+      );
+    setOpponent("local");
+    if (names.length < 2) {
+      setNames([...names, `Player ${names.length + 1}`]);
+      setProfileIds([...profileIds, ""]);
+    }
+  }
   function begin() {
     let players;
     try {
@@ -52,6 +70,11 @@ export function MatchSetup() {
     setValidationError(null);
     if (matchStatus(current) === "playing" && !replace) {
       setReplace(true);
+      return;
+    }
+    if (gameMode === "cricket") {
+      startCricket({ style: cricketStyle, legsToWin: legs, players });
+      router.push("/match");
       return;
     }
     start({
@@ -95,6 +118,27 @@ export function MatchSetup() {
               </h2>
               <span className="step-number">01</span>
             </div>
+            <label className="field-label">GAME</label>
+            <div className="segmented game-options">
+              {(
+                [
+                  { mode: "x01", label: "x01" },
+                  { mode: "cricket", label: "Cricket" },
+                ] as const
+              ).map((g) => (
+                <button
+                  type="button"
+                  key={g.mode}
+                  className={gameMode === g.mode ? "selected" : ""}
+                  aria-pressed={gameMode === g.mode}
+                  onClick={() => chooseMode(g.mode)}
+                >
+                  {g.label}
+                </button>
+              ))}
+            </div>
+            {gameMode === "x01" ? (
+              <>
             <label className="field-label">STARTING SCORE</label>
             <div className="segmented score-options">
               {([301, 501, 701] as const).map((s) => (
@@ -168,6 +212,59 @@ export function MatchSetup() {
                 </select>
               </label>
             </div>
+              </>
+            ) : (
+              <>
+            <label className="field-label">SCORING STYLE</label>
+            <div className="rule-options">
+              {(
+                [
+                  {
+                    value: "standard",
+                    title: "Standard",
+                    desc: "Score on numbers your rivals have open. Highest score wins.",
+                  },
+                  {
+                    value: "cutthroat",
+                    title: "Cut-throat",
+                    desc: "Points go to rivals who have the number open. Lowest score wins.",
+                  },
+                ] as const
+              ).map((style) => (
+                <button
+                  type="button"
+                  key={style.value}
+                  onClick={() => setCricketStyle(style.value)}
+                  className={cricketStyle === style.value ? "selected" : ""}
+                  aria-pressed={cricketStyle === style.value}
+                >
+                  <span className="radio">
+                    {cricketStyle === style.value && <Check size={12} />}
+                  </span>
+                  <span>
+                    <strong>{style.title}</strong>
+                    <small>{style.desc}</small>
+                  </span>
+                </button>
+              ))}
+            </div>
+            <div className="two-fields">
+              <label className="field-label">
+                LEGS TO WIN
+                <select
+                  value={legs}
+                  onChange={(e) => setLegs(Number(e.target.value))}
+                >
+                  {[1, 2, 3, 4, 5].map((n) => (
+                    <option key={n} value={n}>
+                      First to {n}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            </div>
+              </>
+            )}
           </section>
           <section className="panel">
             <div className="section-heading">
@@ -234,7 +331,7 @@ export function MatchSetup() {
                       ))}
                     </select>
                   </div>
-                  {names.length > (opponent === "bot" ? 2 : 1) && (
+                  {names.length > (gameMode === "cricket" || opponent === "bot" ? 2 : 1) && (
                     <Button
                       type="button"
                       variant="ghost"
@@ -251,6 +348,7 @@ export function MatchSetup() {
                 </div>
               ),
             )}
+            {gameMode === "x01" && (
             <div className="two-fields opponent-fields">
               <label className="field-label">
                 Opponent
@@ -300,6 +398,7 @@ export function MatchSetup() {
                 </div>
               )}
             </div>
+            )}
             {names.length < 4 && (
               <Button
                 type="button"
@@ -317,14 +416,33 @@ export function MatchSetup() {
         <aside className="panel match-summary">
           <span className="eyebrow">YOUR MATCH</span>
           <div className="summary-score">
-            {score}
-            <span>X01 / LOCAL</span>
+            {gameMode === "cricket" ? "20-15" : score}
+            <span>
+              {gameMode === "cricket" ? "CRICKET / LOCAL" : "X01 / LOCAL"}
+            </span>
           </div>
           <dl>
             <div>
               <dt>Players</dt>
               <dd>{names.length}</dd>
             </div>
+            {gameMode === "cricket" ? (
+              <>
+                <div>
+                  <dt>Style</dt>
+                  <dd>
+                    {cricketStyle === "standard" ? "Standard" : "Cut-throat"}
+                  </dd>
+                </div>
+                <div>
+                  <dt>Format</dt>
+                  <dd>
+                    First to {legs} {legs === 1 ? "leg" : "legs"}
+                  </dd>
+                </div>
+              </>
+            ) : (
+              <>
             <div>
               <dt>Checkout</dt>
               <dd>{doubleOut ? "Double out" : "Single out"}</dd>
@@ -339,6 +457,8 @@ export function MatchSetup() {
               <dt>Legs per set</dt>
               <dd>First to {legs}</dd>
             </div>
+              </>
+            )}
           </dl>
           <p className="summary-note">
             <Info size={16} /> Scores save after every dart. Pick up where you
