@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
@@ -25,6 +25,7 @@ import { matchStatus, useGameStore } from "@/lib/store";
 import { makeAtcOrder } from "@/lib/atc-engine";
 import { AtcSettings, type AtcSettingsValue } from "./atc-settings";
 import { parseCheckoutSetup } from "@/lib/checkout-setup";
+import { takeSetupMode } from "@/lib/setup-mode";
 import {
   CheckoutSettings,
   type CheckoutSettingsValue,
@@ -70,6 +71,12 @@ export function MatchSetup() {
   });
   const [cricketStyle, setCricketStyle] = useState<CricketStyle>("standard");
   const router = useRouter();
+  // A game picked on the overview is preselected. Read on mount so server and client render alike.
+  useEffect(() => {
+    const requested = takeSetupMode();
+    if (requested) chooseMode(requested);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   function chooseMode(mode: "x01" | "cricket" | "atc" | "checkout") {
     setGameMode(mode);
     if (mode === "x01") return;

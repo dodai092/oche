@@ -3841,3 +3841,10 @@ fieldset.scoring-panel[hidden] {
     padding-bottom: 0;
   }
 }
+
+@media (max-width: 700px) {
+  /* Sits above the fixed bottom tab bar (66px with its border, plus the safe area), so Start match stays visible. */
+  .match-summary {
+    bottom: calc(66px + env(safe-area-inset-bottom));
+  }
+}

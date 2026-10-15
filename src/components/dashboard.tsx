@@ -22,6 +22,7 @@ import {
   useGameStore,
 } from "@/lib/store";
 import { playerStats } from "@/lib/engine";
+import { requestSetupMode } from "@/lib/setup-mode";
 export function Dashboard() {
   const { current, history, profiles } = useGameStore();
   const stats = history.filter(isX01).flatMap((m) =>
@@ -138,7 +139,7 @@ export function Dashboard() {
             <h2>Choose your game</h2>
             <span className="muted small">THE CLASSICS, DONE RIGHT</span>
           </div>
-          <Link href="/new" className="mode-card">
+          <Link href="/new" className="mode-card" onClick={() => requestSetupMode("x01")}>
             <span className="mode-icon">
               <Crosshair size={29} />
             </span>
@@ -154,7 +155,7 @@ export function Dashboard() {
             </div>
             <ArrowUpRight size={23} />
           </Link>
-          <Link href="/new" className="mode-card">
+          <Link href="/new" className="mode-card" onClick={() => requestSetupMode("cricket")}>
             <span className="mode-icon">
               <Target size={29} />
             </span>
@@ -170,7 +171,7 @@ export function Dashboard() {
             </div>
             <ArrowUpRight size={23} />
           </Link>
-          <Link href="/new" className="mode-card">
+          <Link href="/new" className="mode-card" onClick={() => requestSetupMode("atc")}>
             <span className="mode-icon">
               <Clock size={29} />
             </span>
@@ -186,7 +187,7 @@ export function Dashboard() {
             </div>
             <ArrowUpRight size={23} />
           </Link>
-          <Link href="/new" className="mode-card">
+          <Link href="/new" className="mode-card" onClick={() => requestSetupMode("checkout")}>
             <span className="mode-icon">
               <Flag size={29} />
             </span>
