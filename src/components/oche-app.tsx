@@ -11,8 +11,11 @@ import {
   ArrowUpRight,
   Target,
   CircleHelp,
+  Moon,
+  Sun,
 } from "lucide-react";
 import { useGameStore } from "@/lib/store";
+import { sheetLog, watchFinishedMatches } from "@/lib/sheet-log";
 import { startTabSession, acquireScoringTab } from "@/lib/tab-session";
 import { Button } from "./ui/button";
 import { OfflineManager } from "./offline-manager";
@@ -61,8 +64,25 @@ export function OcheApp({ screen }: { screen: Screen }) {
         );
     window.addEventListener("oche-storage-error", storageError);
     startTabSession();
-    return () => window.removeEventListener("oche-storage-error", storageError);
+    const stopSheetLog = watchFinishedMatches();
+    void sheetLog.flush();
+    const retrySheetLog = () => void sheetLog.flush();
+    window.addEventListener("online", retrySheetLog);
+    return () => {
+      window.removeEventListener("oche-storage-error", storageError);
+      window.removeEventListener("online", retrySheetLog);
+      stopSheetLog();
+    };
   }, []);
+  function toggleTheme() {
+    const next = document.documentElement.dataset.theme === "light" ? "dark" : "light";
+    document.documentElement.dataset.theme = next;
+    try {
+      localStorage.setItem("oche-theme", next);
+    } catch {
+      // Without storage the choice lasts for this page only.
+    }
+  }
   return (
     <>
       <a className="skip-link" href="#main-content">
@@ -115,9 +135,21 @@ export function OcheApp({ screen }: { screen: Screen }) {
               <span className="status-dot" />{" "}
               {error ? "Storage unavailable" : "Saved on this device"}
             </div>
-            <Link href="/settings" className="topbar-settings" aria-label="Settings">
-              <Settings2 size={18} />
-            </Link>
+            <div className="topbar-actions">
+              <button
+                type="button"
+                className="theme-toggle"
+                onClick={toggleTheme}
+                aria-label="Switch light and dark mode"
+                title="Switch light and dark mode"
+              >
+                <Sun size={17} className="icon-sun" />
+                <Moon size={17} className="icon-moon" />
+              </button>
+              <Link href="/settings" className="topbar-settings" aria-label="Settings">
+                <Settings2 size={18} />
+              </Link>
+            </div>
           </header>
           {error && (
             <div role="alert" className="error-banner">

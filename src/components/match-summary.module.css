@@ -42,7 +42,7 @@
   font-variant-numeric: tabular-nums;
 }
 .highlight {
-  color: var(--lime, #c4f568);
+  color: var(--accent, #6f9fd6);
   font-size: 22px;
 }
 .tableScroll {

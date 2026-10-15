@@ -50,6 +50,7 @@ import {
 import { Button } from "./ui/button";
 import type { Screen } from "./oche-app";
 import { BackupPanel } from "./backup-panel";
+import { SheetLogPanel } from "./sheet-log-panel";
 import { MatchSummary } from "./match-summary";
 const titles = {
   players: ["The home team", "Your regulars, ready for the next match."],
@@ -416,6 +417,9 @@ export function DataScreens({
               to keep a longer record.
             </p>
             <BackupPanel />
+          </section>
+          <section className="panel">
+            <SheetLogPanel />
           </section>
         </div>
       )}
