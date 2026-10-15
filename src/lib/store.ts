@@ -23,6 +23,15 @@ import {
   type Dart,
 } from "./engine";
 import {
+  createAtcGame,
+  endAtcTurn,
+  throwAtcDart,
+  undoAtcDart,
+  undoAtcTurn,
+  type AtcConfig,
+  type AtcGame,
+} from "./atc-engine";
+import {
   createCricketGame,
   endCricketTurn,
   throwCricketDart,
@@ -45,22 +54,37 @@ export type CricketMatch = {
   mode: "cricket";
   cricket: CricketGame;
 };
-export type AnyMatch = SavedMatch | CricketMatch;
+export type AtcMatch = {
+  id: string;
+  startedAt: string;
+  finishedAt?: string;
+  mode: "atc";
+  atc: AtcGame;
+};
+export type AnyMatch = SavedMatch | CricketMatch | AtcMatch;
 export const isCricket = (m: AnyMatch | null | undefined): m is CricketMatch =>
   m?.mode === "cricket";
+export const isAtc = (m: AnyMatch | null | undefined): m is AtcMatch =>
+  m?.mode === "atc";
 export const isX01 = (m: AnyMatch | null | undefined): m is SavedMatch =>
-  !!m && m.mode !== "cricket";
-const gameOf = (m: AnyMatch) => (isCricket(m) ? m.cricket : m.game);
+  !!m && m.mode !== "cricket" && m.mode !== "atc";
+/** The mode's game state. Every mode's game has players, events, status and winner. */
+export const matchGame = (m: AnyMatch) =>
+  isCricket(m) ? m.cricket : isAtc(m) ? m.atc : m.game;
 export const matchStatus = (m: AnyMatch | null | undefined) =>
-  m ? gameOf(m).status : null;
+  m ? matchGame(m).status : null;
 export const matchEventCount = (m: AnyMatch | null | undefined) =>
-  m ? gameOf(m).events.length : 0;
+  m ? matchGame(m).events.length : 0;
 export const matchPlayerNames = (m: AnyMatch) =>
-  gameOf(m).players.map((p) => p.name);
+  matchGame(m).players.map((p) => p.name);
 export const matchLabel = (m: AnyMatch) =>
-  isCricket(m) ? "Cricket" : String(m.game.config.startScore);
+  isCricket(m)
+    ? "Cricket"
+    : isAtc(m)
+      ? "Around the Clock"
+      : String(m.game.config.startScore);
 export const matchWinnerName = (m: AnyMatch) => {
-  const g = gameOf(m);
+  const g = matchGame(m);
   return g.players[g.winner ?? 0].name;
 };
 export type Profile = { id: string; name: string };
@@ -95,6 +119,10 @@ type Store = {
   cricketDart: (dart: Dart) => void;
   cricketFinishTurn: () => void;
   cricketUndo: (turn?: boolean) => void;
+  startAtc: (config: AtcConfig) => void;
+  atcDart: (dart: Dart) => void;
+  atcFinishTurn: () => void;
+  atcUndo: (turn?: boolean) => void;
   addPlayer: (name: string) => void;
   removePlayer: (id: string) => void;
   updateSettings: (settings: Partial<Settings>) => void;
@@ -133,7 +161,7 @@ export const useGameStore = create<Store>()(
       };
       const updateGame = (game: GameState) => {
         const current = get().current;
-        if (!current || isCricket(current)) return;
+        if (!isX01(current)) return;
         commit(current, { ...current, game }, game.status === "complete");
       };
       const updateCricket = (cricket: CricketGame) => {
@@ -143,11 +171,20 @@ export const useGameStore = create<Store>()(
       };
       const x01Game = () => {
         const current = get().current;
-        return current && !isCricket(current) ? current.game : undefined;
+        return isX01(current) ? current.game : undefined;
       };
       const cricketGame = () => {
         const current = get().current;
         return isCricket(current) ? current.cricket : undefined;
+      };
+      const updateAtc = (atc: AtcGame) => {
+        const current = get().current;
+        if (!isAtc(current)) return;
+        commit(current, { ...current, atc }, atc.status === "complete");
+      };
+      const atcGame = () => {
+        const current = get().current;
+        return isAtc(current) ? current.atc : undefined;
       };
       return {
         current: null,
@@ -203,6 +240,7 @@ export const useGameStore = create<Store>()(
           const current = get().current;
           if (!current || matchStatus(current) !== "complete") return;
           if (isCricket(current)) get().startCricket(current.cricket.config);
+          else if (isAtc(current)) get().startAtc(current.atc.config);
           else get().start(current.game.config);
         },
         visit: (score, options) => {
@@ -251,6 +289,32 @@ export const useGameStore = create<Store>()(
           const game = cricketGame();
           if (game)
             updateCricket(turn ? undoCricketTurn(game) : undoCricketDart(game));
+        },
+        startAtc: (config) => {
+          if (get().readOnly) return;
+          set({
+            current: {
+              id: crypto.randomUUID(),
+              startedAt: new Date().toISOString(),
+              mode: "atc",
+              atc: createAtcGame(config),
+            },
+          });
+        },
+        atcDart: (dart) => {
+          if (get().readOnly) return;
+          const game = atcGame();
+          if (game) updateAtc(throwAtcDart(game, dart));
+        },
+        atcFinishTurn: () => {
+          if (get().readOnly) return;
+          const game = atcGame();
+          if (game) updateAtc(endAtcTurn(game));
+        },
+        atcUndo: (turn = false) => {
+          if (get().readOnly) return;
+          const game = atcGame();
+          if (game) updateAtc(turn ? undoAtcTurn(game) : undoAtcDart(game));
         },
         addPlayer: (name) => {
           if (get().readOnly) return;

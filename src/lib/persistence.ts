@@ -4,6 +4,11 @@ import {
   type CricketConfig,
   type CricketEvent,
 } from "./cricket-engine";
+import {
+  restoreAtcGame,
+  type AtcConfig,
+  type AtcEvent,
+} from "./atc-engine";
 import type { AnyMatch, Profile, Settings } from "./store";
 type StorageBackend = {
   getItem: (key: string) => string | null;
@@ -76,7 +81,12 @@ function players(config: Record<string, unknown>) {
 }
 function match(value: unknown): AnyMatch {
   const v = record(value);
-  if (v.mode !== undefined && v.mode !== "x01" && v.mode !== "cricket")
+  if (
+    v.mode !== undefined &&
+    v.mode !== "x01" &&
+    v.mode !== "cricket" &&
+    v.mode !== "atc"
+  )
     throw Error("Invalid saved match mode");
   const base = {
     id: text(v.id),
@@ -94,6 +104,16 @@ function match(value: unknown): AnyMatch {
         config as CricketConfig,
         c.events as CricketEvent[],
       ),
+    };
+  }
+  if (v.mode === "atc") {
+    const a = record(v.atc),
+      config = record(a.config);
+    players(config);
+    return {
+      ...base,
+      mode: "atc",
+      atc: restoreAtcGame(config as AtcConfig, a.events as AtcEvent[]),
     };
   }
   const g = record(v.game),
@@ -140,7 +160,11 @@ export function restorePersistedData(value: unknown): {
     throw Error("Duplicate saved players");
   const history = v.history.map(match);
   const status = (m: AnyMatch) =>
-    m.mode === "cricket" ? m.cricket.status : m.game.status;
+    m.mode === "cricket"
+      ? m.cricket.status
+      : m.mode === "atc"
+        ? m.atc.status
+        : m.game.status;
   if (history.some((m) => status(m) !== "complete"))
     throw Error("Incomplete archived match");
   return {
