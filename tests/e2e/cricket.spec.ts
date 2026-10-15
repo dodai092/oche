@@ -141,3 +141,47 @@ test("landscape phone keeps the board and the keypad reachable", async ({
   await expect(page.getByTestId("marks-0-20")).toBeInViewport();
   await expect(page.getByTestId("marks-0-25")).toBeInViewport();
 });
+
+test("history lists Cricket and x01 together, statistics stay x01 only, backup round-trips", async ({
+  page,
+}) => {
+  await startCricket(page);
+  await annWinsLeg(page);
+  await expect(page.getByRole("heading", { name: "Ann wins!" })).toBeVisible();
+  // One solo single-out 301 match for the x01 side.
+  await page.goto("/new");
+  await page.getByRole("button", { name: "301", exact: true }).click();
+  await page.getByRole("button", { name: "Single out", exact: false }).click();
+  await page.getByRole("button", { name: "Remove player 2", exact: true }).click();
+  await page.getByLabel("Player 1 name").fill("Antun");
+  await page.getByRole("button", { name: "Start match", exact: true }).click();
+  await page.getByRole("button", { name: "Dart-by-dart", exact: true }).click();
+  await page.getByRole("button", { name: "Triple", exact: true }).click();
+  for (let i = 0; i < 3; i++)
+    await page.getByRole("button", { name: "Hit 20", exact: true }).click();
+  await page.getByRole("button", { name: "Triple", exact: true }).click();
+  for (let i = 0; i < 2; i++)
+    await page.getByRole("button", { name: "Hit 20", exact: true }).click();
+  await page.getByRole("button", { name: "Single", exact: true }).click();
+  await page.getByRole("button", { name: "Hit 1", exact: true }).click();
+  await expect(page.getByRole("heading", { name: "Match complete!" })).toBeVisible();
+
+  await page.goto("/history");
+  await expect(page.locator(".history-record")).toHaveCount(2);
+  await expect(page.getByText("CRICKET / STANDARD")).toBeVisible();
+  await expect(page.getByText("Ann wins")).toBeVisible();
+
+  await page.goto("/statistics");
+  await expect(page.getByText(/Cricket is not tracked yet/)).toBeVisible();
+  await expect(page.locator("tbody tr")).toHaveCount(1);
+
+  await page.goto("/");
+  await expect(page.getByText("LAST MATCH")).toBeVisible();
+
+  await page.goto("/settings");
+  const download = page.waitForEvent("download");
+  await page.getByRole("button", { name: /Export/ }).first().click();
+  const file = await (await download).path();
+  await page.getByLabel("Import Oche backup").setInputFiles(file!);
+  await expect(page.getByText(/2 completed matches/)).toBeVisible();
+});

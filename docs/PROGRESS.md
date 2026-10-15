@@ -22,7 +22,7 @@ First milestone: a refresh-safe, playable local x01 match. Later modes remain pl
 ## Later priorities
 
 - [x] DartBot difficulty levels.
-- [ ] Cricket.
+- [x] Cricket (Standard and Cut-throat, 2 to 4 players).
 - [ ] Advanced statistics and player analytics.
 - [ ] Tournaments.
 - [ ] Supabase authentication and server-authoritative online multiplayer.
@@ -167,3 +167,9 @@ Clarify pass: plurals ("1 leg", "1 set"), solo completion reads "Match complete!
 Harden pass: offline unknown routes serve the app's own 404 page (checked in verify-offline), skip link, named details dialog and an sr-only h1 on the live match page, manifest theme color matches the meta tag, explicit favicon link, apple-touch icon flattened onto the charcoal background, and Statistics groups same-name guests with a Date column. Not done: maskable manifest icon (needs a padded asset). Committed locally, not pushed.
 
 Polish pass: removed the blank band above the leg table (global table margin), spacing between the completion summary line and buttons, a chevron on "How these are calculated", and the unused `.score-progress` styles (which was the only detector finding). Committed locally.
+
+## Cricket: 2026-10-15
+
+Added Cricket beside x01 on branch `cricket`: pure event-sourced engine, saved-match union tagged by `mode` (missing means x01), setup with game selector, dart-by-dart live screen with undo, completion with rematch, mixed history, dashboard entry and backup round trip. Statistics stay x01 only and say so. Out of scope: DartBot Cricket, No-score, solo, sets, Cricket statistics, speech for Cricket.
+
+Verification: 96 unit tests, 98 browser checks passed with one intentional skip (Chromium, mobile Chromium, mobile WebKit), TypeScript and ESLint clean, Pages export and offline script passed in Chromium. Not claimed: physical iPhone, VoiceOver, real audio and wake lock.

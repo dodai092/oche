@@ -11,11 +11,14 @@ import {
   ChartNoAxesCombined,
 } from "lucide-react";
 import {
+  isCricket,
   isX01,
   useGameStore,
   safeStorage,
+  type CricketMatch,
   type SavedMatch,
 } from "@/lib/store";
+import { CricketSummary } from "./cricket-summary";
 import { playerStats } from "@/lib/engine";
 import { Button } from "./ui/button";
 import type { Screen } from "./oche-app";
@@ -129,11 +132,13 @@ export function DataScreens({
           ) : (
             <div className="profiles-grid">
               {store.profiles.map((p, i) => {
-                const played = matches.filter((m) =>
-                  m.game.players.some((x) => x.id === p.id),
+                const game = (m: (typeof allMatches)[number]) =>
+                  isCricket(m) ? m.cricket : m.game;
+                const played = allMatches.filter((m) =>
+                  game(m).players.some((x) => x.id === p.id),
                 );
                 const won = played.filter(
-                  (m) => m.game.players[m.game.winner ?? 0].id === p.id,
+                  (m) => game(m).players[game(m).winner ?? 0].id === p.id,
                 ).length;
                 return (
                   <article key={p.id} className="panel profile-card">
@@ -176,7 +181,9 @@ export function DataScreens({
                 </option>
               ))}
             </select>
-            <span className="small muted">Completed matches only</span>
+            <span className="small muted">
+              Completed x01 matches only. Cricket is not tracked yet.
+            </span>
           </div>
           {!rows.length ? (
             <Empty
@@ -259,7 +266,7 @@ export function DataScreens({
       )}
       {screen === "history" && (
         <>
-          {!matches.length ? (
+          {!allMatches.length ? (
             <Empty
               icon={<History size={36} />}
               title="A fresh scorebook."
@@ -267,9 +274,13 @@ export function DataScreens({
             />
           ) : (
             <div className="history-list">
-              {matches.map((m) => (
-                <MatchRecord key={m.id} match={m} />
-              ))}
+              {allMatches.map((m) =>
+                isCricket(m) ? (
+                  <CricketRecord key={m.id} match={m} />
+                ) : (
+                  <MatchRecord key={m.id} match={m} />
+                ),
+              )}
             </div>
           )}
         </>
@@ -383,6 +394,30 @@ function Empty({
         </Link>
       </Button>
     </div>
+  );
+}
+function CricketRecord({ match }: { match: CricketMatch }) {
+  const g = match.cricket;
+  return (
+    <details className="panel history-record">
+      <summary>
+        <span className="history-trophy">
+          <Trophy size={21} />
+        </span>
+        <span>
+          <strong>{g.players[g.winner ?? 0].name} wins</strong>
+          <small>
+            {g.players.map((p) => p.name).join(" vs ")} ·{" "}
+            {new Date(match.startedAt).toLocaleDateString("en-GB")}
+          </small>
+        </span>
+        <span className="outline-tag">
+          CRICKET / {g.config.style === "standard" ? "STANDARD" : "CUT-THROAT"}
+        </span>
+        <Plus size={18} />
+      </summary>
+      <CricketSummary game={g} />
+    </details>
   );
 }
 function MatchRecord({ match }: { match: SavedMatch }) {

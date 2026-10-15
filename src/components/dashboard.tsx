@@ -152,6 +152,22 @@ export function Dashboard() {
             </div>
             <ArrowUpRight size={23} />
           </Link>
+          <Link href="/new" className="mode-card">
+            <span className="mode-icon">
+              <Target size={29} />
+            </span>
+            <div>
+              <div className="mode-title">
+                Cricket <span className="pill">NEW</span>
+              </div>
+              <p>Close 15 to 20 and the bull before your rivals.</p>
+              <span className="mode-meta">
+                Standard or cut-throat <span>·</span> 2-4 players <span>·</span>{" "}
+                Legs
+              </span>
+            </div>
+            <ArrowUpRight size={23} />
+          </Link>
           <div className="tip">
             <Target size={20} />
             <p>

@@ -45,6 +45,8 @@ End turn closes a partial visit using only the darts entered. On an empty visit 
 
 Scores and settings save after each change. Completing a match adds it to history. Undoing the winning dart removes that result until the match finishes again. Starting a new match over an unfinished one requires an explicit replacement click.
 
+Choose Cricket under Game in setup for Standard or Cut-throat scoring, 2 to 4 local players and first to N legs. Cricket is entered dart by dart on 15 to 20 and the bull, with undo dart, undo turn and end turn. Cricket matches share history, backup and rematch with x01. There is no DartBot, No-score variant, solo practice, sets, Cricket statistics or speech for Cricket yet.
+
 Choose DartBot under Opponent in setup for Easy, Medium or Hard play. The bot throws individual segments using the normal rules. These are relative strengths, not promised averages. Pause and Undo bot turn stop its next dart so you can correct a visit. Bot turns stop while the page is hidden.
 
 Open More match details during play for Keep screen awake and Spoken scores. Both are optional and depend on browser/device support. Wake lock releases when you leave play and retries when the match becomes visible. Speech starts from a user action and defaults off when you reopen the match. Device voices may require a connection.
@@ -108,7 +110,7 @@ The production dependency audit returned zero vulnerabilities. The full audit re
 
 ## Next milestones
 
-Cricket, richer longitudinal player analytics, tournaments and Supabase online play remain planned. DartBot and per-match comparisons are implemented. No simulated online controls are exposed.
+Richer longitudinal player analytics, tournaments and Supabase online play remain planned. DartBot, Cricket and per-match comparisons are implemented. No simulated online controls are exposed.
 
 ## Documents
 
