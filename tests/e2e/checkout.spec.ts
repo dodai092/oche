@@ -273,9 +273,14 @@ test("history lists x01, Around the Clock and 121 Checkout together, statistics 
 
   await page.goto("/statistics");
   await expect(
-    page.getByText(/Cricket, Around the Clock and 121 Checkout are not tracked yet/),
+    page.getByText(/Completed matches on this device/),
   ).toBeVisible();
   await expect(page.locator("tbody tr")).toHaveCount(1);
+  await page.locator("#stats-game").selectOption("all");
+  await expect(page.locator("tbody tr")).toHaveCount(3);
+  await page.locator("#stats-game").selectOption("checkout");
+  await expect(page.getByText("BEST TARGET")).toBeVisible();
+  await page.locator("#stats-game").selectOption("x01");
 
   await page.goto("/");
   await expect(page.getByText("LAST MATCH")).toBeVisible();

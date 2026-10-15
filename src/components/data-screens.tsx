@@ -14,7 +14,6 @@ import {
   isAtc,
   isCheckout,
   isCricket,
-  isX01,
   matchWinner,
   matchGame,
   useGameStore,
@@ -30,6 +29,13 @@ import { atcSettingsLabel } from "./atc-match";
 import { CheckoutSummary } from "./checkout-summary";
 import { checkoutSettingsLabel } from "./checkout-match";
 import { playerStats } from "@/lib/engine";
+import {
+  STATS_GAME_LABEL,
+  statRows,
+  type StatRow,
+  type StatsFilter,
+  type StatsGame,
+} from "@/lib/game-stats";
 import { Button } from "./ui/button";
 import type { Screen } from "./oche-app";
 import { BackupPanel } from "./backup-panel";
@@ -50,31 +56,18 @@ export function DataScreens({
   const [playerFilter, setPlayerFilter] = useState("all");
   const [title, subtitle] = titles[screen];
   const allMatches = store.history;
-  const matches = allMatches.filter(isX01);
+  const [gameFilter, setGameFilter] = useState<StatsFilter>("x01");
+  const allRows = statRows(allMatches);
   const uniquePlayers = Array.from(
     new Map(
       // Guests get a new id every match, so group by name.
-      matches.flatMap((m) =>
-        m.game.players.map(
-          (p) => [p.name.trim().toLowerCase(), p.name.trim()] as const,
-        ),
-      ),
+      allRows.map((r) => [r.playerName.trim().toLowerCase(), r.playerName.trim()] as const),
     ).entries(),
   );
-  const rows = matches
-    .flatMap((m) =>
-      m.game.players.map((p, i) => ({
-        match: m,
-        player: p,
-        stats: playerStats(m.game, i),
-      })),
-    )
-    .filter((r) => playerFilter === "all" ||
-        r.player.name.trim().toLowerCase() === playerFilter);
-  const darts = rows.reduce((s, r) => s + r.stats.darts, 0),
-    points = rows.reduce((s, r) => s + r.stats.points, 0),
-    attempts = rows.reduce((s, r) => s + r.stats.checkoutAttempts, 0),
-    checkouts = rows.reduce((s, r) => s + r.stats.checkouts, 0);
+  const gameRows = allRows.filter((r) => gameFilter === "all" || r.game === gameFilter);
+  const rows = gameRows.filter(
+    (r) => playerFilter === "all" || r.playerName.trim().toLowerCase() === playerFilter,
+  );
   function downloadRaw() {
     const raw = safeStorage.raw();
     if (raw === null) return;
@@ -177,6 +170,18 @@ export function DataScreens({
       {screen === "statistics" && (
         <>
           <div className="filter-bar">
+            <label htmlFor="stats-game">GAME</label>
+            <select
+              id="stats-game"
+              value={gameFilter}
+              onChange={(e) => setGameFilter(e.target.value as StatsFilter)}
+            >
+              <option value="x01">501</option>
+              <option value="cricket">Cricket</option>
+              <option value="atc">Around the Clock</option>
+              <option value="checkout">121</option>
+              <option value="all">All games</option>
+            </select>
             <label htmlFor="stats-player">PLAYER</label>
             <select
               id="stats-player"
@@ -191,7 +196,7 @@ export function DataScreens({
               ))}
             </select>
             <span className="small muted">
-              Completed x01 matches only. Cricket, Around the Clock and 121 Checkout are not tracked yet.
+              Completed matches on this device. Each game has its own figures.
             </span>
           </div>
           {!rows.length ? (
@@ -200,76 +205,10 @@ export function DataScreens({
               title="Find your baseline."
               text="Complete your first match to see your scoring and checkout statistics."
             />
+          ) : gameFilter === "x01" ? (
+            <X01Stats rows={rows.filter((r) => r.game === "x01")} />
           ) : (
-            <>
-              <div className="overview-stats">
-                {[
-                  {
-                    label: "3-DART AVERAGE",
-                    value: darts ? ((points / darts) * 3).toFixed(2) : "0.00",
-                  },
-                  { label: "DARTS THROWN", value: darts },
-                  {
-                    label: "180s",
-                    value: rows.reduce((s, r) => s + r.stats.oneEighties, 0),
-                  },
-                  {
-                    label: "CHECKOUT RATE",
-                    value: `${attempts ? ((checkouts / attempts) * 100).toFixed(1) : 0}%`,
-                  },
-                ].map((x) => (
-                  <div className="stat-card" key={x.label}>
-                    <div className="stat-top">{x.label}</div>
-                    <strong>{x.value}</strong>
-                  </div>
-                ))}
-              </div>
-              <div className="panel">
-                <h2>Match breakdown</h2>
-                <div className="table-scroll">
-                  <table>
-                    <thead>
-                      <tr>
-                        <th>Player</th>
-                        <th>Date</th>
-                        <th>3-dart avg</th>
-                        <th>First 9 avg</th>
-                        <th>180s</th>
-                        <th>Checkouts</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {rows.map((r) => (
-                        <tr key={`${r.match.id}-${r.player.id}`}>
-                          <td>{r.player.name}</td>
-                          <td>
-                            {new Date(r.match.startedAt).toLocaleDateString(
-                              "en-GB",
-                            )}
-                          </td>
-                          <td>{r.stats.average.toFixed(2)}</td>
-                          <td>
-                            {r.stats.first9 === null
-                              ? "Unavailable"
-                              : r.stats.first9.toFixed(2)}
-                          </td>
-                          <td>{r.stats.oneEighties}</td>
-                          <td>
-                            {r.stats.checkouts}/{r.stats.checkoutAttempts}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-                <p className="small muted">
-                  Checkout attempts are reported for visit totals and inferred
-                  for individual darts. Busts count three statistical darts.
-                  First-9 averages cover each leg; first-nine is unavailable
-                  when an entered total straddles dart nine.
-                </p>
-              </div>
-            </>
+            <MixedStats rows={rows} filter={gameFilter} />
           )}
         </>
       )}
@@ -561,5 +500,159 @@ function MatchRecord({ match }: { match: SavedMatch }) {
         </table>
       </div>
     </details>
+  );
+}
+
+type X01Row = Extract<StatRow, { game: "x01" }>;
+
+function X01Stats({ rows }: { rows: X01Row[] }) {
+  const darts = rows.reduce((s, r) => s + r.stats.darts, 0),
+    points = rows.reduce((s, r) => s + r.stats.points, 0),
+    attempts = rows.reduce((s, r) => s + r.stats.checkoutAttempts, 0),
+    checkouts = rows.reduce((s, r) => s + r.stats.checkouts, 0);
+  return (
+    <>
+      <div className="overview-stats">
+        {[
+          {
+            label: "3-DART AVERAGE",
+            value: darts ? ((points / darts) * 3).toFixed(2) : "0.00",
+          },
+          { label: "DARTS THROWN", value: darts },
+          {
+            label: "180s",
+            value: rows.reduce((s, r) => s + r.stats.oneEighties, 0),
+          },
+          {
+            label: "CHECKOUT RATE",
+            value: `${attempts ? ((checkouts / attempts) * 100).toFixed(1) : 0}%`,
+          },
+        ].map((x) => (
+          <div className="stat-card" key={x.label}>
+            <div className="stat-top">{x.label}</div>
+            <strong>{x.value}</strong>
+          </div>
+        ))}
+      </div>
+      <div className="panel">
+        <h2>Match breakdown</h2>
+        <div className="table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>Player</th>
+                <th>Date</th>
+                <th>3-dart avg</th>
+                <th>First 9 avg</th>
+                <th>180s</th>
+                <th>Checkouts</th>
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map((r) => (
+                <tr key={`${r.matchId}-${r.playerId}`}>
+                  <td>{r.playerName}</td>
+                  <td>{new Date(r.startedAt).toLocaleDateString("en-GB")}</td>
+                  <td>{r.stats.average.toFixed(2)}</td>
+                  <td>
+                    {r.stats.first9 === null ? "Unavailable" : r.stats.first9.toFixed(2)}
+                  </td>
+                  <td>{r.stats.oneEighties}</td>
+                  <td>
+                    {r.stats.checkouts}/{r.stats.checkoutAttempts}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <p className="small muted">
+          Checkout attempts are reported for visit totals and inferred for individual darts. Busts count
+          three statistical darts. First-9 averages cover each leg; first-nine is unavailable when an
+          entered total straddles dart nine.
+        </p>
+      </div>
+    </>
+  );
+}
+
+function MixedStats({ rows, filter }: { rows: StatRow[]; filter: Exclude<StatsFilter, "x01"> }) {
+  const matches = new Set(rows.map((r) => r.matchId)).size;
+  const darts = rows.reduce((s, r) => s + r.darts, 0);
+  const of = <G extends StatsGame>(game: G) =>
+    rows.filter((r): r is Extract<StatRow, { game: G }> => r.game === game);
+  const cricket = of("cricket"),
+    atc = of("atc"),
+    checkout = of("checkout");
+  const perRound = (n: number, d: number) => (d ? ((n / d) * 3).toFixed(2) : "0.00");
+  const cards: { label: string; value: string | number }[] = [
+    { label: "MATCHES", value: matches },
+    { label: "DARTS THROWN", value: darts },
+  ];
+  if (filter === "cricket")
+    cards.push(
+      { label: "MARKS PER ROUND", value: perRound(cricket.reduce((s, r) => s + r.marks, 0), cricket.reduce((s, r) => s + r.darts, 0)) },
+      { label: "LEGS WON", value: cricket.reduce((s, r) => s + r.legs, 0) },
+    );
+  if (filter === "atc")
+    cards.push(
+      { label: "HITS PER ROUND", value: perRound(atc.reduce((s, r) => s + r.hits, 0), atc.reduce((s, r) => s + r.darts, 0)) },
+      { label: "LEGS WON", value: atc.reduce((s, r) => s + r.legs, 0) },
+    );
+  if (filter === "checkout")
+    cards.push(
+      { label: "BEST TARGET", value: Math.max(0, ...checkout.map((r) => r.best)) || "None" },
+      { label: "CHECKOUTS", value: checkout.reduce((s, r) => s + r.checkouts, 0) },
+    );
+  return (
+    <>
+      <div className="overview-stats">
+        {cards.map((x) => (
+          <div className="stat-card" key={x.label}>
+            <div className="stat-top">{x.label}</div>
+            <strong>{x.value}</strong>
+          </div>
+        ))}
+      </div>
+      <div className="panel">
+        <h2>Match breakdown</h2>
+        <div className="table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>Player</th>
+                <th>Date</th>
+                <th>Game</th>
+                <th>Darts</th>
+                <th>Figures</th>
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map((r) => (
+                <tr key={`${r.matchId}-${r.playerId}`}>
+                  <td>{r.playerName}</td>
+                  <td>{new Date(r.startedAt).toLocaleDateString("en-GB")}</td>
+                  <td>{STATS_GAME_LABEL[r.game]}</td>
+                  <td>{r.darts}</td>
+                  <td>
+                    {r.game === "x01"
+                      ? `${perRound(r.stats.points, r.darts)} avg`
+                      : r.game === "cricket"
+                        ? `${perRound(r.marks, r.darts)} marks/round · ${r.legs} ${r.legs === 1 ? "leg" : "legs"}`
+                        : r.game === "atc"
+                          ? `${perRound(r.hits, r.darts)} hits/round · ${r.legs} ${r.legs === 1 ? "leg" : "legs"}`
+                          : `${r.checkouts} ${r.checkouts === 1 ? "checkout" : "checkouts"} · best ${r.best}`}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <p className="small muted">
+          Each game is scored on its own terms, so compare figures within a game. Marks and hits are
+          counted per round of three darts.
+        </p>
+      </div>
+    </>
   );
 }

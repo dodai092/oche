@@ -217,7 +217,7 @@ test("history lists x01, Cricket and Around the Clock together, statistics stay 
 
   await page.goto("/statistics");
   await expect(
-    page.getByText(/Cricket, Around the Clock and 121 Checkout are not tracked yet/),
+    page.getByText(/Completed matches on this device/),
   ).toBeVisible();
   await expect(page.locator("tbody tr")).toHaveCount(1);
 
