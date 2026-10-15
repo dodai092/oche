@@ -200,11 +200,21 @@ export function DataScreens({
             </span>
           </div>
           {!rows.length ? (
-            <Empty
-              icon={<ChartNoAxesCombined size={36} />}
-              title="Find your baseline."
-              text="Complete your first match to see your scoring and checkout statistics."
-            />
+            <>
+              <div className="overview-stats stats-preview" aria-hidden="true">
+                {["3-DART AVERAGE", "DARTS THROWN", "180s", "CHECKOUT RATE"].map((label) => (
+                  <div className="stat-card" key={label}>
+                    <div className="stat-top">{label}</div>
+                    <strong>–</strong>
+                  </div>
+                ))}
+              </div>
+              <Empty
+                icon={<ChartNoAxesCombined size={36} />}
+                title="Find your baseline."
+                text="Complete your first match to see your scoring and checkout statistics."
+              />
+            </>
           ) : gameFilter === "x01" ? (
             <X01Stats rows={rows.filter((r) => r.game === "x01")} />
           ) : (

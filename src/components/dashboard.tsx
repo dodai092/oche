@@ -30,7 +30,9 @@ export function Dashboard() {
   );
   const darts = stats.reduce((s, x) => s + x.darts, 0),
     points = stats.reduce((s, x) => s + x.points, 0);
-  const avg = darts ? ((points / darts) * 3).toFixed(1) : "0.0";
+  // "–" until there is data, so a new device does not show zeros that look broken.
+  const avg = darts ? ((points / darts) * 3).toFixed(1) : "–";
+  const count = (n: number) => (n ? n.toString().padStart(2, "0") : "–");
   return (
     <div className="page-content">
       <div className="page-heading">
@@ -97,7 +99,7 @@ export function Dashboard() {
         {[
           {
             label: "MATCHES PLAYED",
-            value: history.length.toString().padStart(2, "0"),
+            value: count(history.length),
             icon: Crosshair,
             note: "Completed on this device",
           },
@@ -109,16 +111,13 @@ export function Dashboard() {
           },
           {
             label: "180s THROWN",
-            value: stats
-              .reduce((s, x) => s + x.oneEighties, 0)
-              .toString()
-              .padStart(2, "0"),
+            value: stats.length ? count(stats.reduce((s, x) => s + x.oneEighties, 0)) : "–",
             icon: Zap,
             note: "The perfect scoring visit",
           },
           {
             label: "YOUR PLAYERS",
-            value: profiles.length.toString().padStart(2, "0"),
+            value: count(profiles.length),
             icon: Trophy,
             note: "Your local lineup",
           },
@@ -161,7 +160,7 @@ export function Dashboard() {
             </span>
             <div>
               <div className="mode-title">
-                Cricket <span className="pill">NEW</span>
+                Cricket
               </div>
               <p>Close 15 to 20 and the bull before your rivals.</p>
               <span className="mode-meta">
@@ -177,7 +176,7 @@ export function Dashboard() {
             </span>
             <div>
               <div className="mode-title">
-                Around the Clock <span className="pill">NEW</span>
+                Around the Clock
               </div>
               <p>Hit every number in order, then the bull.</p>
               <span className="mode-meta">
@@ -193,7 +192,7 @@ export function Dashboard() {
             </span>
             <div>
               <div className="mode-title">
-                121 <span className="pill">NEW</span>
+                121
               </div>
               <p>Check out a rising target with a fixed dart budget.</p>
               <span className="mode-meta">

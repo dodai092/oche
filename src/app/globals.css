@@ -621,10 +621,11 @@ main {
   font-size: 12px;
   letter-spacing: 0.08em;
   font-weight: 600;
-  background: #2c3b20;
+  background: var(--raised);
+  border: 1px solid var(--line);
   border-radius: 4px;
   padding: 5px 7px;
-  color: var(--lime);
+  color: var(--muted);
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -707,7 +708,7 @@ main {
   padding: 20px 0 23px;
   display: flex;
   justify-content: space-between;
-  color: #62705e;
+  color: var(--muted);
   font-size: 12px;
   letter-spacing: 0.1em;
 }
@@ -3809,7 +3810,7 @@ fieldset.scoring-panel[hidden] {
     gap: 3px;
     min-height: 52px;
     padding: 4px 2px;
-    font-size: 11px;
+    font-size: 12px;
     border-radius: 8px;
   }
   .nav-item svg {
@@ -3847,4 +3848,10 @@ fieldset.scoring-panel[hidden] {
   .match-summary {
     bottom: calc(66px + env(safe-area-inset-bottom));
   }
+}
+
+/* Empty statistics: the four cards show as dashes so the screen reads as a page, not a gap. */
+.stats-preview {
+  opacity: 0.45;
+  margin-bottom: 16px;
 }
