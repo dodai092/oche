@@ -3504,3 +3504,118 @@ fieldset.scoring-panel[hidden] {
     height: 24px;
   }
 }
+
+.atc-board {
+  padding: 10px 12px;
+  margin-bottom: 16px;
+}
+.atc-players {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+}
+.atc-players li {
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 10px 12px;
+  background: var(--raised);
+  font-variant-numeric: tabular-nums;
+}
+.atc-players li.is-active {
+  border-color: var(--lime);
+}
+.atc-player-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 14px;
+}
+.atc-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.atc-target {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin: 4px 0 6px;
+}
+.atc-target strong {
+  font-size: 32px;
+  line-height: 1.1;
+  color: var(--text);
+}
+.atc-players li.is-active .atc-target strong {
+  color: var(--lime);
+}
+.atc-target small,
+.atc-players li > small {
+  font-size: 12px;
+  color: var(--muted);
+}
+.atc-bar {
+  height: 6px;
+  border-radius: 3px;
+  background: var(--line);
+  overflow: hidden;
+  margin-bottom: 6px;
+}
+.atc-bar > span {
+  display: block;
+  height: 100%;
+  background: var(--lime);
+}
+.atc-sequence {
+  display: grid;
+  gap: 8px;
+  padding: 10px 12px;
+  margin-bottom: 16px;
+}
+.atc-track {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.atc-track li {
+  min-width: 30px;
+  padding: 4px 6px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  font-size: 12px;
+  text-align: center;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+.atc-track li.done {
+  border-color: transparent;
+  color: var(--lime);
+  opacity: 0.6;
+}
+.atc-track li.now {
+  background: var(--lime);
+  border-color: var(--lime);
+  color: var(--bg);
+  font-weight: 700;
+}
+@media (max-height: 500px) and (orientation: landscape) {
+  .atc-page > .atc-board {
+    grid-column: 1;
+    align-self: start;
+    margin-bottom: 8px;
+    padding: 6px 8px;
+  }
+  .atc-players {
+    grid-template-columns: 1fr;
+  }
+  .atc-page > .atc-sequence {
+    display: none;
+  }
+}

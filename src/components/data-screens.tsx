@@ -13,6 +13,7 @@ import {
 import {
   isCricket,
   isX01,
+  matchGame,
   useGameStore,
   safeStorage,
   type CricketMatch,
@@ -132,8 +133,7 @@ export function DataScreens({
           ) : (
             <div className="profiles-grid">
               {store.profiles.map((p, i) => {
-                const game = (m: (typeof allMatches)[number]) =>
-                  isCricket(m) ? m.cricket : m.game;
+                const game = matchGame;
                 const played = allMatches.filter((m) =>
                   game(m).players.some((x) => x.id === p.id),
                 );
@@ -277,9 +277,9 @@ export function DataScreens({
               {allMatches.map((m) =>
                 isCricket(m) ? (
                   <CricketRecord key={m.id} match={m} />
-                ) : (
+                ) : isX01(m) ? (
                   <MatchRecord key={m.id} match={m} />
-                ),
+                ) : null,
               )}
             </div>
           )}
