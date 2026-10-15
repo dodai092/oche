@@ -3397,3 +3397,19 @@ fieldset.scoring-panel[hidden] {
     height: 20px;
   }
 }
+.cricket-input {
+  margin-bottom: 16px;
+}
+.keypad.cricket-keypad {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+@media (max-height: 500px) and (orientation: landscape) {
+  .cricket-page > .cricket-input {
+    grid-column: 2;
+    grid-row: 2 / span 2;
+    margin-bottom: 0;
+  }
+  .keypad.cricket-keypad button {
+    min-height: 44px;
+  }
+}
