@@ -4,7 +4,7 @@ test("121 Checkout setup hides other options, rejects a bad start and starts a r
   page,
 }) => {
   await page.goto("/new");
-  await page.getByRole("button", { name: "121 Checkout", exact: true }).click();
+  await page.getByRole("button", { name: "121", exact: true }).click();
   await expect(page.getByText("STARTING SCORE")).toHaveCount(0);
   await expect(page.getByText("CHECKOUT RULE")).toHaveCount(0);
   await expect(page.getByLabel("Opponent", { exact: true })).toHaveCount(0);
@@ -43,7 +43,7 @@ test("121 Checkout setup hides other options, rejects a bad start and starts a r
 
 test("custom rounds are validated and shown as an attempt count", async ({ page }) => {
   await page.goto("/new");
-  await page.getByRole("button", { name: "121 Checkout", exact: true }).click();
+  await page.getByRole("button", { name: "121", exact: true }).click();
   const rounds = page.getByRole("group", { name: "ROUNDS" });
   await rounds.getByRole("button", { name: "Custom", exact: true }).click();
   // The field is capped at two characters, so 0 is the invalid value a person can type.
@@ -66,7 +66,7 @@ test("switching from DartBot to 121 Checkout restores a normal second player", a
   await page.getByLabel("Player 2 name").fill("");
   await page.getByLabel("Opponent", { exact: true }).selectOption("bot");
   await expect(page.locator("strong", { hasText: "DartBot" })).toBeVisible();
-  await page.getByRole("button", { name: "121 Checkout", exact: true }).click();
+  await page.getByRole("button", { name: "121", exact: true }).click();
   await expect(page.getByLabel("Player 2 name")).toHaveValue("Player 2");
   await page.getByRole("button", { name: "Start match", exact: true }).click();
   await expect(page.getByTestId("active-player")).toHaveText("Player 1 to throw");
@@ -75,7 +75,7 @@ test("switching from DartBot to 121 Checkout restores a normal second player", a
 
 test("121 Checkout can be played solo", async ({ page }) => {
   await page.goto("/new");
-  await page.getByRole("button", { name: "121 Checkout", exact: true }).click();
+  await page.getByRole("button", { name: "121", exact: true }).click();
   await page.getByRole("button", { name: "Remove player 2", exact: true }).click();
   await expect(page.getByRole("button", { name: /^Remove player/ })).toHaveCount(0);
   await page.getByRole("button", { name: "Start match", exact: true }).click();
@@ -91,7 +91,7 @@ type RunOptions = {
 };
 async function startRun(page: Page, o: RunOptions = {}) {
   await page.goto("/new");
-  await page.getByRole("button", { name: "121 Checkout", exact: true }).click();
+  await page.getByRole("button", { name: "121", exact: true }).click();
   if (o.start) {
     await page
       .getByRole("group", { name: "START TARGET" })

@@ -3767,10 +3767,11 @@ fieldset.scoring-panel[hidden] {
   }
 }
 .game-options {
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
 }
 .game-options button {
-  flex: 1 1 auto;
+  min-width: 0;
 }
 
 .checkout-input .scoring-actions {

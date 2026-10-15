@@ -180,10 +180,10 @@ export function MatchSetup() {
             <div className="segmented game-options">
               {(
                 [
-                  { mode: "x01", label: "x01" },
+                  { mode: "x01", label: "501" },
                   { mode: "cricket", label: "Cricket" },
                   { mode: "atc", label: "Around the Clock" },
-                  { mode: "checkout", label: "121 Checkout" },
+                  { mode: "checkout", label: "121" },
                 ] as const
               ).map((g) => (
                 <button
@@ -500,8 +500,8 @@ export function MatchSetup() {
                 : gameMode === "atc"
                   ? "AROUND THE CLOCK / LOCAL"
                   : gameMode === "checkout"
-                    ? "121 CHECKOUT / LOCAL"
-                    : "X01 / LOCAL"}
+                    ? "121 / LOCAL"
+                    : "501 / LOCAL"}
             </span>
           </div>
           <dl>
