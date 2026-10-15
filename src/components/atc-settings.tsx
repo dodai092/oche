@@ -8,7 +8,7 @@ export type AtcSettingsValue = {
   orderMode: AtcOrderMode;
 };
 
-function Choice<T extends string | number>({
+export function Choice<T extends string | number>({
   label,
   options,
   value,

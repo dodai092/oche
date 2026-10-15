@@ -24,9 +24,22 @@ import type { CricketStyle } from "@/lib/cricket-engine";
 import { matchStatus, useGameStore } from "@/lib/store";
 import { makeAtcOrder } from "@/lib/atc-engine";
 import { AtcSettings, type AtcSettingsValue } from "./atc-settings";
+import { parseCheckoutSetup } from "@/lib/checkout-setup";
+import {
+  CheckoutSettings,
+  type CheckoutSettingsValue,
+} from "./checkout-settings";
 export function MatchSetup() {
-  const { settings, profiles, current, start, startCricket, startAtc, readOnly } =
-    useGameStore();
+  const {
+    settings,
+    profiles,
+    current,
+    start,
+    startCricket,
+    startAtc,
+    startCheckout,
+    readOnly,
+  } = useGameStore();
   const [score, setScore] = useState<301 | 501 | 701>(settings.startScore);
   const [doubleOut, setDoubleOut] = useState(settings.doubleOut);
   const [names, setNames] = useState(["Player 1", "Player 2"]);
@@ -37,7 +50,17 @@ export function MatchSetup() {
   const [replace, setReplace] = useState(false);
   const [opponent, setOpponent] = useState("local");
   const [difficulty, setDifficulty] = useState(DEFAULT_BOT_LEVEL);
-  const [gameMode, setGameMode] = useState<"x01" | "cricket" | "atc">("x01");
+  const [gameMode, setGameMode] = useState<
+    "x01" | "cricket" | "atc" | "checkout"
+  >("x01");
+  const [checkout, setCheckout] = useState<CheckoutSettingsValue>({
+    startMode: "121",
+    customStart: "",
+    darts: 9,
+    roundsMode: "10",
+    customRounds: "",
+  });
+  const checkoutPreview = parseCheckoutSetup(checkout);
   const [atc, setAtc] = useState<AtcSettingsValue>({
     finish: "bullseye",
     field: "any",
@@ -47,10 +70,10 @@ export function MatchSetup() {
   });
   const [cricketStyle, setCricketStyle] = useState<CricketStyle>("standard");
   const router = useRouter();
-  function chooseMode(mode: "x01" | "cricket" | "atc") {
+  function chooseMode(mode: "x01" | "cricket" | "atc" | "checkout") {
     setGameMode(mode);
     if (mode === "x01") return;
-    // Cricket and Around the Clock have no bot: turn a DartBot slot back into a normal player.
+    // Every other mode has no bot: turn a DartBot slot back into a normal player.
     if (opponent === "bot")
       setNames(
         names.map((n, i) => (i === names.length - 1 ? `Player ${i + 1}` : n)),
@@ -76,6 +99,12 @@ export function MatchSetup() {
       );
       return;
     }
+    const parsedCheckout =
+      gameMode === "checkout" ? parseCheckoutSetup(checkout) : null;
+    if (parsedCheckout && !parsedCheckout.ok) {
+      setValidationError(parsedCheckout.error);
+      return;
+    }
     setValidationError(null);
     if (matchStatus(current) === "playing" && !replace) {
       setReplace(true);
@@ -91,6 +120,16 @@ export function MatchSetup() {
         ...atc,
         order: makeAtcOrder(atc.orderMode, Math.random),
         legsToWin: legs,
+        players,
+      });
+      router.push("/match");
+      return;
+    }
+    if (gameMode === "checkout" && parsedCheckout?.ok) {
+      startCheckout({
+        startTarget: parsedCheckout.startTarget,
+        dartsPerAttempt: checkout.darts,
+        rounds: parsedCheckout.rounds,
         players,
       });
       router.push("/match");
@@ -144,6 +183,7 @@ export function MatchSetup() {
                   { mode: "x01", label: "x01" },
                   { mode: "cricket", label: "Cricket" },
                   { mode: "atc", label: "Around the Clock" },
+                  { mode: "checkout", label: "121 Checkout" },
                 ] as const
               ).map((g) => (
                 <button
@@ -240,6 +280,8 @@ export function MatchSetup() {
                 legs={legs}
                 onLegs={setLegs}
               />
+            ) : gameMode === "checkout" ? (
+              <CheckoutSettings value={checkout} onChange={setCheckout} />
             ) : (
               <>
             <label className="field-label">SCORING STYLE</label>
@@ -443,9 +485,23 @@ export function MatchSetup() {
         <aside className="panel match-summary">
           <span className="eyebrow">YOUR MATCH</span>
           <div className="summary-score">
-            {gameMode === "cricket" ? "20-15" : gameMode === "atc" ? "1-20" : score}
+            {gameMode === "cricket"
+              ? "20-15"
+              : gameMode === "atc"
+                ? "1-20"
+                : gameMode === "checkout"
+                  ? checkoutPreview.ok
+                    ? checkoutPreview.startTarget
+                    : "?"
+                  : score}
             <span>
-              {gameMode === "cricket" ? "CRICKET / LOCAL" : gameMode === "atc" ? "AROUND THE CLOCK / LOCAL" : "X01 / LOCAL"}
+              {gameMode === "cricket"
+                ? "CRICKET / LOCAL"
+                : gameMode === "atc"
+                  ? "AROUND THE CLOCK / LOCAL"
+                  : gameMode === "checkout"
+                    ? "121 CHECKOUT / LOCAL"
+                    : "X01 / LOCAL"}
             </span>
           </div>
           <dl>
@@ -453,7 +509,24 @@ export function MatchSetup() {
               <dt>Players</dt>
               <dd>{names.length}</dd>
             </div>
-            {gameMode === "atc" ? (
+            {gameMode === "checkout" ? (
+              <>
+                <div>
+                  <dt>Darts</dt>
+                  <dd>{checkout.darts} per attempt</dd>
+                </div>
+                <div>
+                  <dt>Rounds</dt>
+                  <dd>
+                    {checkoutPreview.ok
+                      ? checkoutPreview.rounds === "infinite"
+                        ? "Infinite"
+                        : checkoutPreview.rounds
+                      : "?"}
+                  </dd>
+                </div>
+              </>
+            ) : gameMode === "atc" ? (
               <>
                 <div>
                   <dt>Finish</dt>
