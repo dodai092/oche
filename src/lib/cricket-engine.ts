@@ -15,6 +15,8 @@ export type CricketTurn = {
   leg: number;
   /** Marks thrown on cricket numbers, including marks beyond a closed number. */
   marks: number;
+  /** Darts not thrown when the turn was ended early; they count as misses. */
+  unthrown: number;
   complete: boolean;
 };
 export type CricketPlayer = {
@@ -113,6 +115,7 @@ function startTurn(game: CricketGame) {
     darts: [],
     leg: game.leg,
     marks: 0,
+    unthrown: 0,
     complete: false,
   });
 }
@@ -176,6 +179,7 @@ function replay(config: CricketConfig, events: CricketEvent[]): CricketGame {
     if (event.type === "end-turn") {
       if (!game.turnDarts.length) continue;
       game.events.push({ type: "end-turn" });
+      game.turns[game.turns.length - 1].unthrown = 3 - game.turnDarts.length;
       nextPlayer(game);
       continue;
     }
@@ -203,7 +207,7 @@ export function throwCricketDart(game: CricketGame, dart: Dart): CricketGame {
   return replay(game.config, [...game.events, { type: "dart", dart }]);
 }
 
-/** Finishing early counts only thrown darts. */
+/** Finishing early records the unthrown darts as misses in the summary. */
 export function endCricketTurn(game: CricketGame): CricketGame {
   if (game.status === "complete" || !game.turnDarts.length) return game;
   return replay(game.config, [...game.events, { type: "end-turn" }]);
@@ -251,7 +255,7 @@ export function restoreCricketGame(
 export function cricketSummary(game: CricketGame) {
   return game.players.map((p, i) => {
     const turns = game.turns.filter((t) => t.playerIndex === i);
-    const darts = turns.reduce((s, t) => s + t.darts.length, 0);
+    const darts = turns.reduce((s, t) => s + t.darts.length + t.unthrown, 0);
     const marks = turns.reduce((s, t) => s + t.marks, 0);
     return {
       id: p.id,

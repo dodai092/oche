@@ -267,4 +267,13 @@ describe("summary", () => {
     expect(first.marksPerRound).toBeCloseTo(4);
     expect(second).toMatchObject({ darts: 0, marks: 0, marksPerRound: 0 });
   });
+  it("counts unthrown darts as misses when a turn ends early", () => {
+    let g = createCricketGame(config());
+    g = visit(g, [T(20)]);
+    const [first] = cricketSummary(g);
+    expect(first).toMatchObject({ darts: 3, marks: 3 });
+    expect(first.marksPerRound).toBeCloseTo(3);
+    // Undo still removes exactly the thrown dart and the end marker.
+    expect(undoCricketTurn(g).events).toHaveLength(0);
+  });
 });
