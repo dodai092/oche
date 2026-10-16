@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import { enterTotal } from "./helpers";
 test("DartBot throws legal individual darts, pauses and safely undoes its turn", async ({page}) => {
   await page.goto("/new");
   await page.getByLabel("Player 2 name").fill("");
@@ -7,7 +8,7 @@ test("DartBot throws legal individual darts, pauses and safely undoes its turn",
   await expect(page.getByText("68-78")).toBeVisible();
   await expect(page.getByRole("button",{name:"Remove player 1",exact:true})).toHaveCount(0);
   await page.getByRole("button",{name:"Start match",exact:true}).click();
-  await page.getByRole("button",{name:"Score 60",exact:true}).click();
+  await enterTotal(page, "60");
   await page.getByRole("button",{name:"Submit score",exact:true}).click();
   const controls = page.getByRole("region",{name:"DartBot controls"});
   await expect(controls.getByRole("status")).toContainText("aiming");
@@ -33,7 +34,7 @@ test("the human can undo their own visit while DartBot is paused", async ({page}
   await page.getByLabel("Player 2 name").fill("");
   await page.getByLabel("Opponent",{exact:true}).selectOption("bot");
   await page.getByRole("button",{name:"Start match",exact:true}).click();
-  await page.getByRole("button",{name:"Score 180",exact:true}).click();
+  await enterTotal(page, "180");
   await page.getByRole("button",{name:"Submit score",exact:true}).click();
   const controls = page.getByRole("region",{name:"DartBot controls"});
   await controls.getByRole("button",{name:"Pause DartBot"}).click();

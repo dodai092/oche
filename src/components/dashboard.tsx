@@ -144,7 +144,7 @@ export function Dashboard() {
             </span>
             <div>
               <div className="mode-title">
-                501 <span className="pill">READY TO PLAY</span>
+                Match <span className="pill">READY TO PLAY</span>
               </div>
               <p>The original race to zero. Play solo or bring your rivals.</p>
               <span className="mode-meta">

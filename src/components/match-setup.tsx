@@ -187,7 +187,7 @@ export function MatchSetup() {
             <div className="segmented game-options">
               {(
                 [
-                  { mode: "x01", label: "501" },
+                  { mode: "x01", label: "Match" },
                   { mode: "cricket", label: "Cricket" },
                   { mode: "atc", label: "Around the Clock" },
                   { mode: "checkout", label: "121" },
@@ -508,7 +508,7 @@ export function MatchSetup() {
                   ? "AROUND THE CLOCK / LOCAL"
                   : gameMode === "checkout"
                     ? "121 / LOCAL"
-                    : "501 / LOCAL"}
+                    : "MATCH / LOCAL"}
             </span>
           </div>
           <dl>

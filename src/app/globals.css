@@ -2643,6 +2643,7 @@ select {
 }
 .entry-mode {
   margin: 0 0 12px;
+  background: transparent;
 }
 .entry-mode button {
   min-height: 44px;
@@ -2659,27 +2660,6 @@ select {
 .score-entry-row .button {
   min-height: 52px;
   font-size: 14px;
-}
-.score-presets {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 8px;
-  margin: 12px 0;
-}
-.score-presets button {
-  min-height: 44px;
-  border: 1px solid oklch(from #5a5e63 calc(l + var(--flip) * (1 - 2 * l)) c h);
-  border-radius: 6px;
-  background: oklch(from #2b2e32 calc(l + var(--flip) * (1 - 1.6 * l)) c h);
-  font-size: 18px;
-  font-weight: 600;
-}
-.score-presets button:hover {
-  background: oklch(from #42464c calc(l + var(--flip) * (1 - 1.6 * l)) c h);
-}
-.score-presets button:active {
-  background: var(--accent-fill);
-  color: #ffffff;
 }
 .total-keypad button {
   min-height: 72px;
@@ -2955,14 +2935,6 @@ select {
     padding: 9px 18px;
     font-size: 14px;
   }
-  .score-presets {
-    gap: 8px;
-    margin: 8px 0;
-  }
-  .score-presets button {
-    min-height: 44px;
-    font-size: 17px;
-  }
   .total-keypad button {
     min-height: 49px;
     font-size: 28px;
@@ -3132,9 +3104,6 @@ select {
   }
   .total-keypad button {
     min-height: 44px;
-  }
-  .score-presets {
-    margin: 6px 0;
   }
   .entry-mode {
     margin-bottom: 6px;
@@ -3963,4 +3932,134 @@ fieldset.scoring-panel[hidden] {
 .stats-preview {
   opacity: 0.45;
   margin-bottom: 16px;
+}
+
+/* Score input: the delete icon sits inside the field, like the reference app. */
+.score-input {
+  position: relative;
+  display: flex;
+  flex: 1;
+  min-width: 0;
+}
+.score-input input {
+  padding-right: 52px;
+}
+.score-delete {
+  position: absolute;
+  top: 50%;
+  right: 6px;
+  transform: translateY(-50%);
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  background: transparent;
+  color: oklch(from #e0604a calc(l + var(--flip) * (1 - 2 * l)) c h);
+  cursor: pointer;
+}
+.total-keypad .keypad-blank {
+  border-right: 1px solid oklch(from #3d4043 calc(l + var(--flip) * (1 - 2 * l)) c h);
+}
+
+/* Match screen: fill the visible phone height. Scores stay on top, the keypad takes the free space, actions sit at the bottom. */
+@media (max-width: 700px) {
+  .app-shell.match-shell {
+    height: 100vh;
+    height: 100dvh;
+  }
+  .app-shell.match-shell main {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 0;
+  }
+  .match-page {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+  }
+  .match-page .live-grid,
+  .match-page .score-controls-column {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+  }
+  .match-page .scoring-panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    overflow-y: auto;
+  }
+  .match-page .visit-entry {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+  }
+  .match-page .total-keypad {
+    flex: 1 0 auto;
+    grid-auto-rows: minmax(44px, 1fr);
+  }
+  .match-page .total-actions {
+    margin-top: 4px;
+    padding-top: 0;
+  }
+  .match-page .input-tools > .button {
+    min-height: 36px;
+  }
+  .match-page .score-entry-row input,
+  .match-page .score-entry-row .button {
+    min-height: 44px;
+  }
+  .match-page .score-entry-row input {
+    line-height: 1.2;
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+  .match-page .total-actions {
+    flex-shrink: 0;
+  }
+  .match-page .turn-feedback:not(.is-bust):not(.is-checkout) {
+    min-height: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: none;
+  }
+  .match-page .turn-feedback:not(.is-bust):not(.is-checkout) > h2,
+  .match-page .turn-feedback:not(.is-bust):not(.is-checkout) > p {
+    display: none;
+  }
+  .match-page .input-tools > .button {
+    display: none;
+  }
+  .match-page .total-keypad button:not(.clear-score) {
+    min-height: 0;
+    font-size: 28px;
+  }
+  .match-page .big-score {
+    font-size: 50px;
+  }
+  .match-page .total-keypad .clear-score {
+    min-height: 0;
+  }
+}
+
+/* Clear active player: a solid accent card replaces the outline and the TO THROW tag. */
+.match-page .player-score.is-active {
+  background: var(--accent-fill);
+  border-color: var(--accent-fill);
+}
+.match-page .player-score.is-active h2,
+.match-page .player-score.is-active .big-score,
+.match-page .player-score.is-active .score-sub,
+.match-page .player-score.is-active .score-sub small {
+  color: #ffffff;
+}
+.match-page .throwing-badge {
+  display: none;
 }

@@ -94,20 +94,32 @@ export function VisitEntry({ game }: { game: GameState }) {
         TOTAL FOR THIS VISIT
       </label>
       <div className="score-entry-row">
-        <input
-          ref={inputRef}
-          id="visit-score"
-          aria-label="Visit score"
-          aria-describedby="visit-entry-hint"
-          inputMode={customKeypad ? "none" : "numeric"}
-          readOnly={touch && customKeypad}
-          autoComplete="off"
-          pattern="[0-9]{1,3}"
-          placeholder="Enter a score"
-          value={value}
-          onChange={(e) => edit(e.target.value)}
-          autoFocus={!touch || !customKeypad}
-        />
+        <div className="score-input">
+          <input
+            ref={inputRef}
+            id="visit-score"
+            aria-label="Visit score"
+            aria-describedby="visit-entry-hint"
+            inputMode={customKeypad ? "none" : "numeric"}
+            readOnly={touch && customKeypad}
+            autoComplete="off"
+            pattern="[0-9]{1,3}"
+            placeholder="Enter a score"
+            value={value}
+            onChange={(e) => edit(e.target.value)}
+            autoFocus={!touch || !customKeypad}
+          />
+          {value && (
+            <button
+              type="button"
+              className="score-delete"
+              aria-label="Backspace score"
+              onClick={() => edit(value.slice(0, -1))}
+            >
+              <Delete size={22} />
+            </button>
+          )}
+        </div>
         <Button
           type="submit"
           disabled={!value || confirming}
@@ -152,18 +164,6 @@ export function VisitEntry({ game }: { game: GameState }) {
           </div>
         </section>
       )}
-      <div className="score-presets" aria-label="Common scores">
-        {[60, 100, 140, 180].map((n) => (
-          <button
-            type="button"
-            key={n}
-            aria-label={`Score ${n}`}
-            onClick={() => edit(String(n))}
-          >
-            {n}
-          </button>
-        ))}
-      </div>
       {customKeypad && (
         <>
           <div className="total-keypad" aria-label="Score keypad">
@@ -177,13 +177,7 @@ export function VisitEntry({ game }: { game: GameState }) {
                 {n}
               </button>
             ))}
-            <button
-              type="button"
-              aria-label="Backspace score"
-              onClick={() => edit(value.slice(0, -1))}
-            >
-              <Delete size={23} />
-            </button>
+            <span className="keypad-blank" aria-hidden="true" />
             <button
               type="button"
               aria-label="Digit 0"

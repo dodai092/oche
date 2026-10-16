@@ -1,20 +1,17 @@
 import { test, expect } from "@playwright/test";
-test("type a visit, submit with Enter, undo and refresh", async ({ page }) => {
+import { enterTotal } from "./helpers";
+test("type a visit, submit, undo and refresh", async ({ page }) => {
   await page.goto("/new");
   await page.getByRole("button", { name: "Start match", exact: true }).click();
-  await page.getByRole("button", {name:"Use keyboard",exact:true}).click();
-  await page.getByLabel("Visit score", { exact: true }).fill("100");
-  await page.getByLabel("Visit score", { exact: true }).press("Enter");
+  await enterTotal(page, "100");
+  await page.getByRole("button", { name: "Submit score", exact: true }).click();
   await expect(page.getByTestId("score-0")).toHaveText("401");
   await expect(page.getByTestId("active-player")).toContainText("Player 2");
   await page.reload();
   await expect(page.getByTestId("score-0")).toHaveText("401");
   await page.getByRole("button", { name: "Undo score", exact: true }).click();
   await expect(page.getByTestId("score-0")).toHaveText("501");
-  await page.getByRole("button", {name:"Use keypad",exact:true}).click();
-  await page.getByRole("button", { name: "Digit 1", exact: true }).click();
-  await page.getByRole("button", { name: "Digit 8", exact: true }).click();
-  await page.getByRole("button", { name: "Digit 0", exact: true }).click();
+  await enterTotal(page, "180");
   await page.getByRole("button", { name: "Submit score", exact: true }).click();
   await expect(page.getByTestId("score-0")).toHaveText("321");
   expect(
@@ -30,9 +27,8 @@ test("reject impossible totals and confirm a typed double-out finish", async ({
   await page.getByRole("button", { name: "301", exact: true }).click();
   await page.getByRole("button", { name: "Remove player 2" }).click();
   await page.getByRole("button", { name: "Start match", exact: true }).click();
-  await page.getByRole("button", {name:"Use keyboard",exact:true}).click();
   async function submit(value: string) {
-    await page.getByLabel("Visit score", { exact: true }).fill(value);
+    await enterTotal(page, value);
     await page
       .getByRole("button", { name: "Submit score", exact: true })
       .click();

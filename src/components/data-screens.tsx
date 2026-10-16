@@ -203,7 +203,7 @@ export function DataScreens({
               value={gameFilter}
               onChange={(e) => setGameFilter(e.target.value as StatsFilter)}
             >
-              <option value="x01">501</option>
+              <option value="x01">Match</option>
               <option value="cricket">Cricket</option>
               <option value="atc">Around the Clock</option>
               <option value="checkout">121</option>

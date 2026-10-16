@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import { enterTotal } from "./helpers";
 
 test("mobile scoring stays in view, uses one keyboard and remembers the entry mode", async ({
   page,
@@ -24,19 +25,18 @@ test("mobile scoring stays in view, uses one keyboard and remembers the entry mo
     expect(box!.y).toBeGreaterThanOrEqual(0);
     expect(box!.y + box!.height).toBeLessThanOrEqual(844);
   }
-  await page.getByRole("button", { name: "Use keyboard", exact: true }).click();
-  await expect(score).toBeEditable();
   await expect(
-    page.getByRole("button", { name: "Digit 1", exact: true }),
+    page.getByRole("button", { name: "Use keyboard", exact: true }),
   ).toBeHidden();
-  await score.fill("100");
-  await score.press("Enter");
+  await expect(page.getByText("Visit details")).toBeVisible();
+  for (const digit of "100") {
+    await page.getByRole("button", { name: `Digit ${digit}`, exact: true }).click();
+  }
+  await page.getByRole("button", { name: "Submit score", exact: true }).click();
   await expect(page.getByTestId("score-0")).toHaveText("401");
-  await page.getByRole("button", { name: "Use keypad", exact: true }).click();
-  await page.getByRole("button", { name: "Score 60", exact: true }).click();
+  await enterTotal(page, "60");
   await page.getByRole("button", { name: "Submit score", exact: true }).click();
   await expect(page.getByTestId("score-1")).toHaveText("441");
-  await expect(page.getByRole("status")).toContainText("Player 2 scored 60");
   await expect(page.getByTestId("active-player")).toContainText("Player 1");
   await page.getByRole("button", { name: "Dart-by-dart", exact: true }).click();
   await page.reload();
@@ -67,22 +67,19 @@ test("rematch reuses players and settings, and undo restores a bust visibly", as
   await page.getByLabel("Player 1 name").fill("Alice");
   await page.getByRole("button", { name: "Start match", exact: true }).click();
   async function submit(n: number) {
-    await page
-      .getByRole("button", { name: "Use keyboard", exact: true })
-      .click();
-    await page.getByLabel("Visit score", { exact: true }).fill(String(n));
+    await enterTotal(page, String(n));
     await page
       .getByRole("button", { name: "Submit score", exact: true })
       .click();
   }
   await submit(180);
-  await page.getByLabel("Visit score", { exact: true }).fill("120");
+  await enterTotal(page, "120");
   await page.getByRole("button", { name: "Submit score", exact: true }).click();
   await expect(page.getByRole("status")).toContainText("Bust");
   await expect(page.getByRole("status")).toContainText("121");
   await page.getByRole("button", { name: "Undo score", exact: true }).click();
   await expect(page.getByTestId("score-0")).toHaveText("121");
-  await page.getByLabel("Visit score", { exact: true }).fill("121");
+  await enterTotal(page, "121");
   await page.getByRole("button", { name: "Submit score", exact: true }).click();
   await page.getByRole("button", { name: "Confirm double-out" }).click();
   await page

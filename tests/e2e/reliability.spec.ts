@@ -1,11 +1,12 @@
 import { test, expect } from "@playwright/test";
+import { enterTotal } from "./helpers";
 
 test("backup import previews, validates and restores the complete scorebook", async ({
   page,
 }) => {
   await page.goto("/new");
   await page.getByRole("button", { name: "Start match", exact: true }).click();
-  await page.getByRole("button", { name: "Score 60", exact: true }).click();
+  await enterTotal(page, "60");
   await page.getByRole("button", { name: "Submit score", exact: true }).click();
   const backup = await page.evaluate(() => ({
     version: 1,
@@ -59,9 +60,9 @@ test("only one tab can save and a secondary tab can acquire after it closes", as
     "read-only",
   );
   await expect(
-    second.getByRole("button", { name: "Score 60", exact: true }),
+    second.getByRole("button", { name: "Digit 6", exact: true }),
   ).toBeDisabled();
-  await page.getByRole("button", { name: "Score 60", exact: true }).click();
+  await enterTotal(page, "60");
   await page.getByRole("button", { name: "Submit score", exact: true }).click();
   await expect(second.getByTestId("score-0")).toHaveText("441");
   await page.close();
@@ -69,9 +70,9 @@ test("only one tab can save and a secondary tab can acquire after it closes", as
     .getByRole("button", { name: "Enable scoring in this tab" })
     .click();
   await expect(
-    second.getByRole("button", { name: "Score 100", exact: true }),
+    second.getByRole("button", { name: "Digit 1", exact: true }),
   ).toBeEnabled();
-  await second.getByRole("button", { name: "Score 100", exact: true }).click();
+  await enterTotal(second, "100");
   await second
     .getByRole("button", { name: "Submit score", exact: true })
     .click();
@@ -166,7 +167,7 @@ test("wake lock and speech are opt-in and clean up on leaving play", async ({
     .toBe(1);
   await page.getByLabel("Spoken scores", { exact: false }).check();
   await page.getByRole("button", { name: "Close match details" }).click();
-  await page.getByRole("button", { name: "Score 60", exact: true }).click();
+  await enterTotal(page, "60");
   await page.getByRole("button", { name: "Submit score", exact: true }).click();
   await expect
     .poll(() =>
