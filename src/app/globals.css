@@ -4063,3 +4063,192 @@ fieldset.scoring-panel[hidden] {
 .match-page .throwing-badge {
   display: none;
 }
+
+/* 121 Checkout on phones: the board, keypad and actions shrink so the whole screen fits 100dvh. */
+@media (max-width: 700px) {
+  .checkout-page .checkout-board {
+    padding: 8px 10px;
+    margin-bottom: 8px;
+  }
+  .checkout-page .checkout-figures {
+    gap: 8px;
+  }
+  .checkout-page .checkout-figures > div {
+    padding: 4px 8px;
+  }
+  .checkout-page .checkout-figures strong {
+    font-size: 30px;
+    line-height: 1.05;
+  }
+  .checkout-page .checkout-facts {
+    grid-template-columns: 1fr 1fr;
+    gap: 4px 12px;
+    margin-top: 8px;
+  }
+  .checkout-page .checkout-facts > div {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 6px;
+    padding: 4px 0;
+  }
+  .checkout-page .checkout-facts dd {
+    font-size: 15px;
+    white-space: nowrap;
+  }
+  .checkout-page .checkout-route {
+    display: none;
+  }
+  .checkout-page .atc-keypad button {
+    min-height: 36px;
+  }
+  .checkout-page .bull-row button,
+  .checkout-page .scoring-actions button {
+    min-height: 40px;
+  }
+  .checkout-page .multiplier-options {
+    padding: 3px;
+  }
+  .checkout-page .multiplier-options button {
+    padding: 6px 8px;
+    min-height: 36px;
+  }
+  .checkout-page .atc-sequence {
+    padding: 4px 10px;
+    margin-bottom: 8px;
+  }
+  .checkout-page .checkout-input > * {
+    flex: 0 0 auto;
+  }
+  .checkout-page .scoring-actions {
+    margin-top: 6px;
+    padding-top: 6px;
+    flex-wrap: nowrap;
+  }
+  .checkout-page .scoring-actions .button {
+    min-height: 36px;
+    padding: 6px 4px;
+    font-size: 12px;
+    white-space: nowrap;
+  }
+  .checkout-page .scoring-actions .button svg {
+    display: none;
+  }
+}
+
+/* Cricket scoring: one S / D / T matrix per number replaces the multiplier toggle and the 20-number keypad. */
+.cricket-matrix {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 4px;
+  margin: 8px 0;
+}
+.cricket-matrix button {
+  min-height: 44px;
+  border: 1px solid oklch(from #5a5e63 calc(l + var(--flip) * (1 - 2 * l)) c h);
+  border-radius: 6px;
+  background: oklch(from #2b2e32 calc(l + var(--flip) * (1 - 1.6 * l)) c h);
+  font-size: 22px;
+  font-weight: 600;
+  padding: 0;
+}
+.cricket-matrix button:active {
+  background: var(--accent-fill);
+  color: #ffffff;
+}
+@media (max-width: 700px) {
+  .cricket-page .cricket-matrix {
+    gap: 3px;
+    margin: 6px 0;
+  }
+  .cricket-page .cricket-matrix button {
+    min-height: 34px;
+    font-size: 18px;
+  }
+}
+@media (max-width: 700px) {
+  .cricket-page > .cricket-board {
+    padding: 6px 8px;
+    margin-bottom: 6px;
+  }
+  .cricket-page .cricket-table th,
+  .cricket-page .cricket-table td {
+    padding: 1px 6px;
+  }
+  .cricket-page .cricket-table thead strong {
+    font-size: 22px;
+    line-height: 1.1;
+  }
+  .cricket-page .cricket-table thead small {
+    font-size: 11px;
+  }
+  .cricket-page .cricket-table tbody th {
+    font-size: 14px;
+    line-height: 1.2;
+  }
+  .cricket-page .cricket-mark {
+    width: 18px;
+    height: 18px;
+  }
+  .cricket-page .cricket-matrix button {
+    min-height: 30px;
+    font-size: 16px;
+  }
+  .cricket-page .bull-row button,
+  .cricket-page .scoring-actions button {
+    min-height: 36px;
+  }
+  .cricket-page .bull-row button {
+    padding: 4px;
+    line-height: 1.1;
+  }
+  .cricket-page .cricket-input > * {
+    flex: 0 0 auto;
+  }
+  .cricket-page .cricket-matrix {
+    margin: 3px 0;
+  }
+  .cricket-page .scoring-actions {
+    margin-top: 4px;
+    padding-top: 4px;
+  }
+}
+@media (max-height: 500px) and (orientation: landscape) {
+  .cricket-page {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
+    column-gap: 10px;
+    align-content: start;
+  }
+  .cricket-page > .match-heading {
+    grid-column: 1 / -1;
+  }
+  .cricket-page > .cricket-board {
+    grid-column: 1;
+    grid-row: 2 / span 2;
+    align-self: start;
+    margin-bottom: 0;
+  }
+  .cricket-page > .turn-feedback {
+    display: none;
+  }
+  .cricket-page > .cricket-input {
+    grid-column: 2;
+    grid-row: 2;
+    align-self: start;
+    max-height: none;
+    overflow: visible;
+  }
+  .cricket-page .cricket-matrix {
+    margin: 2px 0;
+    gap: 2px;
+  }
+  .cricket-page .cricket-matrix button {
+    min-height: 24px;
+    font-size: 14px;
+  }
+  .cricket-page .bull-row button,
+  .cricket-page .scoring-actions button {
+    min-height: 30px;
+  }
+}

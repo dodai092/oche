@@ -181,10 +181,8 @@ test("history lists x01, Cricket and Around the Clock together, statistics stay 
   await page.getByLabel("Player 2 name").fill("Ben");
   await page.getByRole("button", { name: "Start match", exact: true }).click();
   const triples = async (numbers: number[]) => {
-    for (const n of numbers) {
-      await page.getByRole("button", { name: "Triple", exact: true }).click();
-      await hit(page, n);
-    }
+    for (const n of numbers)
+      await page.getByRole("button", { name: `Triple ${n}`, exact: true }).click();
   };
   await triples([20, 19, 18]);
   await benMisses(page);

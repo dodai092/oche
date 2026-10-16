@@ -52,13 +52,9 @@ async function startCricket(page: Page, legs = "1") {
 }
 const hit = (page: Page, n: number) =>
   page.getByRole("button", { name: `Hit ${n}`, exact: true }).click();
-const triple = (page: Page) =>
-  page.getByRole("button", { name: "Triple", exact: true }).click();
 async function tripleAt(page: Page, numbers: number[]) {
-  for (const n of numbers) {
-    await triple(page);
-    await hit(page, n);
-  }
+  for (const n of numbers)
+    await page.getByRole("button", { name: `Triple ${n}`, exact: true }).click();
 }
 async function benMisses(page: Page) {
   for (let i = 0; i < 3; i++)
@@ -119,14 +115,12 @@ test("Cricket points follow Standard rules and undo restores them", async ({
   await expect(page.getByTestId("cricket-points-0")).toHaveText("0");
 });
 
-test("the multiplier returns to single after every dart", async ({ page }) => {
+test("each S / D / T cell scores its own multiplier", async ({ page }) => {
   await startCricket(page);
-  await triple(page);
-  await hit(page, 20);
-  await expect(page.getByRole("button", { name: "Triple" })).toHaveAttribute(
-    "aria-pressed",
-    "false",
-  );
+  await page.getByRole("button", { name: "Double 20", exact: true }).click();
+  await expect(page.getByTestId("marks-0-20").getByRole("img", { name: "2 marks" })).toBeVisible();
+  await page.getByRole("button", { name: "Hit 20", exact: true }).click();
+  await expect(page.getByTestId("marks-0-20").getByRole("img", { name: "3 marks" })).toBeVisible();
 });
 
 test("landscape phone keeps the board and the keypad reachable", async ({
