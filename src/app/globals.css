@@ -3986,11 +3986,12 @@ fieldset.scoring-panel[hidden] {
     height: 100%;
     min-height: 0;
   }
-  .match-page {
+  .app-shell.match-shell .match-page {
     flex: 1;
     display: flex;
     flex-direction: column;
     min-height: 0;
+    padding-bottom: 12px;
   }
   .match-page .live-grid,
   .match-page .score-controls-column {
