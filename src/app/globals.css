@@ -3962,8 +3962,20 @@ fieldset.scoring-panel[hidden] {
   border-right: 1px solid oklch(from #3d4043 calc(l + var(--flip) * (1 - 2 * l)) c h);
 }
 
+/* Installed iPhone app: the status bar is translucent, so keep the top of the app below it. */
+@media (display-mode: standalone) {
+  .app-shell {
+    padding-top: env(safe-area-inset-top);
+  }
+}
+
 /* Match screen: fill the visible phone height. Scores stay on top, the keypad takes the free space, actions sit at the bottom. */
 @media (max-width: 700px) {
+  html:has(.app-shell.match-shell),
+  html:has(.app-shell.match-shell) body {
+    height: 100%;
+    overflow: hidden;
+  }
   .app-shell.match-shell {
     height: 100vh;
     height: 100dvh;
