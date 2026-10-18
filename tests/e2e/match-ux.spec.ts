@@ -28,7 +28,6 @@ test("mobile scoring stays in view, uses one keyboard and remembers the entry mo
   await expect(
     page.getByRole("button", { name: "Use keyboard", exact: true }),
   ).toBeHidden();
-  await expect(page.getByText("Visit details")).toBeVisible();
   for (const digit of "100") {
     await page.getByRole("button", { name: `Digit ${digit}`, exact: true }).click();
   }

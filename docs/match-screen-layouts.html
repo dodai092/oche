@@ -1,0 +1,304 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Oche match screen layouts</title>
+<style>
+  /* Layout: one column of game sections on phones, a phone mockup beside its notes on wider screens. */
+  :root {
+    --bg: #0d0f11;
+    --panel: #15181b;
+    --card: #181c20;
+    --line: #262b30;
+    --ink: #e9edf0;
+    --muted: #8e979d;
+    --accent: #4a6fa5;
+    --accent-ink: #cfdcf0;
+    --accent-soft: #22334a;
+    color-scheme: dark;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "Inter", system-ui, -apple-system, sans-serif;
+    line-height: 1.5;
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+    padding-block: 28px 48px;
+  }
+  main { max-width: 980px; margin: 0 auto; }
+  h1 { font-size: 26px; margin: 0 0 6px; text-wrap: balance; }
+  h2 { font-size: 20px; margin: 0 0 6px; }
+  p { margin: 0 0 10px; max-width: 62ch; }
+  .lede { color: var(--muted); }
+  .eyebrow { font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+  section.game {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 28px;
+    align-items: flex-start;
+    padding-top: 36px;
+    margin-top: 36px;
+    border-top: 1px solid var(--line);
+  }
+  .notes { flex: 1 1 260px; min-width: 0; }
+  .notes ul { padding: 0 0 0 18px; margin: 12px 0 0; color: var(--ink); }
+  .notes li { margin-bottom: 8px; }
+  .notes .changed { color: var(--muted); font-size: 13px; margin-top: 16px; }
+
+  /* Phone mockup. Same proportions as the iPhone screenshots (about 390 x 844). */
+  .phone {
+    flex: 0 0 auto;
+    width: 300px;
+    height: 650px;
+    max-width: 100%;
+    border: 1px solid #2b3034;
+    border-radius: 36px;
+    background: #0f1113;
+    padding: 40px 12px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    overflow: hidden;
+  }
+  .top {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    font-size: 11px;
+    color: var(--muted);
+  }
+  .top .title { text-align: center; }
+  .top .title strong { display: block; color: var(--ink); font-size: 13px; font-weight: 600; }
+  .cards { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 9px 11px; min-width: 0; }
+  .card.on { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .card .name { font-size: 12px; opacity: 0.85; }
+  .card .num {
+    font-size: 58px;
+    line-height: 1.05;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    font-variant-numeric: tabular-nums;
+  }
+  .card .sub { display: flex; justify-content: space-between; font-size: 11px; opacity: 0.75; }
+  .card.big .num { font-size: 66px; }
+  .segmented { display: grid; grid-template-columns: 1fr 1fr; background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 3px; font-size: 12px; text-align: center; }
+  .segmented span { padding: 7px 0; border-radius: 9px; color: var(--muted); }
+  .segmented .sel { background: var(--accent); color: #fff; }
+  .entry { display: grid; grid-template-columns: 1fr auto; gap: 8px; }
+  .input { height: 42px; border: 1px solid var(--line); border-radius: 12px; background: var(--panel); color: #6b747a; display: flex; align-items: center; padding: 0 12px; font-size: 14px; }
+  .btn { height: 42px; border-radius: 12px; background: var(--accent-soft); color: #6f8fb8; display: flex; align-items: center; padding: 0 14px; font-size: 13px; }
+  .keys {
+    flex: 1;
+    min-height: 0;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-auto-rows: 1fr;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    overflow: hidden;
+  }
+  .keys > * {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 44px;
+    font-weight: 500;
+    border-right: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+  }
+  .keys > :nth-child(3n) { border-right: 0; }
+  .keys > :nth-last-child(-n + 3) { border-bottom: 0; }
+  .keys .clear { font-size: 17px; color: var(--muted); }
+  .keys .blank { background: transparent; }
+  .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .action {
+    height: 44px;
+    border: 1px solid #2c3236;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    color: #dfe4e7;
+  }
+  .action.dim { color: #5c656b; }
+
+  /* Cricket matrix: rows share the leftover height. */
+  .matrix {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    overflow: hidden;
+  }
+  .mrow { flex: 1; display: grid; grid-template-columns: 30px repeat(3, 1fr); border-bottom: 1px solid var(--line); }
+  .mrow:last-child { border-bottom: 0; }
+  .mrow.shade { background: #171a1d; }
+  .mrow > * { display: flex; align-items: center; justify-content: center; }
+  .mrow .mark { color: var(--accent-ink); }
+  .cell { flex-direction: column; font-size: 34px; font-weight: 600; border-left: 1px solid var(--line); line-height: 1; position: relative; }
+  .cell small { font-size: 12px; font-weight: 400; color: var(--muted); letter-spacing: 0.1em; margin-top: 3px; }
+  .cell .dots { font-size: 13px; color: var(--accent-ink); margin-top: 4px; letter-spacing: 2px; }
+  .cell.miss { font-size: 22px; font-weight: 600; }
+
+  /* Feedback line under the cards on cricket. */
+  .feedback { font-size: 12px; color: var(--muted); padding: 2px 4px; }
+  .feedback strong { color: var(--ink); font-size: 14px; font-weight: 600; display: block; }
+
+  /* Around the clock is out of scope. */
+  .note-foot { font-size: 12px; color: var(--muted); margin-top: 18px; }
+
+  @media (max-width: 560px) {
+    .phone { width: 100%; height: 620px; }
+  }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+<main>
+  <p class="eyebrow">Oche · match screens</p>
+  <h1>Proposed layout for the three games</h1>
+  <p class="lede">Each mockup is one phone screen with the numbers larger and the score pad taking the height that is left. The Visit details row is gone. Around the Clock stays as it is.</p>
+
+  <section class="game">
+    <div class="phone" aria-label="501 double out, proposed">
+      <div class="top">
+        <span>&larr; Overview</span>
+        <span class="title"><strong>501 · Double out</strong>Set 1 / Leg 1</span>
+        <span>&hellip;</span>
+      </div>
+      <div class="cards">
+        <div class="card on big"><div class="name">tuna</div><div class="num">385</div><div class="sub"><span>Avg 58.0</span><span>Last 80</span></div></div>
+        <div class="card big"><div class="name">DartBot</div><div class="num">416</div><div class="sub"><span>Avg 42.5</span><span>Last 58</span></div></div>
+      </div>
+      <div class="feedback"><strong>DartBot waiting for its turn</strong>Thrown 18 · 20 · 20</div>
+      <div class="segmented"><span class="sel">Visit total</span><span>Dart-by-dart</span></div>
+      <div class="entry">
+        <div class="input">Enter a score</div>
+        <div class="btn">Submit &rarr;</div>
+      </div>
+      <div class="keys" aria-hidden="true">
+        <div>1</div><div>2</div><div>3</div>
+        <div>4</div><div>5</div><div>6</div>
+        <div>7</div><div>8</div><div>9</div>
+        <div class="blank"></div><div>0</div><div class="clear">Clear</div>
+      </div>
+      <div class="actions">
+        <div class="action">&#8634; Undo dart</div>
+        <div class="action">Undo turn</div>
+      </div>
+    </div>
+
+    <div class="notes">
+      <h2>501 double out</h2>
+      <p class="lede">The score pad is the main work area on this screen, so it takes the space that the bot card and footer leave.</p>
+      <ul>
+        <li>Visit details and the "3 darts, 0 checkout attempts" line are removed. The finish check still asks about a double.</li>
+        <li>Digits grow from about 22px to 44px and the pad fills the space down to the undo row.</li>
+        <li>Scores drop to the same size as the 121 and cricket cards, so every game reads the same way.</li>
+        <li>The DartBot card moves to one line when the bot is waiting, which frees height for the pad.</li>
+      </ul>
+      <p class="changed">Already done in code: Visit details removed. The sizing above is a proposal, not yet built.</p>
+    </div>
+  </section>
+
+  <section class="game">
+    <div class="phone" aria-label="Cricket standard, proposed">
+      <div class="top">
+        <span>&larr; Overview</span>
+        <span class="title"><strong>Cricket · Standard</strong>Leg 1 · first to 1</span>
+        <span></span>
+      </div>
+      <div class="cards">
+        <div class="card on big"><div class="name">tuna</div><div class="num">0</div><div class="sub"><span>Avg MPR 0.00</span><span>Legs 0</span></div></div>
+        <div class="card big"><div class="name">loser</div><div class="num">0</div><div class="sub"><span>Avg MPR 0.00</span><span>Legs 0</span></div></div>
+      </div>
+      <div class="feedback"><strong>tuna to throw</strong>Throw at 20 to start.</div>
+      <div class="entry">
+        <div class="input" style="padding:0;display:grid;grid-template-columns:1fr 1fr 1fr;">
+          <span style="border-right:1px solid var(--line)"></span><span style="border-right:1px solid var(--line)"></span><span></span>
+        </div>
+        <div class="btn">Submit &rarr;</div>
+      </div>
+      <div class="matrix" aria-hidden="true">
+        <div class="mrow"><span></span><div class="cell">20<small></small><span class="dots">&middot;</span></div><div class="cell">20<span class="dots">&middot;&middot;</span></div><div class="cell">20<span class="dots">&middot;&middot;&middot;</span></div></div>
+        <div class="mrow shade"><span></span><div class="cell">19<span class="dots">&middot;</span></div><div class="cell">19<span class="dots">&middot;&middot;</span></div><div class="cell">19<span class="dots">&middot;&middot;&middot;</span></div></div>
+        <div class="mrow"><span></span><div class="cell">18<span class="dots">&middot;</span></div><div class="cell">18<span class="dots">&middot;&middot;</span></div><div class="cell">18<span class="dots">&middot;&middot;&middot;</span></div></div>
+        <div class="mrow shade"><span></span><div class="cell">17<span class="dots">&middot;</span></div><div class="cell">17<span class="dots">&middot;&middot;</span></div><div class="cell">17<span class="dots">&middot;&middot;&middot;</span></div></div>
+        <div class="mrow"><span></span><div class="cell">16<span class="dots">&middot;</span></div><div class="cell">16<span class="dots">&middot;&middot;</span></div><div class="cell">16<span class="dots">&middot;&middot;&middot;</span></div></div>
+        <div class="mrow shade"><span></span><div class="cell">15<span class="dots">&middot;</span></div><div class="cell">15<span class="dots">&middot;&middot;</span></div><div class="cell">15<span class="dots">&middot;&middot;&middot;</span></div></div>
+        <div class="mrow"><span></span><div class="cell">Bull<span class="dots">&middot;</span></div><div class="cell">Bull<span class="dots">&middot;&middot;</span></div><div class="cell miss">Miss</div></div>
+      </div>
+      <div class="actions">
+        <div class="action dim">&#8634; Undo dart</div>
+        <div class="action dim">&#8634; Undo turn</div>
+      </div>
+    </div>
+
+    <div class="notes">
+      <h2>Cricket</h2>
+      <p class="lede">The grid already has the right structure. It needs to stretch and its numbers need to be readable from arm's length.</p>
+      <ul>
+        <li>The seven rows share all the height between the score cards and the undo row. Nothing sits in an empty band at the bottom.</li>
+        <li>Numbers grow from about 20px to 34px. Marks stay as dots under each number and keep their own column on the left.</li>
+        <li>Shading stays on alternate rows so a row is easy to track with a thumb.</li>
+        <li>Undo dart and Undo turn sit on the bottom edge of the screen, not floating below the grid.</li>
+      </ul>
+      <p class="note-foot">Open question: the cricket grid can also drop the input boxes on this screen, because the grid already shows the turn. Say if you want that.</p>
+    </div>
+  </section>
+
+  <section class="game">
+    <div class="phone" aria-label="121 checkout, proposed">
+      <div class="top">
+        <span>&larr; Overview</span>
+        <span class="title"><strong>121 Checkout</strong>Start 121 · 9 darts</span>
+        <span></span>
+      </div>
+      <div class="cards">
+        <div class="card"><div class="name">Target</div><div class="num" style="font-size:44px">121</div></div>
+        <div class="card on"><div class="name">Remaining</div><div class="num" style="font-size:44px">121</div></div>
+      </div>
+      <div class="sub" style="display:grid;grid-template-columns:1fr 1fr;font-size:11px;color:var(--muted);padding:0 4px;">
+        <span>Attempt 1 of 10 · Darts left 9</span><span style="text-align:right">Best none</span>
+      </div>
+      <div class="segmented"><span class="sel">Visit total</span><span>Dart-by-dart</span></div>
+      <div class="entry">
+        <div class="input">Enter a score</div>
+        <div class="btn">Submit &rarr;</div>
+      </div>
+      <div class="keys" aria-hidden="true">
+        <div>1</div><div>2</div><div>3</div>
+        <div>4</div><div>5</div><div>6</div>
+        <div>7</div><div>8</div><div>9</div>
+        <div class="blank"></div><div>0</div><div class="clear">Clear</div>
+      </div>
+      <div class="actions">
+        <div class="action dim">&#8634; Undo score</div>
+        <div class="action">&#9873; End run</div>
+      </div>
+    </div>
+
+    <div class="notes">
+      <h2>121 checkout</h2>
+      <p class="lede">The target and remaining score are what people look at between darts. They get the large type, and the pad fills the rest of the screen.</p>
+      <ul>
+        <li>Remaining grows to about 60px. Target stays smaller beside it, so the two numbers are not the same weight.</li>
+        <li>Attempt, darts left and best go on one line under the tiles, which frees a row.</li>
+        <li>The pad takes the leftover height, with digits at 44px like the other games.</li>
+        <li>Undo score and End run sit on the bottom edge, so the empty band below the buttons goes away.</li>
+      </ul>
+    </div>
+  </section>
+
+  <p class="note-foot">Sizes are shown on a 300px wide mockup. On a real phone the digits scale with the screen, so the proportions hold.</p>
+</main>
+</body>
+</html>

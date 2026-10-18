@@ -30,8 +30,6 @@ export function VisitEntry({ game }: { game: GameState }) {
     }
   }
   const [value, setValue] = useState("");
-  const [dartsUsed, setDartsUsed] = useState(3);
-  const [attempts, setAttempts] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [confirming, setConfirming] = useState(false);
   const visit = useGameStore((s) => s.visit),
@@ -44,17 +42,7 @@ export function VisitEntry({ game }: { game: GameState }) {
     }
   }
   function options(confirmed: boolean): VisitOptions {
-    return {
-      dartsUsed,
-      checkoutConfirmed: confirmed,
-      checkoutAttempts:
-        confirming ||
-        confirmed ||
-        (!game.config.doubleOut &&
-          Number(value) === game.players[game.activePlayer].score)
-          ? Math.max(1, attempts)
-          : attempts,
-    };
+    return { checkoutConfirmed: confirmed };
   }
   function commit(confirmed: boolean) {
     try {
@@ -140,8 +128,7 @@ export function VisitEntry({ game }: { game: GameState }) {
         >
           <h3 id="finish-confirmation-title">Confirm your finish</h3>
           <p>
-            Did your final dart hit a double or inner bull? If you threw fewer
-            than three darts, or missed doubles first, update the details below.
+            Did your final dart hit a double or inner bull?
           </p>
           <div className="action-row">
             <Button type="button" onClick={() => commit(true)}>
@@ -227,60 +214,6 @@ export function VisitEntry({ game }: { game: GameState }) {
         >
           {customKeypad ? "Use keyboard" : "Use keypad"}
         </Button>
-        <details className="visit-details" open={confirming ? true : undefined}>
-          <summary>
-            Visit details{" "}
-            <span>
-              {dartsUsed} {dartsUsed === 1 ? "dart" : "darts"},{" "}
-              {confirming ? Math.max(1, attempts) : attempts} checkout{" "}
-              {(confirming ? Math.max(1, attempts) : attempts) === 1
-                ? "attempt"
-                : "attempts"}
-            </span>
-          </summary>
-          <div className="two-fields">
-            <label className="field-label">
-              Darts thrown
-              <select
-                aria-label="Darts thrown"
-                value={dartsUsed}
-                onChange={(e) => {
-                  const n = Number(e.target.value);
-                  setDartsUsed(n);
-                  setAttempts(Math.min(attempts, n));
-                  setError(null);
-                }}
-              >
-                {[1, 2, 3].map((n) => (
-                  <option key={n} value={n}>
-                    {n} dart{n === 1 ? "" : "s"}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label className="field-label">
-              Checkout attempts
-              <select
-                aria-label="Checkout attempts"
-                value={confirming ? Math.max(1, attempts) : attempts}
-                onChange={(e) => setAttempts(Number(e.target.value))}
-              >
-                {Array.from({ length: dartsUsed + 1 }, (_, i) => i)
-                  .filter((n) => !confirming || n > 0)
-                  .map((n) => (
-                    <option key={n} value={n}>
-                      {n}
-                    </option>
-                  ))}
-              </select>
-            </label>
-          </div>
-          <p className="visit-options-help">
-            A checkout attempt is a dart thrown at a finishing double. Leave
-            these as they are unless you finished or threw fewer than three
-            darts.
-          </p>
-        </details>
       </div>
       <p id="visit-entry-hint" className="sr-only">
         Choose a score, then Submit. Switch to keyboard to type and press Enter.
