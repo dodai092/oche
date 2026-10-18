@@ -45,26 +45,3 @@ export function AtcBoard({ game }: { game: AtcGame }) {
     </section>
   );
 }
-
-/** The active player's whole sequence, so the order (especially a random one) is visible. */
-export function AtcTrack({
-  game,
-  playerIndex,
-}: {
-  game: AtcGame;
-  playerIndex: number;
-}) {
-  const position = game.players[playerIndex].step;
-  return (
-    <ol className="atc-track" aria-label="Sequence">
-      {game.steps.map((step, i) => (
-        <li
-          key={i}
-          className={i < position ? "done" : i === position ? "now" : ""}
-        >
-          {atcStepLabel(step)}
-        </li>
-      ))}
-    </ol>
-  );
-}

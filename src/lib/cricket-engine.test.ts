@@ -38,7 +38,7 @@ function config(
 function visit(game: CricketGame, darts: Dart[]): CricketGame {
   let g = game;
   for (const d of darts.length ? darts : [miss]) g = throwCricketDart(g, d);
-  return darts.length < 3 ? endCricketTurn(g) : g;
+  return endCricketTurn(g);
 }
 const idx = (value: number) => (CRICKET_NUMBERS as readonly number[]).indexOf(value);
 
@@ -120,13 +120,26 @@ describe("cut-throat scoring", () => {
 });
 
 describe("turns", () => {
-  it("switches after three darts and on an early end of turn", () => {
+  it("holds the visit at three darts until it is ended, then switches", () => {
     let g = createCricketGame(config());
     g = throwCricketDart(throwCricketDart(throwCricketDart(g, S(20)), S(19)), S(18));
+    expect(g.activePlayer).toBe(0);
+    expect(g.turnDarts).toHaveLength(3);
+    expect(throwCricketDart(g, S(20))).toBe(g);
+    g = endCricketTurn(g);
     expect(g.activePlayer).toBe(1);
+  });
+  it("ends an early visit and switches", () => {
+    let g = createCricketGame(config());
     g = throwCricketDart(g, S(20));
     g = endCricketTurn(g);
-    expect(g.activePlayer).toBe(0);
+    expect(g.activePlayer).toBe(1);
+  });
+  it("reads older saves that ended a visit on the third dart", () => {
+    const events = [S(20), S(19), S(18), S(17)].map((dart) => ({ type: "dart" as const, dart }));
+    const g = restoreCricketGame(config(), events);
+    expect(g.activePlayer).toBe(1);
+    expect(g.turnDarts).toHaveLength(1);
   });
   it("ignores an end of turn with no darts thrown", () => {
     const g = createCricketGame(config());
@@ -227,9 +240,9 @@ describe("undo and restore", () => {
     let g = createCricketGame(config());
     g = visit(g, [T(20), T(19), T(18)]);
     g = throwCricketDart(g, S(20));
-    expect(undoCricketDart(g).events).toHaveLength(3);
+    expect(undoCricketDart(g).events).toHaveLength(4);
     expect(undoCricketDart(g).activePlayer).toBe(1);
-    expect(undoCricketTurn(g).events).toHaveLength(3);
+    expect(undoCricketTurn(g).events).toHaveLength(4);
     const afterFirst = undoCricketTurn(undoCricketTurn(g));
     expect(afterFirst.events).toHaveLength(0);
     expect(afterFirst.players[0].marks.every((m) => m === 0)).toBe(true);

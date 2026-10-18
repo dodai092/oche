@@ -28,7 +28,7 @@ test("switching from DartBot to Cricket restores a normal second player", async 
   await page.getByRole("button", { name: "Cricket", exact: true }).click();
   await expect(page.getByLabel("Player 2 name")).toHaveValue("Player 2");
   await page.getByRole("button", { name: "Start match", exact: true }).click();
-  await expect(page.getByTestId("active-player")).toHaveText("Player 1 to throw");
+  await expect(page.getByTestId("active-player")).toHaveText("tuna to throw");
   await expect(page.getByRole("region", { name: "DartBot controls" })).toHaveCount(0);
 });
 
@@ -60,11 +60,18 @@ async function benMisses(page: Page) {
   for (let i = 0; i < 3; i++)
     await page.getByRole("button", { name: "Miss", exact: true }).click();
 }
+async function endTurn(page: Page) {
+  await page.getByRole("button", { name: "End turn", exact: true }).click();
+}
 async function annWinsLeg(page: Page) {
   await tripleAt(page, [20, 19, 18]);
+  await endTurn(page);
   await benMisses(page);
+  await endTurn(page);
   await tripleAt(page, [17, 16, 15]);
+  await endTurn(page);
   await benMisses(page);
+  await endTurn(page);
   await page.getByRole("button", { name: "Outer bull", exact: true }).click();
   await page.getByRole("button", { name: "Inner bull", exact: true }).click();
 }
@@ -74,24 +81,25 @@ test("plays a Cricket leg with marks, undo, a mid-turn refresh and a win", async
 }) => {
   await startCricket(page);
   await tripleAt(page, [20, 19, 18]);
-  await expect(page.getByTestId("active-player")).toHaveText("Ben to throw");
-  await expect(
-    page.getByTestId("marks-0-20").getByRole("img", { name: "3 marks" }),
-  ).toBeVisible();
-  await page.getByRole("button", { name: "Undo turn", exact: true }).click();
   await expect(page.getByTestId("active-player")).toHaveText("Ann to throw");
-  await expect(
-    page.getByTestId("marks-0-20").getByRole("img", { name: "0 marks" }),
-  ).toBeVisible();
+  await expect(page.getByRole("img", { name: "3 marks" })).toHaveCount(3);
+  await page.getByRole("button", { name: "Undo turn", exact: true }).click();
+  await expect(page.getByRole("img", { name: "3 marks" })).toHaveCount(0);
+  await expect(page.getByTestId("active-player")).toHaveText("Ann to throw");
   await tripleAt(page, [20, 19, 18]);
+  await endTurn(page);
+  await expect(page.getByTestId("active-player")).toHaveText("Ben to throw");
   await benMisses(page);
+  await endTurn(page);
   await tripleAt(page, [17]);
   await page.reload();
   await expect(page.getByTestId("active-player")).toHaveText("Ann to throw");
   await expect(page.getByRole("status")).toContainText("2 darts left");
   await tripleAt(page, [16, 15]);
+  await endTurn(page);
   await expect(page.getByTestId("active-player")).toHaveText("Ben to throw");
   await benMisses(page);
+  await endTurn(page);
   await page.getByRole("button", { name: "Outer bull", exact: true }).click();
   await page.getByRole("button", { name: "Inner bull", exact: true }).click();
   await expect(page.getByRole("heading", { name: "Ann wins!" })).toBeVisible();
@@ -118,9 +126,9 @@ test("Cricket points follow Standard rules and undo restores them", async ({
 test("each S / D / T cell scores its own multiplier", async ({ page }) => {
   await startCricket(page);
   await page.getByRole("button", { name: "Double 20", exact: true }).click();
-  await expect(page.getByTestId("marks-0-20").getByRole("img", { name: "2 marks" })).toBeVisible();
+  await expect(page.getByRole("img", { name: "2 marks" })).toBeVisible();
   await page.getByRole("button", { name: "Hit 20", exact: true }).click();
-  await expect(page.getByTestId("marks-0-20").getByRole("img", { name: "3 marks" })).toBeVisible();
+  await expect(page.getByRole("img", { name: "3 marks" })).toBeVisible();
 });
 
 test("landscape phone keeps the board and the keypad reachable", async ({
@@ -132,8 +140,8 @@ test("landscape phone keeps the board and the keypad reachable", async ({
     .getByRole("button", { name: "Miss", exact: true })
     .boundingBox();
   expect(miss!.y + miss!.height).toBeLessThanOrEqual(390);
-  await expect(page.getByTestId("marks-0-20")).toBeInViewport();
-  await expect(page.getByTestId("marks-0-25")).toBeInViewport();
+  await expect(page.getByRole("button", { name: "Triple 20", exact: true })).toBeInViewport();
+  await expect(page.getByRole("button", { name: "Outer bull", exact: true })).toBeInViewport();
 });
 
 test("history lists Cricket and x01 together, statistics stay x01 only, backup round-trips", async ({

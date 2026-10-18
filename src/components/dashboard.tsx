@@ -23,8 +23,9 @@ import {
 } from "@/lib/store";
 import { playerStats } from "@/lib/engine";
 import { requestSetupMode } from "@/lib/setup-mode";
+import { DEFAULT_NAMES } from "./match-setup";
 export function Dashboard() {
-  const { current, history, profiles } = useGameStore();
+  const { current, history, profiles, settings } = useGameStore();
   const stats = history.filter(isX01).flatMap((m) =>
     m.game.players.map((_, i) => playerStats(m.game, i)),
   );
@@ -34,7 +35,8 @@ export function Dashboard() {
   const avg = darts ? ((points / darts) * 3).toFixed(1) : "–";
   const count = (n: number) => (n ? n.toString().padStart(2, "0") : "–");
   return (
-    <div className="page-content">
+    <>
+    <div className="page-content dashboard-page">
       <div className="page-heading">
         <div>
           <div className="eyebrow">WELCOME TO THE OCHE</div>
@@ -62,9 +64,9 @@ export function Dashboard() {
             <br />
             All you need is a board and three darts.
           </p>
-          <Button asChild>
+          <Button asChild className="hero-start">
             <Link href="/new">
-              Start a match <ArrowUpRight size={19} />
+              Start match <ArrowUpRight size={19} />
             </Link>
           </Button>
           <div className="hero-meta">
@@ -253,6 +255,21 @@ export function Dashboard() {
         <span>NO DISTRACTIONS. JUST DARTS.</span>
       </div>
     </div>
+    <div className="dashboard-start">
+      <div className="start-bar-info">
+        <strong>
+          {settings.startScore} ·{" "}
+          {settings.doubleOut ? "Double out" : "Straight out"}
+        </strong>
+        <span>{DEFAULT_NAMES.join(" vs ")}</span>
+      </div>
+      <Button asChild className="start-bar-button">
+        <Link href="/new">
+          Start match <ArrowUpRight size={19} />
+        </Link>
+      </Button>
+    </div>
+    </>
   );
 }
 function HistoryGlyph() {

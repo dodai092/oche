@@ -186,6 +186,8 @@ function replay(config: CricketConfig, events: CricketEvent[]): CricketGame {
     const dart = { ...event.dart };
     validateDart(dart);
     game.events.push({ type: "dart", dart });
+    // Saves from before visits held at three darts ended the turn on the third dart with no event.
+    if (game.turnDarts.length === 3) nextPlayer(game);
     if (!game.turnDarts.length) startTurn(game);
     game.turns[game.turns.length - 1].darts.push(dart);
     game.turnDarts.push(dart);
@@ -196,13 +198,13 @@ function replay(config: CricketConfig, events: CricketEvent[]): CricketGame {
       game.activePlayer,
     );
     if (winner !== null) winLeg(game, winner);
-    else if (game.turnDarts.length === 3) nextPlayer(game);
   }
   return game;
 }
 
+/** A visit holds at three darts until it is ended, so a fourth dart is ignored. */
 export function throwCricketDart(game: CricketGame, dart: Dart): CricketGame {
-  if (game.status === "complete") return game;
+  if (game.status === "complete" || game.turnDarts.length >= 3) return game;
   validateDart(dart);
   return replay(game.config, [...game.events, { type: "dart", dart }]);
 }

@@ -29,11 +29,10 @@ test("a random order is the same after a refresh", async ({ page }) => {
   await page.getByRole("button", { name: "Around the Clock", exact: true }).click();
   await page.getByRole("button", { name: "Random", exact: true }).click();
   await page.getByRole("button", { name: "Start match", exact: true }).click();
-  const sequence = page.getByRole("list", { name: "Sequence" });
-  const before = await sequence.innerText();
-  expect(before.split("\n")).toHaveLength(21);
+  const target = page.getByTestId("atc-target-0");
+  const before = await target.innerText();
   await page.reload();
-  await expect.poll(() => sequence.innerText()).toBe(before);
+  await expect(target).toHaveText(before);
 });
 
 test("switching from DartBot to Around the Clock restores a normal second player", async ({
@@ -46,7 +45,7 @@ test("switching from DartBot to Around the Clock restores a normal second player
   await page.getByRole("button", { name: "Around the Clock", exact: true }).click();
   await expect(page.getByLabel("Player 2 name")).toHaveValue("Player 2");
   await page.getByRole("button", { name: "Start match", exact: true }).click();
-  await expect(page.getByTestId("active-player")).toHaveText("Player 1 to throw");
+  await expect(page.getByTestId("active-player")).toHaveText("tuna to throw");
   await expect(page.getByRole("region", { name: "DartBot controls" })).toHaveCount(0);
 });
 
@@ -56,7 +55,7 @@ test("Around the Clock can be played solo", async ({ page }) => {
   await page.getByRole("button", { name: "Remove player 2", exact: true }).click();
   await expect(page.getByRole("button", { name: /^Remove player/ })).toHaveCount(0);
   await page.getByRole("button", { name: "Start match", exact: true }).click();
-  await expect(page.getByTestId("active-player")).toHaveText("Player 1 to throw");
+  await expect(page.getByTestId("active-player")).toHaveText("tuna to throw");
 });
 
 import type { Page } from "@playwright/test";
@@ -78,10 +77,14 @@ async function benMisses(page: Page) {
   for (let i = 0; i < 3; i++)
     await page.getByRole("button", { name: "Miss", exact: true }).click();
 }
+const endTurn = (page: Page) =>
+  page.getByRole("button", { name: "End turn", exact: true }).click();
 async function annWinsLeg(page: Page) {
   for (let from = 1; from <= 16; from += 3) {
     await hits(page, [from, from + 1, from + 2]);
+    await endTurn(page);
     await benMisses(page);
+    await endTurn(page);
   }
   await hits(page, [19, 20]);
   await page.getByRole("button", { name: "Inner bull", exact: true }).click();
@@ -90,7 +93,7 @@ async function annWinsLeg(page: Page) {
 test("plays a race with undo, a mid-turn refresh and a win", async ({ page }) => {
   await startAtc(page);
   await hits(page, [1, 2, 3]);
-  await expect(page.getByTestId("active-player")).toHaveText("Ben to throw");
+  await expect(page.getByTestId("active-player")).toHaveText("Ann to throw");
   await expect(page.getByTestId("atc-target-0")).toHaveText("4");
   await page.getByRole("button", { name: "Undo turn", exact: true }).click();
   await expect(page.getByTestId("active-player")).toHaveText("Ann to throw");
@@ -101,10 +104,14 @@ test("plays a race with undo, a mid-turn refresh and a win", async ({ page }) =>
   await expect(page.getByTestId("atc-target-0")).toHaveText("3");
   await expect(page.getByRole("status")).toContainText("1 dart left");
   await hit(page, 3);
+  await endTurn(page);
   await benMisses(page);
+  await endTurn(page);
   for (let from = 4; from <= 16; from += 3) {
     await hits(page, [from, from + 1, from + 2]);
+    await endTurn(page);
     await benMisses(page);
+    await endTurn(page);
   }
   await hits(page, [19, 20]);
   await page.getByRole("button", { name: "Inner bull", exact: true }).click();
@@ -130,8 +137,7 @@ test("the target field and the order settings change what counts", async ({
   await expect(page.getByTestId("atc-target-0")).toHaveText("20");
   await hit(page, 20);
   await expect(page.getByTestId("atc-target-0")).toHaveText("20");
-  await page.getByRole("button", { name: "Double", exact: true }).click();
-  await hit(page, 20);
+  await page.getByRole("button", { name: "Double 20", exact: true }).click();
   await expect(page.getByTestId("atc-target-0")).toHaveText("19");
 });
 
@@ -140,19 +146,8 @@ test("increase by segment moves a treble three numbers on", async ({ page }) => 
   await page.getByRole("button", { name: "Around the Clock", exact: true }).click();
   await page.getByLabel("Increase by segment").check();
   await page.getByRole("button", { name: "Start match", exact: true }).click();
-  await page.getByRole("button", { name: "Triple", exact: true }).click();
-  await hit(page, 1);
+  await page.getByRole("button", { name: "Triple 1", exact: true }).click();
   await expect(page.getByTestId("atc-target-0")).toHaveText("4");
-});
-
-test("the multiplier returns to single after every dart", async ({ page }) => {
-  await startAtc(page);
-  await page.getByRole("button", { name: "Triple", exact: true }).click();
-  await hit(page, 1);
-  await expect(page.getByRole("button", { name: "Triple" })).toHaveAttribute(
-    "aria-pressed",
-    "false",
-  );
 });
 
 test("landscape phone keeps the board and the keypad reachable", async ({
@@ -184,10 +179,15 @@ test("history lists x01, Cricket and Around the Clock together, statistics stay 
     for (const n of numbers)
       await page.getByRole("button", { name: `Triple ${n}`, exact: true }).click();
   };
+  const endTurn = () => page.getByRole("button", { name: "End turn", exact: true }).click();
   await triples([20, 19, 18]);
+  await endTurn();
   await benMisses(page);
+  await endTurn();
   await triples([17, 16, 15]);
+  await endTurn();
   await benMisses(page);
+  await endTurn();
   await page.getByRole("button", { name: "Outer bull", exact: true }).click();
   await page.getByRole("button", { name: "Inner bull", exact: true }).click();
   await expect(page.getByRole("heading", { name: "Ann wins!" })).toBeVisible();

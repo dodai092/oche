@@ -3467,12 +3467,6 @@ fieldset.scoring-panel[hidden] {
 }
 
 /* Cricket layout pass: wide screens, landscape phones, history overflow. */
-.cricket-input .bull-row button {
-  flex-direction: column;
-  gap: 0;
-  line-height: 1.25;
-  text-align: center;
-}
 .cricket-results td {
   text-align: left;
 }
@@ -3519,16 +3513,6 @@ fieldset.scoring-panel[hidden] {
   }
   .cricket-input {
     padding: 8px;
-  }
-  .cricket-input .dart-slot {
-    min-height: 0;
-    padding: 4px 6px;
-  }
-  .cricket-input .dart-slot > span:first-child {
-    display: none;
-  }
-  .cricket-input .dart-slots {
-    margin-bottom: 6px;
   }
   .cricket-input .multiplier-options {
     margin-bottom: 6px;
@@ -3681,12 +3665,6 @@ fieldset.scoring-panel[hidden] {
 .keypad.atc-keypad {
   grid-template-columns: repeat(5, minmax(0, 1fr));
 }
-.atc-input .bull-row button {
-  flex-direction: column;
-  gap: 0;
-  line-height: 1.25;
-  text-align: center;
-}
 @media (min-width: 1000px) and (min-height: 501px) {
   .atc-page {
     display: grid;
@@ -3730,17 +3708,6 @@ fieldset.scoring-panel[hidden] {
   }
   .keypad.atc-keypad button {
     min-height: 44px;
-  }
-  .atc-input .dart-slot {
-    min-height: 0;
-    padding: 4px 6px;
-  }
-  .atc-input .dart-slot > span:first-child {
-    display: none;
-  }
-  .atc-input .dart-slots,
-  .atc-input .multiplier-options {
-    margin-bottom: 6px;
   }
   .atc-input .scoring-actions {
     margin-top: 6px;
@@ -3872,7 +3839,9 @@ fieldset.scoring-panel[hidden] {
     display: grid;
     grid-template-columns: repeat(5, minmax(0, 1fr));
     gap: 0;
-    padding: 6px 6px max(6px, env(safe-area-inset-bottom));
+    box-sizing: border-box;
+    height: calc(66px + env(safe-area-inset-bottom));
+    padding: 6px 6px env(safe-area-inset-bottom);
     border-top: 1px solid var(--line);
     border-bottom: 0;
     background: var(--surface, oklch(from #191c1b calc(l + var(--flip) * (1 - 2 * l)) c h));
@@ -4148,36 +4117,123 @@ fieldset.scoring-panel[hidden] {
     display: none;
   }
 }
+.checkout-page .visit-display {
+  margin: 8px 0 6px;
+}
+.checkout-page .visit-total strong {
+  font-size: 26px;
+}
+@media (max-height: 500px) and (orientation: landscape) {
+  .checkout-page .visit-display {
+    margin: 2px 0;
+  }
+  .checkout-page .dart-slot {
+    min-height: 0;
+    padding: 4px 6px;
+  }
+  .checkout-page .dart-slot > span:first-child {
+    display: none;
+  }
+  .checkout-page .atc-keypad button {
+    min-height: 28px;
+  }
+  .checkout-page .entry-mode button {
+    min-height: 26px;
+    padding: 2px 6px;
+  }
+  .checkout-page .multiplier-options button {
+    min-height: 24px;
+    padding: 2px 6px;
+  }
+  .checkout-page .bull-row button,
+  .checkout-page .scoring-actions button {
+    min-height: 26px;
+  }
+  .checkout-page .visit-total strong {
+    font-size: 20px;
+  }
+}
 
 /* Cricket scoring: one S / D / T matrix per number replaces the multiplier toggle and the 20-number keypad. */
+/* Cricket keypad, laid out like the Dartcounter phone reference: a mark column, then S / D / T per number. */
+.score-field {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  min-height: 60px;
+  border: 1px solid oklch(from #4a4e52 calc(l + var(--flip) * (1 - 2 * l)) c h);
+  border-radius: 10px;
+  background: var(--surface);
+  overflow: hidden;
+}
+.score-field-slot {
+  display: flex;
+  flex: 1 1 0;
+  min-width: 0;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-left: 1px solid oklch(from #3d4043 calc(l + var(--flip) * (1 - 2 * l)) c h);
+}
+.score-field-slot:first-child {
+  border-left: 0;
+}
+.score-field-slot strong {
+  font-size: 27px;
+  line-height: 1;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+.score-field-slot span {
+  font-size: 12px;
+  color: oklch(from #989ba0 calc(l + var(--flip) * (1 - 2 * l)) c h);
+}
 .cricket-matrix {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 4px;
   margin: 8px 0;
 }
-.cricket-matrix button {
-  min-height: 44px;
-  border: 1px solid oklch(from #5a5e63 calc(l + var(--flip) * (1 - 2 * l)) c h);
-  border-radius: 6px;
+.cricket-row {
+  display: grid;
+  grid-template-columns: 2.6fr 1fr 1fr 1fr 2.3fr;
+}
+.cricket-row:nth-child(even) {
   background: oklch(from #2b2e32 calc(l + var(--flip) * (1 - 1.6 * l)) c h);
+}
+.cricket-row-mark {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.cricket-row button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  border: 0;
+  border-left: 1px solid oklch(from #5a5e63 calc(l + var(--flip) * (1 - 2 * l)) c h);
+  border-radius: 0;
+  background: transparent;
+  color: inherit;
   font-size: 22px;
   font-weight: 600;
   padding: 0;
 }
-.cricket-matrix button:active {
+.cricket-row button:nth-child(4) {
+  border-right: 1px solid oklch(from #5a5e63 calc(l + var(--flip) * (1 - 2 * l)) c h);
+}
+.cricket-row button:active {
   background: var(--accent-fill);
   color: #ffffff;
 }
-@media (max-width: 700px) {
-  .cricket-page .cricket-matrix {
-    gap: 3px;
-    margin: 6px 0;
-  }
-  .cricket-page .cricket-matrix button {
-    min-height: 34px;
-    font-size: 18px;
-  }
+.cricket-marks {
+  display: flex;
+  gap: 2px;
+  margin-top: 1px;
+}
+.cricket-marks i {
+  width: 3px;
+  height: 3px;
+  background: currentColor;
 }
 @media (max-width: 700px) {
   .cricket-page > .cricket-board {
@@ -4203,17 +4259,12 @@ fieldset.scoring-panel[hidden] {
     width: 18px;
     height: 18px;
   }
-  .cricket-page .cricket-matrix button {
-    min-height: 30px;
-    font-size: 16px;
+  .cricket-page .cricket-row button {
+    min-height: clamp(30px, 7dvh, 64px);
+    font-size: 20px;
   }
-  .cricket-page .bull-row button,
   .cricket-page .scoring-actions button {
     min-height: 36px;
-  }
-  .cricket-page .bull-row button {
-    padding: 4px;
-    line-height: 1.1;
   }
   .cricket-page .cricket-input > * {
     flex: 0 0 auto;
@@ -4254,14 +4305,275 @@ fieldset.scoring-panel[hidden] {
   }
   .cricket-page .cricket-matrix {
     margin: 2px 0;
-    gap: 2px;
   }
-  .cricket-page .cricket-matrix button {
+  .cricket-page .cricket-row button {
     min-height: 24px;
     font-size: 14px;
   }
-  .cricket-page .bull-row button,
   .cricket-page .scoring-actions button {
     min-height: 30px;
   }
 }
+
+@media (max-width: 700px) {
+  .cricket-page .throwing-badge {
+    display: none;
+  }
+}
+
+/* Around the Clock: target keys, undo and miss row, and the target ring, as in the phone reference. */
+.atc-keys,
+.atc-bottom-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-top: 10px;
+  border-top: 1px solid oklch(from #5a5e63 calc(l + var(--flip) * (1 - 2 * l)) c h);
+}
+.atc-bottom-row {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-top: 0;
+}
+.atc-keys button,
+.atc-bottom-row button {
+  display: grid;
+  place-items: center;
+  min-height: clamp(56px, 14dvh, 140px);
+  border: 0;
+  border-left: 1px solid oklch(from #5a5e63 calc(l + var(--flip) * (1 - 2 * l)) c h);
+  border-radius: 0;
+  background: transparent;
+  color: inherit;
+  font-size: clamp(24px, 4.2dvh, 38px);
+  font-weight: 600;
+  padding: 0;
+}
+.atc-keys button:first-child,
+.atc-bottom-row button:first-child {
+  border-left: 0;
+}
+.atc-keys button:active,
+.atc-bottom-row button:active {
+  background: var(--accent-fill);
+  color: #ffffff;
+}
+.atc-bottom-row button:disabled {
+  opacity: 0.35;
+}
+.atc-bottom-row button:first-child {
+  font-size: 20px;
+}
+.atc-ring {
+  display: grid;
+  place-items: center;
+  align-content: center;
+  width: clamp(64px, 12dvh, 110px);
+  aspect-ratio: 1;
+  margin: 8px auto 6px;
+  border: 3px solid currentColor;
+  border-radius: 50%;
+}
+.atc-ring strong {
+  font-size: clamp(28px, 5dvh, 48px);
+  line-height: 1;
+  font-weight: 600;
+}
+.atc-ring small {
+  font-size: 11px;
+}
+.atc-target-tag {
+  display: block;
+  width: max-content;
+  margin: 0 auto;
+  padding: 3px 8px;
+  border-radius: 4px;
+  background: #16181a;
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+.atc-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px 0 14px;
+  font-size: 15px;
+  font-variant-numeric: tabular-nums;
+}
+.atc-stats > span {
+  display: flex;
+  justify-content: space-between;
+}
+.atc-stats small {
+  font-size: 13px;
+}
+.atc-stats strong {
+  font-weight: 600;
+}
+
+/* Start bar on phones, shared by Overview and Play: game, rule and players on the left, a compact Start button on the right, on the tab bar with no top border. */
+.start-bar-info {
+  display: none;
+}
+@media (max-width: 700px) {
+  .match-summary,
+  .dashboard-start {
+    position: fixed;
+    top: auto;
+    left: 0;
+    right: 0;
+    bottom: calc(66px + env(safe-area-inset-bottom));
+    z-index: 19;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 12px;
+    margin: 0;
+    padding: 9px 16px;
+    border: 0;
+    border-radius: 0;
+    background: var(--bg);
+  }
+  .match-summary > .replace-warning {
+    grid-column: 1 / -1;
+  }
+  .start-bar-info {
+    display: block;
+    grid-column: 1;
+    grid-row: 1;
+    min-width: 0;
+    width: 100%;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: inherit;
+    font: inherit;
+    text-align: left;
+    line-height: 1.3;
+  }
+  .start-bar-info strong,
+  .start-bar-info span {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .start-bar-info strong {
+    font-size: 14px;
+    font-weight: 600;
+  }
+  .start-bar-info span {
+    font-size: 12px;
+    color: var(--muted);
+  }
+  .start-bar-button {
+    grid-column: 2;
+    grid-row: 1;
+    width: auto;
+    height: 48px;
+    min-height: 48px;
+    padding: 0 18px;
+    border-radius: 10px;
+    font-size: 14px;
+  }
+  .start-bar-button svg {
+    width: 16px;
+    height: 16px;
+  }
+  .app-shell main:has(.match-summary) {
+    padding-bottom: calc(150px + env(safe-area-inset-bottom));
+  }
+  /* Setup fields keep the column width when a game's settings are wider, so the card does not resize. */
+  .setup-fields {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  /* The start bar stays still: only the content around it fades in, so the bar is never animated. */
+  .page-content:has(.match-summary) {
+    animation: none;
+  }
+  .page-content:has(.match-summary) > :not(.setup-grid),
+  .page-content:has(.match-summary) .setup-fields {
+    animation: page-fade 0.3s ease-out;
+  }
+  @keyframes page-fade {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+}
+
+/* Overview on phones: smaller headings, no hero art, and Start a match fixed above the tab bar. */
+.dashboard-start {
+  display: none;
+}
+@media (max-width: 700px) {
+  .dashboard-page .page-heading h1 {
+    font-size: 24px;
+  }
+  .dashboard-page .page-heading p {
+    display: none;
+  }
+  .dashboard-page .hero {
+    min-height: 0;
+  }
+  .dashboard-page .hero-copy {
+    padding: 20px 20px 18px;
+  }
+  .dashboard-page .hero h2 {
+    font-size: 26px;
+    margin: 12px 0 10px;
+  }
+  .dashboard-page .hero-art {
+    display: none;
+  }
+  .dashboard-page .hero-start {
+    display: none;
+  }
+  .dashboard-page {
+    padding-bottom: calc(150px + env(safe-area-inset-bottom));
+  }
+  .dashboard-start {
+    display: grid;
+  }
+}
+
+/* Phones: the logo sits in one row with the theme toggle and settings, the top bar is gone, and headings are smaller. */
+.brand-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.brand-actions {
+  display: none;
+}
+@media (max-width: 700px) {
+  .brand-row {
+    margin: 0 0 14px;
+  }
+  .brand-row .wordmark {
+    margin: 0;
+    font-size: 30px;
+  }
+  .brand-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .brand-actions .theme-toggle {
+    width: 40px;
+    height: 40px;
+  }
+  .topbar {
+    display: none;
+  }
+  .page-heading h1 {
+    font-size: 24px;
+  }
+  .page-content {
+    padding-top: 12px;
+  }
+}
+

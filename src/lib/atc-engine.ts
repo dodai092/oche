@@ -265,6 +265,8 @@ function replay(config: AtcConfig, events: AtcEvent[]): AtcGame {
     const dart = { ...event.dart };
     validateDart(dart);
     game.events.push({ type: "dart", dart });
+    // Saves from before visits held at three darts ended the turn on the third dart with no event.
+    if (game.turnDarts.length === 3) nextPlayer(game);
     if (!game.turnDarts.length) startTurn(game);
     const turn = game.turns[game.turns.length - 1];
     turn.darts.push(dart);
@@ -272,13 +274,13 @@ function replay(config: AtcConfig, events: AtcEvent[]): AtcGame {
     if (applyDart(game, dart)) turn.hits += 1;
     if (game.players[game.activePlayer].step === game.steps.length)
       winLeg(game, game.activePlayer);
-    else if (game.turnDarts.length === 3) nextPlayer(game);
   }
   return game;
 }
 
+/** A visit holds at three darts until it is ended, so a fourth dart is ignored. */
 export function throwAtcDart(game: AtcGame, dart: Dart): AtcGame {
-  if (game.status === "complete") return game;
+  if (game.status === "complete" || game.turnDarts.length >= 3) return game;
   validateDart(dart);
   return replay(game.config, [...game.events, { type: "dart", dart }]);
 }

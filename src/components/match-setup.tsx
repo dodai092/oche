@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
-  ArrowLeft,
   ArrowUpRight,
   Plus,
   Minus,
@@ -30,6 +29,7 @@ import {
   CheckoutSettings,
   type CheckoutSettingsValue,
 } from "./checkout-settings";
+export const DEFAULT_NAMES = ["tuna", "loser"];
 export function MatchSetup() {
   const {
     settings,
@@ -43,7 +43,7 @@ export function MatchSetup() {
   } = useGameStore();
   const [score, setScore] = useState<301 | 501 | 701>(settings.startScore);
   const [doubleOut, setDoubleOut] = useState(settings.doubleOut);
-  const [names, setNames] = useState(["Player 1", "Player 2"]);
+  const [names, setNames] = useState(DEFAULT_NAMES);
   const [profileIds, setProfileIds] = useState(["", ""]);
   const [legs, setLegs] = useState(1),
     [sets, setSets] = useState(1);
@@ -154,11 +154,20 @@ export function MatchSetup() {
     });
     router.push("/match");
   }
+  // Start bar on phones: game and rule, then the players as typed.
+  const barPlayers = names
+    .map((n, i) => n.trim() || `Player ${i + 1}`)
+    .join(" vs ");
+  const barGame =
+    gameMode === "cricket"
+      ? `Cricket · ${cricketStyle === "standard" ? "Standard" : "Cut-throat"}`
+      : gameMode === "atc"
+        ? `Around the Clock · ${atc.finish === "single-bull" ? "Single bull" : atc.finish === "bullseye" ? "Bullseye" : "All"}`
+        : gameMode === "checkout"
+          ? `${checkoutPreview.ok ? checkoutPreview.startTarget : "?"} · ${checkout.darts} darts`
+          : `${score} · ${doubleOut ? "Double out" : "Straight out"}`;
   return (
     <div className="page-content setup-page">
-      <Link href="/" className="back-link">
-        <ArrowLeft size={16} /> Back to overview
-      </Link>
       <div className="page-heading">
         <div>
           <div className="eyebrow">MAKE IT YOUR GAME</div>
@@ -342,7 +351,7 @@ export function MatchSetup() {
               </>
             )}
           </section>
-          <section className="panel">
+          <section className="panel" id="lineup">
             <div className="section-heading">
               <h2>
                 <UsersRound size={20} /> The lineup
@@ -490,6 +499,18 @@ export function MatchSetup() {
           </section>
         </div>
         <aside className="panel match-summary">
+          <button
+            type="button"
+            className="start-bar-info"
+            onClick={() =>
+              document
+                .getElementById("lineup")
+                ?.scrollIntoView({ behavior: "smooth", block: "start" })
+            }
+          >
+            <strong>{barGame}</strong>
+            <span>{barPlayers}</span>
+          </button>
           <span className="eyebrow">YOUR MATCH</span>
           <div className="summary-score">
             {gameMode === "cricket"
@@ -602,16 +623,13 @@ export function MatchSetup() {
             </div>
           )}
           <Button
-            className="full-width"
+            className="full-width start-bar-button"
             type="submit"
             disabled={readOnly || names.some((n,i) => !(opponent === "bot" && i === names.length-1) && !n.trim())}
           >
             {replace ? "Replace & start match" : "Start match"}
             <ArrowUpRight size={18} />
           </Button>
-          <p className="small muted center">
-            {names[0] || "Player 1"} throws first. Starters rotate each leg.
-          </p>
         </aside>
       </form>
     </div>

@@ -1,22 +1,60 @@
 "use client";
 import Link from "next/link";
-import {
-  ArrowLeft,
-  ArrowRight,
-  RotateCcw,
-  Target,
-  Trophy,
-  Undo2,
-} from "lucide-react";
+import { ArrowLeft, ArrowRight, RotateCcw, Trophy, Undo2 } from "lucide-react";
 import { Button } from "./ui/button";
-import { CricketBoard } from "./cricket-board";
+import { CricketScoreCards } from "./cricket-scorecards";
+import { DartScoreField } from "./dart-score-field";
 import { CricketSummary } from "./cricket-summary";
 import { CRICKET_NUMBERS } from "@/lib/cricket-engine";
-import { dartLabel } from "@/lib/engine";
+import type { Dart } from "@/lib/engine";
 import { useGameStore, type CricketMatch } from "@/lib/store";
 
 const MULTIPLIER_WORD = { 1: "Hit", 2: "Double", 3: "Triple" } as const;
-const MULTIPLIER_PREFIX = { 1: "", 2: "D", 3: "T" } as const;
+const MULTIPLIER_PREFIX = { 1: "S", 2: "D", 3: "T" } as const;
+
+// One dot per mark: single shows 1, double 2, triple 3.
+function Marks({ count }: { count: number }) {
+  return (
+    <span className="cricket-marks" aria-hidden="true">
+      {Array.from({ length: count }, (_, i) => (
+        <i key={i} />
+      ))}
+    </span>
+  );
+}
+
+// Left-hand column: the player's marks on one number. 1 is a slash, 2 a cross, 3 a circled cross.
+function MarkSymbol({ count }: { count: number }) {
+  if (count === 0) return null;
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      width="22"
+      height="22"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.6"
+      strokeLinecap="round"
+      role="img"
+      aria-label={count === 1 ? "1 mark" : `${count} marks`}
+    >
+      {count === 1 && <path d="M5 19 19 5" />}
+      {count === 2 && <path d="M5 5 19 19M19 5 5 19" />}
+      {count === 3 && (
+        <>
+          <circle cx="12" cy="12" r="10" />
+          <path d="M6 6 18 18M18 6 6 18" />
+        </>
+      )}
+    </svg>
+  );
+}
+
+function dartName(dart: Dart) {
+  if (dart.value === 0) return "Miss";
+  if (dart.value === 25 && dart.multiplier === 2) return "Bull";
+  return `${MULTIPLIER_PREFIX[dart.multiplier]}${dart.value}`;
+}
 
 export const cricketStyleLabel = (style: "standard" | "cutthroat") =>
   style === "standard" ? "Standard" : "Cut-throat";
@@ -29,12 +67,6 @@ export function CricketMatchView({ match }: { match: CricketMatch }) {
 
   function hit(value: number, mult: 1 | 2 | 3) {
     cricketDart({ value, multiplier: mult });
-  }
-  function endTurn() {
-    if (!game.turnDarts.length) {
-      for (let i = 0; i < 3; i++)
-        useGameStore.getState().cricketDart({ value: 0, multiplier: 1 });
-    } else cricketFinishTurn();
   }
 
   if (game.status === "complete") {
@@ -82,7 +114,9 @@ export function CricketMatchView({ match }: { match: CricketMatch }) {
     : last
       ? last.complete
         ? `${game.players[last.playerIndex].name} threw ${last.marks} ${last.marks === 1 ? "mark" : "marks"}.`
-        : `${last.marks} ${last.marks === 1 ? "mark" : "marks"} this turn, ${left} ${left === 1 ? "dart" : "darts"} left.`
+        : left
+          ? `${last.marks} ${last.marks === 1 ? "mark" : "marks"} this turn, ${left} ${left === 1 ? "dart" : "darts"} left.`
+          : `${last.marks} ${last.marks === 1 ? "mark" : "marks"} this turn. Submit to pass the turn.`
       : "Throw at 20 to start.";
 
   return (
@@ -101,7 +135,7 @@ export function CricketMatchView({ match }: { match: CricketMatch }) {
         </div>
         <span aria-hidden="true" />
       </div>
-      <CricketBoard game={game} />
+      <CricketScoreCards game={game} />
       <div
         role="status"
         aria-live="polite"
@@ -113,62 +147,54 @@ export function CricketMatchView({ match }: { match: CricketMatch }) {
       </div>
       <fieldset disabled={readOnly} className="panel scoring-panel cricket-input">
         <legend className="sr-only">Scoring controls</legend>
-        <div className="dart-slots">
-          {[0, 1, 2].map((i) => (
-            <div
-              key={i}
-              className={`dart-slot ${game.turnDarts[i] ? "filled" : ""}`}
-            >
-              <span>DART {i + 1}</span>
-              <strong>
-                {game.turnDarts[i] ? (
-                  dartLabel(game.turnDarts[i])
-                ) : (
-                  <span className="slot-line" />
-                )}
-              </strong>
+        <DartScoreField
+          slots={game.turnDarts.map((d) => ({
+            main: String(d.value * d.multiplier),
+            sub: dartName(d),
+          }))}
+          onSubmit={cricketFinishTurn}
+        />
+        <div className="cricket-matrix" role="group" aria-label="Score keypad">
+          {CRICKET_NUMBERS.filter((n) => n !== 25).map((n) => (
+            <div className="cricket-row" key={n}>
+              <span className="cricket-row-mark">
+                <MarkSymbol count={active.marks[CRICKET_NUMBERS.indexOf(n)]} />
+              </span>
+              {([1, 2, 3] as const).map((m) => (
+                <button
+                  key={`${n}-${m}`}
+                  type="button"
+                  aria-label={`${MULTIPLIER_WORD[m]} ${n}`}
+                  onClick={() => hit(n, m)}
+                >
+                  {n}
+                  <Marks count={m} />
+                </button>
+              ))}
             </div>
           ))}
-        </div>
-        <div className="cricket-matrix" role="group" aria-label="Score keypad">
-          {CRICKET_NUMBERS.filter((n) => n !== 25).map((n) =>
-            ([1, 2, 3] as const).map((m) => (
-              <button
-                key={`${n}-${m}`}
-                type="button"
-                aria-label={`${MULTIPLIER_WORD[m]} ${n}`}
-                onClick={() => hit(n, m)}
-              >
-                <span className="hit-multiplier">{MULTIPLIER_PREFIX[m]}</span>
-                {n}
-              </button>
-            )),
-          )}
-        </div>
-        <div className="bull-row">
-          <button
-            type="button"
-            aria-label="Outer bull"
-            onClick={() => hit(25, 1)}
-          >
-            OUTER BULL <span>1 mark</span>
-          </button>
-          <button
-            type="button"
-            aria-label="Inner bull"
-            onClick={() => hit(25, 2)}
-            className="bull-button"
-          >
-            <Target size={17} /> BULL <span>2 marks</span>
-          </button>
-          <button
-            type="button"
-            aria-label="Miss"
-            onClick={() => hit(0, 1)}
-            className="miss-button"
-          >
-            MISS <span>0</span>
-          </button>
+          <div className="cricket-row">
+            <span className="cricket-row-mark" />
+            <button
+              type="button"
+              aria-label="Outer bull"
+              onClick={() => hit(25, 1)}
+            >
+              Bull
+              <Marks count={1} />
+            </button>
+            <button
+              type="button"
+              aria-label="Inner bull"
+              onClick={() => hit(25, 2)}
+            >
+              Bull
+              <Marks count={2} />
+            </button>
+            <button type="button" aria-label="Miss" onClick={() => hit(0, 1)}>
+              Miss
+            </button>
+          </div>
         </div>
         <div className="scoring-actions">
           <Button
@@ -188,9 +214,6 @@ export function CricketMatchView({ match }: { match: CricketMatch }) {
             aria-label="Undo turn"
           >
             <RotateCcw size={16} /> Undo turn
-          </Button>
-          <Button type="button" variant="outline" onClick={endTurn}>
-            End turn <ArrowRight size={16} />
           </Button>
         </div>
       </fieldset>

@@ -6,7 +6,7 @@ test("type a visit, submit, undo and refresh", async ({ page }) => {
   await enterTotal(page, "100");
   await page.getByRole("button", { name: "Submit score", exact: true }).click();
   await expect(page.getByTestId("score-0")).toHaveText("401");
-  await expect(page.getByTestId("active-player")).toContainText("Player 2");
+  await expect(page.getByTestId("active-player")).toContainText("loser");
   await page.reload();
   await expect(page.getByTestId("score-0")).toHaveText("401");
   await page.getByRole("button", { name: "Undo score", exact: true }).click();

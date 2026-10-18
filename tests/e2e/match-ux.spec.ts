@@ -37,7 +37,7 @@ test("mobile scoring stays in view, uses one keyboard and remembers the entry mo
   await enterTotal(page, "60");
   await page.getByRole("button", { name: "Submit score", exact: true }).click();
   await expect(page.getByTestId("score-1")).toHaveText("441");
-  await expect(page.getByTestId("active-player")).toContainText("Player 1");
+  await expect(page.getByTestId("active-player")).toContainText("tuna");
   await page.getByRole("button", { name: "Dart-by-dart", exact: true }).click();
   await page.reload();
   await expect(

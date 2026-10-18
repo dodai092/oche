@@ -10,8 +10,11 @@ export type CheckoutConfig = {
   rounds: CheckoutRounds;
   players: { id: string; name: string }[];
 };
+/** A whole visit entered as a total. `checkout` says the last dart was a double. */
+export type CheckoutVisit = { score: number; darts: number; checkout: boolean };
 export type CheckoutEvent =
   | { type: "dart"; dart: Dart }
+  | ({ type: "visit" } & CheckoutVisit)
   | { type: "end-turn" }
   | { type: "end-run" };
 export type CheckoutAttempt = {
@@ -31,7 +34,14 @@ export type CheckoutTurn = {
   unthrown: number;
   bust: boolean;
   complete: boolean;
+  /** Set when the visit was entered as a total: darts thrown, with no dart list. */
+  visitDarts?: number;
 };
+
+/** Darts thrown in a turn, whether entered dart by dart or as a total. */
+export function turnDartCount(turn: CheckoutTurn): number {
+  return turn.visitDarts ?? turn.darts.length;
+}
 export type CheckoutGame = {
   config: CheckoutConfig;
   players: { id: string; name: string }[];
@@ -172,9 +182,9 @@ function endAttempt(
 }
 
 /** The turn is over without a checkout: burn its unthrown darts, then move on. */
-function endTurn(game: CheckoutGame) {
+function endTurn(game: CheckoutGame, unthrown = 3 - game.turnDarts.length) {
   const turn = game.turns[game.turns.length - 1];
-  turn.unthrown = 3 - game.turnDarts.length;
+  turn.unthrown = unthrown;
   game.dartsUsed += turn.unthrown;
   turn.complete = true;
   if (game.dartsUsed >= game.config.dartsPerAttempt)
@@ -204,6 +214,35 @@ function replay(config: CheckoutConfig, events: CheckoutEvent[]): CheckoutGame {
       if (!game.turnDarts.length) continue;
       game.events.push({ type: "end-turn" });
       endTurn(game);
+      continue;
+    }
+    if (event.type === "visit") {
+      if (game.turnDarts.length)
+        throw new RangeError("A visit total cannot follow darts in the same turn.");
+      game.events.push({ ...event });
+      game.turnStart = game.remaining;
+      game.turns.push({
+        playerIndex: game.activePlayer,
+        attempt: game.attempt,
+        darts: [],
+        unthrown: 0,
+        bust: false,
+        complete: false,
+        visitDarts: event.darts,
+      });
+      const turn = game.turns[game.turns.length - 1];
+      game.dartsUsed += event.darts;
+      const next = game.remaining - event.score;
+      if (next === 0 && event.checkout) {
+        endAttempt(game, "cleared", game.activePlayer);
+        continue;
+      }
+      // Below zero, on 1, or on zero without a double: a bust.
+      if (next <= 1 || next === 0) {
+        game.remaining = game.turnStart;
+        turn.bust = true;
+      } else game.remaining = next;
+      endTurn(game, 3 - event.darts);
       continue;
     }
     const dart = { ...event.dart };
@@ -246,6 +285,34 @@ export function throwCheckoutDart(game: CheckoutGame, dart: Dart): CheckoutGame 
   return replay(game.config, [...game.events, { type: "dart", dart }]);
 }
 
+function validateVisit(visit: CheckoutVisit) {
+  if (
+    !Number.isInteger(visit.score) ||
+    visit.score < 0 ||
+    visit.score > 180 ||
+    !Number.isInteger(visit.darts) ||
+    visit.darts < 1 ||
+    visit.darts > 3 ||
+    typeof visit.checkout !== "boolean"
+  )
+    throw new RangeError("Invalid visit total");
+}
+
+/** A whole visit as one total. Finishing needs `checkout` set; otherwise hitting zero is a bust. */
+export function throwCheckoutVisit(
+  game: CheckoutGame,
+  visit: CheckoutVisit,
+): CheckoutGame {
+  if (game.status === "complete") return game;
+  validateVisit(visit);
+  if (visit.checkout && visit.score !== game.remaining)
+    throw new RangeError("A checkout must score the remaining points");
+  return replay(game.config, [
+    ...game.events,
+    { type: "visit", ...visit },
+  ]);
+}
+
 /** Finishing a turn early burns its unthrown darts from the attempt budget. */
 export function endCheckoutTurn(game: CheckoutGame): CheckoutGame {
   if (game.status === "complete" || !game.turnDarts.length) return game;
@@ -263,7 +330,7 @@ export function undoCheckoutDart(game: CheckoutGame): CheckoutGame {
   if (game.events[game.events.length - 1]?.type === "end-run")
     return replay(game.config, game.events.slice(0, -1));
   for (let i = game.events.length - 1; i >= 0; i--) {
-    if (game.events[i].type === "dart")
+    if (game.events[i].type === "dart" || game.events[i].type === "visit")
       return replay(game.config, game.events.slice(0, i));
   }
   return game;
@@ -277,9 +344,10 @@ export function undoCheckoutTurn(game: CheckoutGame): CheckoutGame {
   if (!turn) return game;
   const endMarker =
     game.events[game.events.length - 1]?.type === "end-turn" ? 1 : 0;
+  const thrown = turn.visitDarts !== undefined ? 1 : turn.darts.length;
   return replay(
     game.config,
-    game.events.slice(0, game.events.length - turn.darts.length - endMarker),
+    game.events.slice(0, game.events.length - thrown - endMarker),
   );
 }
 
@@ -294,6 +362,7 @@ export function restoreCheckoutGame(
     if (
       !event ||
       (event.type !== "dart" &&
+        event.type !== "visit" &&
         event.type !== "end-turn" &&
         event.type !== "end-run")
     )
@@ -301,6 +370,9 @@ export function restoreCheckoutGame(
     if (event.type === "dart") {
       if (!event.dart) throw new RangeError("Missing saved dart");
       validateDart(event.dart);
+    }
+    if (event.type === "visit") {
+      validateVisit(event);
     }
   }
   return replay(config, events);
@@ -312,14 +384,14 @@ export function checkoutSummary(game: CheckoutGame) {
     attemptsPlayed: game.attempts.length,
     attemptsCleared: game.attempts.filter((a) => a.outcome === "cleared")
       .length,
-    darts: game.turns.reduce((sum, t) => sum + t.darts.length, 0),
+    darts: game.turns.reduce((sum, t) => sum + turnDartCount(t), 0),
     attempts: game.attempts,
     players: game.players.map((p, i) => ({
       id: p.id,
       name: p.name,
       darts: game.turns
         .filter((t) => t.playerIndex === i)
-        .reduce((sum, t) => sum + t.darts.length, 0),
+        .reduce((sum, t) => sum + turnDartCount(t), 0),
       checkouts: game.attempts.filter((a) => a.by === i).length,
     })),
   };

@@ -64,23 +64,17 @@ export function CheckoutBoard({
 /** The finished attempts of the run, newest last. Reuses the sequence chip styles. */
 export function CheckoutAttempts({ game }: { game: CheckoutGame }) {
   const recent = game.attempts.slice(-12);
+  if (!recent.length) return null;
   return (
     <div className="atc-sequence panel">
-      <small className="small muted">
-        A missed attempt falls back to the safehouse.
-      </small>
-      {recent.length ? (
-        <ol className="atc-track" aria-label="Attempts">
-          {recent.map((a) => (
-            <li key={a.number} className={a.outcome === "cleared" ? "done" : ""}>
-              {a.target}
-              <span className="sr-only"> {a.outcome}</span>
-            </li>
-          ))}
-        </ol>
-      ) : (
-        <small className="small muted">No attempts finished yet.</small>
-      )}
+      <ol className="atc-track" aria-label="Attempts">
+        {recent.map((a) => (
+          <li key={a.number} className={a.outcome === "cleared" ? "done" : ""}>
+            {a.target}
+            <span className="sr-only"> {a.outcome}</span>
+          </li>
+        ))}
+      </ol>
     </div>
   );
 }

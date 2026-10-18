@@ -4,7 +4,7 @@ test("501 scoring, turn switching, undo and refresh persistence", async ({
   page,
 }) => {
   await page.goto("/");
-  await page.getByRole("link", { name: "Start a match", exact: true }).click();
+  await page.getByRole("link", { name: "Start match", exact: true }).click();
   await page.getByRole("button", { name: "Start match", exact: true }).click();
   await page.getByRole("button", { name: "Dart-by-dart", exact: true }).click();
   await expect(page.getByTestId("score-0")).toHaveText("501");
@@ -22,10 +22,10 @@ test("501 scoring, turn switching, undo and refresh persistence", async ({
   await expect(
     page.getByRole("button", { name: "Single", exact: true }),
   ).toHaveAttribute("aria-pressed", "true");
-  await expect(page.getByTestId("active-player")).toContainText("Player 2");
+  await expect(page.getByTestId("active-player")).toContainText("loser");
   await page.getByRole("button", { name: "Undo turn", exact: true }).click();
   await expect(page.getByTestId("score-0")).toHaveText("501");
-  await expect(page.getByTestId("active-player")).toContainText("Player 1");
+  await expect(page.getByTestId("active-player")).toContainText("tuna");
   expect(
     await page.evaluate(
       () => document.documentElement.scrollWidth <= window.innerWidth,
@@ -55,17 +55,17 @@ test("real 501 finish, history, completion undo and local profile creation", asy
   await hit(19, "Triple");
   await hit(12, "Double");
   await expect(
-    page.getByRole("heading", { name: "Player 1 wins!" }),
+    page.getByRole("heading", { name: "tuna wins!" }),
   ).toBeVisible();
   await page.reload();
   await expect(
-    page.getByRole("heading", { name: "Player 1 wins!" }),
+    page.getByRole("heading", { name: "tuna wins!" }),
   ).toBeVisible();
   await page.getByRole("button", { name: "Undo winning dart" }).click();
   await expect(page.getByTestId("score-0")).toHaveText("24");
   await hit(12, "Double");
   await page.getByRole("link", { name: "View match history" }).click();
-  await expect(page.getByText("Player 1 wins", { exact: true })).toBeVisible();
+  await expect(page.getByText("tuna wins", { exact: true })).toBeVisible();
   await page.goto("/players");
   await page.getByLabel("Player name").fill("Antun");
   await page.getByRole("button", { name: "Add player", exact: true }).click();
@@ -115,7 +115,7 @@ test("four-player 701 setup, bull controls and narrow scoreboard", async ({
   await page.getByRole("button", { name: "BULL 50", exact: true }).click();
   await expect(page.getByTestId("score-0")).toHaveText("626");
   await page.getByRole("button", { name: "MISS 0", exact: true }).click();
-  await expect(page.getByTestId("active-player")).toContainText("Player 2");
+  await expect(page.getByTestId("active-player")).toContainText("loser");
   expect(
     await page.evaluate(
       () => document.documentElement.scrollWidth <= innerWidth,

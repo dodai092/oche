@@ -69,7 +69,7 @@ test("switching from DartBot to 121 Checkout restores a normal second player", a
   await page.getByRole("button", { name: "121", exact: true }).click();
   await expect(page.getByLabel("Player 2 name")).toHaveValue("Player 2");
   await page.getByRole("button", { name: "Start match", exact: true }).click();
-  await expect(page.getByTestId("active-player")).toHaveText("Player 1 to throw");
+  await expect(page.getByTestId("active-player")).toHaveText("tuna to throw");
   await expect(page.getByRole("region", { name: "DartBot controls" })).toHaveCount(0);
 });
 
@@ -79,7 +79,7 @@ test("121 Checkout can be played solo", async ({ page }) => {
   await page.getByRole("button", { name: "Remove player 2", exact: true }).click();
   await expect(page.getByRole("button", { name: /^Remove player/ })).toHaveCount(0);
   await page.getByRole("button", { name: "Start match", exact: true }).click();
-  await expect(page.getByTestId("active-player")).toHaveText("Player 1 to throw");
+  await expect(page.getByTestId("active-player")).toHaveText("tuna to throw");
 });
 
 type RunOptions = {
@@ -117,7 +117,34 @@ async function startRun(page: Page, o: RunOptions = {}) {
   else
     await page.getByRole("button", { name: "Remove player 2", exact: true }).click();
   await page.getByRole("button", { name: "Start match", exact: true }).click();
+  const replace = page.getByRole("button", { name: "Replace & start match" });
+  if (await replace.isVisible().catch(() => false)) await replace.click();
+  // Dart-by-dart keeps these tests on the dart keypad; visit totals have their own test.
+  await page.getByRole("button", { name: "Dart-by-dart", exact: true }).click();
 }
+
+test("121 visit total: a finish asks whether the last dart was a double", async ({ page }) => {
+  await startRun(page, { start: "40", darts: "6" });
+  await page.getByRole("button", { name: "Visit total", exact: true }).click();
+  await page.getByRole("button", { name: "Digit 2" }).click();
+  await page.getByRole("button", { name: "Digit 0" }).click();
+  await page.getByRole("button", { name: "Submit", exact: true }).click();
+  await expect(page.getByTestId("checkout-remaining")).toHaveText("20");
+  await expect(page.getByTestId("checkout-darts-left")).toHaveText("3");
+  await page.getByRole("button", { name: "Undo score", exact: true }).click();
+  await expect(page.getByTestId("checkout-remaining")).toHaveText("40");
+  await page.getByRole("button", { name: "Digit 4" }).click();
+  await page.getByRole("button", { name: "Digit 0" }).click();
+  await page.getByRole("button", { name: "Submit", exact: true }).click();
+  await page.getByRole("button", { name: "Not a double (bust)", exact: true }).click();
+  await expect(page.getByTestId("checkout-remaining")).toHaveText("40");
+  await expect(page.getByRole("heading", { name: /Best checkout/ })).toHaveCount(0);
+  await page.getByRole("button", { name: "Digit 4" }).click();
+  await page.getByRole("button", { name: "Digit 0" }).click();
+  await page.getByRole("button", { name: "Submit", exact: true }).click();
+  await page.getByRole("button", { name: "Double finish", exact: true }).click();
+  await expect(page.getByTestId("checkout-best")).toHaveText("40");
+});
 const hit = (page: Page, n: number) =>
   page.getByRole("button", { name: `Hit ${n}`, exact: true }).click();
 const dbl = async (page: Page, n: number) => {
@@ -239,9 +266,12 @@ test("history lists x01, Around the Clock and 121 Checkout together, statistics 
   await page.getByRole("button", { name: "Around the Clock", exact: true }).click();
   await page.getByRole("button", { name: "Remove player 2", exact: true }).click();
   await page.getByRole("button", { name: "Start match", exact: true }).click();
-  for (let n = 1; n <= 20; n++) await hit(page, n);
+  for (let n = 1; n <= 20; n++) {
+    await hit(page, n);
+    if (n % 3 === 0) await page.getByRole("button", { name: "End turn", exact: true }).click();
+  }
   await page.getByRole("button", { name: "Inner bull", exact: true }).click();
-  await expect(page.getByRole("heading", { name: "Player 1 wins!" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "tuna wins!" })).toBeVisible();
 
   // One 121 Checkout run, one attempt.
   await startRun(page, { start: "40", darts: "3", rounds: "1" });

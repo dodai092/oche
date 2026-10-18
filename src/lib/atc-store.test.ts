@@ -56,7 +56,11 @@ it("archives a finished match and rematches with the same order and settings", a
   const { useGameStore, isAtc } = await import("./store");
   const store = useGameStore.getState();
   store.startAtc(config);
-  for (const n of config.order) store.atcDart(S(n));
+  config.order.forEach((num, i) => {
+    store.atcDart(S(num));
+    if (i % 3 === 2) store.atcFinishTurn();
+  });
+  store.atcFinishTurn();
   store.atcDart({ value: 25, multiplier: 1 });
   expect(useGameStore.getState().history).toHaveLength(1);
   const finished = useGameStore.getState().current!;

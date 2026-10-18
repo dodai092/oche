@@ -27,7 +27,7 @@ const settings = {
 function visit(game: CricketGame, darts: Dart[]) {
   let g = game;
   for (const d of darts.length ? darts : [S(0)]) g = throwCricketDart(g, d);
-  return darts.length < 3 ? endCricketTurn(g) : g;
+  return endCricketTurn(g);
 }
 function fresh() {
   return createCricketGame({ style: "standard", legsToWin: 1, players });

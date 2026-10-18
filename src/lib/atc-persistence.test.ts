@@ -3,6 +3,7 @@ import { parseBackup } from "./backup";
 import { restorePersistedData } from "./persistence";
 import {
   createAtcGame,
+  endAtcTurn,
   makeAtcOrder,
   throwAtcDart,
   type AtcGame,
@@ -38,7 +39,10 @@ function fresh(): AtcGame {
 }
 function finished(): AtcGame {
   let g = fresh();
-  for (const n of order) g = throwAtcDart(g, S(n));
+  for (const n of order) {
+    g = throwAtcDart(g, S(n));
+    if (g.turnDarts.length === 3) g = endAtcTurn(g);
+  }
   return throwAtcDart(g, D(25));
 }
 const saved = (atc: AtcGame, id = "m1") => ({

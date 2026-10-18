@@ -40,8 +40,14 @@ function config(overrides: Partial<AtcConfig> = {}, players = 2): AtcConfig {
 }
 const solo = (overrides: Partial<AtcConfig> = {}) =>
   createAtcGame(config(overrides, 1));
+/** Throws the darts in visits of three, each ended with Submit. */
 function throwAll(game: AtcGame, darts: Dart[]): AtcGame {
-  return darts.reduce((g, d) => throwAtcDart(g, d), game);
+  let g = game;
+  for (let i = 0; i < darts.length; i += 3) {
+    for (const d of darts.slice(i, i + 3)) g = throwAtcDart(g, d);
+    g = endAtcTurn(g);
+  }
+  return g;
 }
 /** Solo helper: clear numbers 1 to n inclusive with singles. */
 function clearTo(game: AtcGame, n: number): AtcGame {
@@ -215,15 +221,21 @@ describe("finish options", () => {
 describe("turns, legs and winning", () => {
   it("wins as soon as the last step is hit, even mid-turn", () => {
     let g = createAtcGame(config({ finish: "single-bull" }, 1));
-    g = clearTo(g, 20);
+    for (let n = 1; n <= 20; n++) {
+      g = throwAtcDart(g, S(n));
+      if (g.turnDarts.length === 3) g = endAtcTurn(g);
+    }
     expect(g.turnDarts).toHaveLength(2);
     g = throwAtcDart(g, S(25));
     expect(g.status).toBe("complete");
     expect(g.winner).toBe(0);
   });
-  it("switches after three darts and on an early end of turn", () => {
+  it("holds the visit at three darts until it is ended, then switches", () => {
     let g = createAtcGame(config());
-    g = throwAll(g, [miss, miss, miss]);
+    g = [miss, miss, miss].reduce((x, d) => throwAtcDart(x, d), g);
+    expect(g.activePlayer).toBe(0);
+    expect(throwAtcDart(g, miss)).toBe(g);
+    g = endAtcTurn(g);
     expect(g.activePlayer).toBe(1);
     g = endAtcTurn(throwAtcDart(g, miss));
     expect(g.activePlayer).toBe(0);
@@ -264,9 +276,9 @@ describe("undo and restore", () => {
     let g = createAtcGame(config());
     g = throwAll(g, [S(1), S(2), S(3)]);
     g = throwAtcDart(g, miss);
-    expect(undoAtcDart(g).events).toHaveLength(3);
+    expect(undoAtcDart(g).events).toHaveLength(4);
     expect(undoAtcDart(g).activePlayer).toBe(1);
-    expect(undoAtcTurn(g).events).toHaveLength(3);
+    expect(undoAtcTurn(g).events).toHaveLength(4);
     const first = undoAtcTurn(undoAtcTurn(g));
     expect(first.events).toHaveLength(0);
     expect(target(first)).toBe("1");

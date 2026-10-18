@@ -8,6 +8,7 @@ import {
   nextTarget,
   restoreCheckoutGame,
   throwCheckoutDart,
+  throwCheckoutVisit,
   undoCheckoutDart,
   undoCheckoutTurn,
   type CheckoutConfig,
@@ -349,5 +350,43 @@ describe("summary", () => {
       { id: "p2", name: "Player 2", darts: 1, checkouts: 1 },
     ]);
     expect(s.attempts.map((a) => a.target)).toEqual([40, 41]);
+  });
+});
+
+describe("visit totals", () => {
+  it("takes a visit total off the remaining score and passes the turn", () => {
+    let g = createCheckoutGame(config({ startTarget: 100, dartsPerAttempt: 6 }, 2));
+    g = throwCheckoutVisit(g, { score: 60, darts: 3, checkout: false });
+    expect(g.remaining).toBe(40);
+    expect(g.dartsUsed).toBe(3);
+    expect(g.activePlayer).toBe(1);
+  });
+  it("finishes only when the last dart was a double", () => {
+    const g = createCheckoutGame(config({ startTarget: 40, dartsPerAttempt: 6 }));
+    const bust = throwCheckoutVisit(g, { score: 40, darts: 2, checkout: false });
+    expect(bust.remaining).toBe(40);
+    expect(bust.attempts).toHaveLength(0);
+    expect(bust.turns[0].bust).toBe(true);
+    const won = throwCheckoutVisit(g, { score: 40, darts: 2, checkout: true });
+    expect(won.attempts[0]).toMatchObject({ outcome: "cleared", darts: 2 });
+    expect(won.best).toBe(40);
+  });
+  it("refuses a checkout that does not score the remaining points", () => {
+    const g = createCheckoutGame(config({ startTarget: 40, dartsPerAttempt: 6 }));
+    expect(() => throwCheckoutVisit(g, { score: 30, darts: 3, checkout: true })).toThrow(RangeError);
+  });
+  it("counts visit darts in the summary and undoes a visit", () => {
+    let g = createCheckoutGame(config({ startTarget: 100, dartsPerAttempt: 6 }));
+    g = throwCheckoutVisit(g, { score: 60, darts: 2, checkout: false });
+    expect(checkoutSummary(g).darts).toBe(2);
+    expect(undoCheckoutDart(g).remaining).toBe(100);
+    expect(undoCheckoutTurn(g).remaining).toBe(100);
+  });
+  it("restores saved visit events", () => {
+    let g = createCheckoutGame(config({ startTarget: 100, dartsPerAttempt: 6 }));
+    g = throwCheckoutVisit(g, { score: 60, darts: 3, checkout: false });
+    const back = restoreCheckoutGame(g.config, g.events);
+    expect(back.remaining).toBe(40);
+    expect(back.turns[0].visitDarts).toBe(3);
   });
 });

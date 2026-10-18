@@ -177,7 +177,7 @@ test("wake lock and speech are opt-in and clean up on leaving play", async ({
         ).matchDayTest.spoken.join(" "),
       ),
     )
-    .toContain("Player 1 scores 60. Player 2 to throw.");
+    .toContain("tuna scores 60. loser to throw.");
   await page.getByRole("link", { name: "Back to overview" }).click();
   await expect
     .poll(() =>

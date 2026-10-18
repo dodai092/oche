@@ -22,7 +22,7 @@ test("DartBot throws legal individual darts, pauses and safely undoes its turn",
   await expect(page.getByTestId("score-1")).toHaveText("501");
   await expect(controls.getByRole("status")).toContainText("paused");
   await controls.getByRole("button",{name:"Resume DartBot"}).click();
-  await expect(page.getByTestId("active-player")).toHaveText("Player 1 to throw");
+  await expect(page.getByTestId("active-player")).toHaveText("tuna to throw");
   await page.reload();
   const config = await page.evaluate(() => JSON.parse(localStorage.getItem("oche-v1")!).state.current.game.config);
   expect(config.bot.difficulty).toBe(15);
@@ -40,5 +40,5 @@ test("the human can undo their own visit while DartBot is paused", async ({page}
   await controls.getByRole("button",{name:"Pause DartBot"}).click();
   await controls.getByRole("button",{name:"Undo my last visit"}).click();
   await expect(page.getByTestId("score-0")).toHaveText("501");
-  await expect(page.getByTestId("active-player")).toHaveText("Player 1 to throw");
+  await expect(page.getByTestId("active-player")).toHaveText("tuna to throw");
 });

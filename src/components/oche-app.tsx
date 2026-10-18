@@ -83,6 +83,23 @@ export function OcheApp({ screen }: { screen: Screen }) {
       // Without storage the choice lasts for this page only.
     }
   }
+  const brandActions = (
+    <>
+      <button
+        type="button"
+        className="theme-toggle"
+        onClick={toggleTheme}
+        aria-label="Switch light and dark mode"
+        title="Switch light and dark mode"
+      >
+        <Sun size={17} className="icon-sun" />
+        <Moon size={17} className="icon-moon" />
+      </button>
+      <Link href="/settings" className="topbar-settings" aria-label="Settings">
+        <Settings2 size={18} />
+      </Link>
+    </>
+  );
   return (
     <>
       <a className="skip-link" href="#main-content">
@@ -90,12 +107,15 @@ export function OcheApp({ screen }: { screen: Screen }) {
       </a>
       <div className={`app-shell ${screen === "match" ? "match-shell" : ""}`}>
         <aside className="sidebar">
-          <Link href="/" className="wordmark" aria-label="Oche home">
-            <span className="logo-mark">
-              <Target size={24} />
-            </span>
-            oche<span className="logo-dot">.</span>
-          </Link>
+          <div className="brand-row">
+            <Link href="/" className="wordmark" aria-label="Oche home">
+              <span className="logo-mark">
+                <Target size={24} />
+              </span>
+              oche<span className="logo-dot">.</span>
+            </Link>
+            <div className="brand-actions">{brandActions}</div>
+          </div>
           <div className="sidebar-label">YOUR DARTS ROOM</div>
           <nav aria-label="Main navigation">
             {navigation.map((item) => (
@@ -130,26 +150,8 @@ export function OcheApp({ screen }: { screen: Screen }) {
         </aside>
         <main id="main-content">
           <header className="topbar">
-            <span>THE GAME STARTS HERE</span>
-            <div>
-              <span className="status-dot" />{" "}
-              {error ? "Storage unavailable" : "Saved on this device"}
-            </div>
-            <div className="topbar-actions">
-              <button
-                type="button"
-                className="theme-toggle"
-                onClick={toggleTheme}
-                aria-label="Switch light and dark mode"
-                title="Switch light and dark mode"
-              >
-                <Sun size={17} className="icon-sun" />
-                <Moon size={17} className="icon-moon" />
-              </button>
-              <Link href="/settings" className="topbar-settings" aria-label="Settings">
-                <Settings2 size={18} />
-              </Link>
-            </div>
+            <span aria-hidden="true" />
+            <div className="topbar-actions">{brandActions}</div>
           </header>
           {error && (
             <div role="alert" className="error-banner">

@@ -36,10 +36,12 @@ import {
   endCheckoutRun,
   endCheckoutTurn,
   throwCheckoutDart,
+  throwCheckoutVisit,
   undoCheckoutDart,
   undoCheckoutTurn,
   type CheckoutConfig,
   type CheckoutGame,
+  type CheckoutVisit,
 } from "./checkout-engine";
 import {
   createCricketGame,
@@ -166,6 +168,7 @@ type Store = {
   atcUndo: (turn?: boolean) => void;
   startCheckout: (config: CheckoutConfig) => void;
   checkoutDart: (dart: Dart) => void;
+  checkoutVisit: (visit: CheckoutVisit) => void;
   checkoutFinishTurn: () => void;
   checkoutEndRun: () => void;
   checkoutUndo: (turn?: boolean) => void;
@@ -392,6 +395,11 @@ export const useGameStore = create<Store>()(
           if (get().readOnly) return;
           const game = checkoutGame();
           if (game) updateCheckout(throwCheckoutDart(game, dart));
+        },
+        checkoutVisit: (visit) => {
+          if (get().readOnly) return;
+          const game = checkoutGame();
+          if (game) updateCheckout(throwCheckoutVisit(game, visit));
         },
         checkoutFinishTurn: () => {
           if (get().readOnly) return;

@@ -1,18 +1,17 @@
 "use client";
-import { useState } from "react";
 import Link from "next/link";
 import {
   ArrowLeft,
   ArrowRight,
   RotateCcw,
-  Target,
   Trophy,
   Undo2,
 } from "lucide-react";
 import { Button } from "./ui/button";
-import { AtcBoard, AtcTrack } from "./atc-board";
+import { AtcScoreCards } from "./atc-scorecards";
+import { DartScoreField } from "./dart-score-field";
 import { AtcSummary } from "./atc-summary";
-import type { AtcConfig } from "@/lib/atc-engine";
+import { atcCurrent, type AtcConfig, type AtcStep } from "@/lib/atc-engine";
 import { dartLabel } from "@/lib/engine";
 import { useGameStore, type AtcMatch } from "@/lib/store";
 
@@ -33,23 +32,31 @@ export function atcSettingsLabel(config: AtcConfig) {
   return parts.join(" · ");
 }
 
+/** The keys for the current target only: S, D and T of the number, or the two bull keys. */
+function targetKeys(step: AtcStep | undefined) {
+  if (!step) return [];
+  if (step.bull) {
+    return [
+      { label: "Outer", aria: "Outer bull", value: 25, mult: 1 as const },
+      { label: "Bull", aria: "Inner bull", value: 25, mult: 2 as const },
+    ];
+  }
+  return ([1, 2, 3] as const).map((mult) => ({
+    label: `${["S", "D", "T"][mult - 1]}${step.target}`,
+    aria: `${["Hit", "Double", "Triple"][mult - 1]} ${step.target}`,
+    value: step.target,
+    mult,
+  }));
+}
+
 export function AtcMatchView({ match }: { match: AtcMatch }) {
   const { atcDart, atcFinishTurn, atcUndo, rematch, readOnly } = useGameStore();
-  const [multiplier, setMultiplier] = useState<1 | 2 | 3>(1);
   const game = match.atc;
   const active = game.players[game.activePlayer];
+  const keys = targetKeys(atcCurrent(game, game.activePlayer)?.step);
 
-  function hit(value: number, mult: 1 | 2 | 3 = multiplier) {
+  function hit(value: number, mult: 1 | 2 | 3) {
     atcDart({ value, multiplier: mult });
-    // A treble is rarely repeated: every dart starts as a single.
-    setMultiplier(1);
-  }
-  function endTurn() {
-    if (!game.turnDarts.length) {
-      for (let i = 0; i < 3; i++)
-        useGameStore.getState().atcDart({ value: 0, multiplier: 1 });
-    } else atcFinishTurn();
-    setMultiplier(1);
   }
 
   if (game.status === "complete") {
@@ -96,7 +103,9 @@ export function AtcMatchView({ match }: { match: AtcMatch }) {
     : last
       ? last.complete
         ? `${game.players[last.playerIndex].name} made ${last.hits} ${last.hits === 1 ? "hit" : "hits"}.`
-        : `${last.hits} ${last.hits === 1 ? "hit" : "hits"} this turn, ${left} ${left === 1 ? "dart" : "darts"} left.`
+        : left
+          ? `${last.hits} ${last.hits === 1 ? "hit" : "hits"} this turn, ${left} ${left === 1 ? "dart" : "darts"} left.`
+          : `${last.hits} ${last.hits === 1 ? "hit" : "hits"} this turn. Submit to pass the turn.`
       : "Hit the first number to start.";
 
   return (
@@ -115,7 +124,7 @@ export function AtcMatchView({ match }: { match: AtcMatch }) {
         </div>
         <span aria-hidden="true" />
       </div>
-      <AtcBoard game={game} />
+      <AtcScoreCards game={game} />
       <div
         role="status"
         aria-live="polite"
@@ -125,99 +134,46 @@ export function AtcMatchView({ match }: { match: AtcMatch }) {
         <h2 data-testid="active-player">{active.name} to throw</h2>
         <p>{message}</p>
       </div>
-      <div className="atc-sequence panel">
-        <small className="small muted">{atcSettingsLabel(game.config)}</small>
-        <AtcTrack game={game} playerIndex={game.activePlayer} />
-      </div>
-      <fieldset disabled={readOnly} className="panel scoring-panel atc-input">
+      <fieldset disabled={readOnly} className="scoring-panel atc-input">
         <legend className="sr-only">Scoring controls</legend>
-        <div className="dart-slots">
-          {[0, 1, 2].map((i) => (
-            <div
-              key={i}
-              className={`dart-slot ${game.turnDarts[i] ? "filled" : ""}`}
-            >
-              <span>DART {i + 1}</span>
-              <strong>
-                {game.turnDarts[i] ? (
-                  dartLabel(game.turnDarts[i])
-                ) : (
-                  <span className="slot-line" />
-                )}
-              </strong>
-            </div>
-          ))}
-        </div>
-        <div className="segmented multiplier-options">
-          {(
-            [
-              { label: "Single", value: 1 },
-              { label: "Double", value: 2 },
-              { label: "Triple", value: 3 },
-            ] as const
-          ).map((m) => (
+        <DartScoreField
+          slots={game.turnDarts.map((d) => ({ main: dartLabel(d) }))}
+          onSubmit={atcFinishTurn}
+        />
+        <div
+          className={`atc-keys ${keys.length === 2 ? "is-bull" : ""}`}
+          role="group"
+          aria-label="Score keypad"
+        >
+          {keys.map((k) => (
             <button
-              key={m.value}
+              key={`${k.label}-${k.mult}`}
               type="button"
-              aria-pressed={multiplier === m.value}
-              className={multiplier === m.value ? "selected" : ""}
-              onClick={() => setMultiplier(m.value)}
+              aria-label={k.aria}
+              onClick={() => hit(k.value, k.mult)}
             >
-              {m.label}
-              <span aria-hidden="true">×{m.value}</span>
+              {k.label}
             </button>
           ))}
         </div>
-        <div className="keypad atc-keypad">
-          {Array.from({ length: 20 }, (_, i) => i + 1).map((n) => (
-            <button
-              key={n}
-              type="button"
-              aria-label={`Hit ${n}`}
-              onClick={() => hit(n)}
-            >
-              <span className="hit-multiplier">
-                {multiplier === 1 ? "" : multiplier === 2 ? "D" : "T"}
-              </span>
-              {n}
-            </button>
-          ))}
-        </div>
-        <div className="bull-row">
+        <div className="atc-bottom-row">
+          <button
+            type="button"
+            aria-label="Undo dart"
+            disabled={!game.events.length}
+            onClick={() => atcUndo()}
+          >
+            <Undo2 size={22} />
+          </button>
           <button
             type="button"
             aria-label="Miss"
             onClick={() => hit(0, 1)}
-            className="miss-button"
           >
-            MISS <span>0</span>
-          </button>
-          <button
-            type="button"
-            aria-label="Outer bull"
-            onClick={() => hit(25, 1)}
-          >
-            OUTER BULL <span>25</span>
-          </button>
-          <button
-            type="button"
-            aria-label="Inner bull"
-            onClick={() => hit(25, 2)}
-            className="bull-button"
-          >
-            <Target size={17} /> BULL <span>50</span>
+            MISS
           </button>
         </div>
         <div className="scoring-actions">
-          <Button
-            type="button"
-            variant="ghost"
-            disabled={!game.events.length}
-            onClick={() => atcUndo()}
-            aria-label="Undo dart"
-          >
-            <Undo2 size={17} /> Undo dart
-          </Button>
           <Button
             type="button"
             variant="ghost"
@@ -226,9 +182,6 @@ export function AtcMatchView({ match }: { match: AtcMatch }) {
             aria-label="Undo turn"
           >
             <RotateCcw size={16} /> Undo turn
-          </Button>
-          <Button type="button" variant="outline" onClick={endTurn}>
-            End turn <ArrowRight size={16} />
           </Button>
         </div>
       </fieldset>
