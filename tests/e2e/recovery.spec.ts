@@ -11,7 +11,7 @@ test("malformed save is preserved, can be downloaded and explicitly reset", asyn
       sessionStorage.setItem("seeded", "yes");
     }
   });
-  await page.goto("/");
+  await page.goto("/overview/");
   await expect(page.getByRole("main").getByRole("alert")).toContainText(
     "original save is preserved",
   );
@@ -124,7 +124,7 @@ for (const broken of ['{"version":1}', "broken JSON"]) {
         sessionStorage.setItem("seeded", "yes");
       }
     }, broken);
-    await page.goto("/");
+    await page.goto("/overview/");
     await expect(page.getByRole("main").getByRole("alert")).toContainText(
       "original save is preserved",
     );

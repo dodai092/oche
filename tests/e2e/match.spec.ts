@@ -3,7 +3,7 @@ import { test, expect } from "@playwright/test";
 test("501 scoring, turn switching, undo and refresh persistence", async ({
   page,
 }) => {
-  await page.goto("/");
+  await page.goto("/overview/");
   await page.getByRole("link", { name: "Start match", exact: true }).click();
   await page.getByRole("button", { name: "Start match", exact: true }).click();
   await page.getByRole("button", { name: "Dart-by-dart", exact: true }).click();

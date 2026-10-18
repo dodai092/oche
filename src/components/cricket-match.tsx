@@ -123,9 +123,9 @@ export function CricketMatchView({ match }: { match: CricketMatch }) {
     <div className="page-content match-page cricket-page">
       <h1 className="sr-only">Live Cricket match</h1>
       <div className="match-heading">
-        <Link href="/" className="back-link" aria-label="Back to overview">
+        <Link href="/" className="back-link" aria-label="Back">
           <ArrowLeft size={19} />
-          <span>Overview</span>
+          <span>Back</span>
         </Link>
         <div className="match-format">
           <strong>Cricket · {cricketStyleLabel(game.config.style)}</strong>

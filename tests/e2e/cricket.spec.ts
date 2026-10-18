@@ -177,7 +177,7 @@ test("history lists Cricket and x01 together, statistics stay x01 only, backup r
   await expect(page.getByText(/Completed matches on this device/)).toBeVisible();
   await expect(page.locator("tbody tr")).toHaveCount(1);
 
-  await page.goto("/");
+  await page.goto("/overview/");
   await expect(page.getByText("LAST MATCH")).toBeVisible();
 
   await page.goto("/settings");

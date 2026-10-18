@@ -110,9 +110,9 @@ export function CheckoutMatchView({ match }: { match: CheckoutMatch }) {
     <div className="page-content match-page atc-page checkout-page">
       <h1 className="sr-only">Live 121 Checkout run</h1>
       <div className="match-heading">
-        <Link href="/" className="back-link" aria-label="Back to overview">
+        <Link href="/" className="back-link" aria-label="Back">
           <ArrowLeft size={19} />
-          <span>Overview</span>
+          <span>Back</span>
         </Link>
         <div className="match-format">
           <strong>121 Checkout</strong>

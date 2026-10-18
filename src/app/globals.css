@@ -956,11 +956,17 @@ dd {
   margin-top: 10px;
 }
 .match-heading {
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
   align-items: center;
-  justify-content: space-between;
   gap: 15px;
   margin-bottom: 24px;
+}
+.match-heading > :first-child {
+  justify-self: start;
+}
+.match-heading > :last-child {
+  justify-self: end;
 }
 .match-tags {
   display: flex;
@@ -3747,7 +3753,7 @@ fieldset.scoring-panel[hidden] {
 }
 .checkout-figures strong {
   display: block;
-  font-size: 44px;
+  font-size: 42px;
   line-height: 1.1;
   color: var(--text);
   font-variant-numeric: tabular-nums;
@@ -4577,13 +4583,19 @@ fieldset.scoring-panel[hidden] {
   }
 }
 
-/* Phone score pads: the pad takes the height under the score, and its numbers grow, so no empty band sits under the actions. */
+/* Phone score pads: the pad takes the height under the score, and its numbers grow, so no empty band sits under the actions. On short screens the pad keeps 44px rows and the match screen scrolls instead of squeezing them. */
 @media (max-width: 700px) and (min-height: 501px) {
+  .app-shell.match-shell main {
+    overflow-y: auto;
+  }
+  .match-page .scoring-panel {
+    max-height: none;
+    overflow: visible;
+  }
   .match-page.cricket-page,
   .match-page.checkout-page {
     display: flex;
     flex-direction: column;
-    min-height: 0;
   }
   .match-page.cricket-page > .cricket-input,
   .match-page.checkout-page > .checkout-input,
@@ -4591,45 +4603,47 @@ fieldset.scoring-panel[hidden] {
     flex: 1;
     display: flex;
     flex-direction: column;
-    min-height: 0;
   }
   .match-page .visit-entry {
     flex: 1;
     display: flex;
     flex-direction: column;
-    min-height: 0;
   }
   .match-page .total-keypad {
     flex: 1;
-    grid-auto-rows: 1fr;
-    min-height: 0;
+    grid-auto-rows: minmax(44px, 1fr);
   }
   .match-page .total-keypad button {
     min-height: 0;
-    font-size: 40px;
+    font-size: 38px;
   }
   .match-page .total-keypad .clear-score {
     font-size: 17px;
   }
+  .match-page .checkout-figures strong {
+    font-size: 42px;
+  }
+  .match-page .entry-mode button {
+    min-height: 0;
+    padding: 6px 8px;
+  }
   .match-page .keypad {
     flex: 1;
-    grid-auto-rows: 1fr;
-    min-height: 0;
+    grid-auto-rows: minmax(44px, 1fr);
   }
   .match-page .keypad button {
     min-height: 0;
-    font-size: 30px;
+    font-size: 32px;
   }
   .match-page .cricket-matrix {
     flex: 1;
     display: flex;
     flex-direction: column;
-    min-height: 0;
     margin: 6px 0;
   }
   .match-page .cricket-row {
     flex: 1;
-    min-height: 0;
+    min-height: 40px;
     grid-template-columns: 0.7fr 1fr 1fr 1fr 0.7fr;
   }
   .match-page .cricket-row button {
@@ -4637,4 +4651,3 @@ fieldset.scoring-panel[hidden] {
     font-size: 30px;
   }
 }
-

@@ -112,9 +112,9 @@ export function AtcMatchView({ match }: { match: AtcMatch }) {
     <div className="page-content match-page atc-page">
       <h1 className="sr-only">Live Around the Clock match</h1>
       <div className="match-heading">
-        <Link href="/" className="back-link" aria-label="Back to overview">
+        <Link href="/" className="back-link" aria-label="Back">
           <ArrowLeft size={19} />
-          <span>Overview</span>
+          <span>Back</span>
         </Link>
         <div className="match-format">
           <strong>Around the Clock</strong>

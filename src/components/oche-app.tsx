@@ -32,7 +32,7 @@ export type Screen =
   | "history"
   | "settings";
 const navigation = [
-  { screen: "dashboard", href: "/", label: "Overview", short: "Overview", icon: LayoutDashboard },
+  { screen: "dashboard", href: "/overview", label: "Overview", short: "Overview", icon: LayoutDashboard },
   { screen: "new", href: "/new", label: "Play darts", short: "Play", icon: Crosshair },
   { screen: "players", href: "/players", label: "Players", short: "Players", icon: UsersRound },
   {

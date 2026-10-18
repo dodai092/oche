@@ -178,7 +178,7 @@ test("wake lock and speech are opt-in and clean up on leaving play", async ({
       ),
     )
     .toContain("tuna scores 60. loser to throw.");
-  await page.getByRole("link", { name: "Back to overview" }).click();
+  await page.getByRole("link", { name: "Back" }).click();
   await expect
     .poll(() =>
       page.evaluate(

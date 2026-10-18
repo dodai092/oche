@@ -219,7 +219,7 @@ test("history lists x01, Cricket and Around the Clock together, statistics stay 
   ).toBeVisible();
   await expect(page.locator("tbody tr")).toHaveCount(1);
 
-  await page.goto("/");
+  await page.goto("/overview/");
   await expect(page.getByText("LAST MATCH")).toBeVisible();
 
   await page.goto("/settings");

@@ -312,7 +312,7 @@ test("history lists x01, Around the Clock and 121 Checkout together, statistics 
   await expect(page.getByText("BEST TARGET")).toBeVisible();
   await page.locator("#stats-game").selectOption("x01");
 
-  await page.goto("/");
+  await page.goto("/overview/");
   await expect(page.getByText("LAST MATCH")).toBeVisible();
 
   await page.goto("/settings");
@@ -328,7 +328,7 @@ test("a finished 121 run as the last match shows its result, not a winner", asyn
 }) => {
   await startRun(page, { start: "40", darts: "3", rounds: "1" });
   await dbl(page, 20);
-  await page.goto("/");
+  await page.goto("/overview/");
   await expect(page.getByText("LAST MATCH")).toBeVisible();
   await expect(page.getByRole("heading", { name: "Best checkout 40" })).toBeVisible();
   await expect(page.getByText(/wins$/)).toHaveCount(0);
