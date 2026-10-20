@@ -178,10 +178,10 @@ describe("increase by segment", () => {
     const at19 = clearTo(inc(), 18);
     expect(target(at19)).toBe("19");
     const afterTreble = throwAtcDart(at19, T(19));
-    expect(target(afterTreble)).toBe("Bullseye");
+    expect(target(afterTreble)).toBe("Bull");
     expect(afterTreble.status).toBe("playing");
     const at20 = clearTo(inc(), 19);
-    expect(target(throwAtcDart(at20, T(20)))).toBe("Bullseye");
+    expect(target(throwAtcDart(at20, T(20)))).toBe("Bull");
   });
 });
 
@@ -194,7 +194,7 @@ describe("finish options", () => {
   });
   it("bullseye is won only by the inner bull", () => {
     const g = atBull("bullseye");
-    expect(target(g)).toBe("Bullseye");
+    expect(target(g)).toBe("Bull");
     expect(throwAtcDart(g, S(25)).status).toBe("playing");
     expect(throwAtcDart(g, D(25)).status).toBe("complete");
   });
@@ -204,7 +204,7 @@ describe("finish options", () => {
     g = throwAtcDart(g, D(25));
     expect(target(g)).toBe("Outer bull");
     g = throwAtcDart(g, S(25));
-    expect(target(g)).toBe("Bullseye");
+    expect(target(g)).toBe("Bull");
     expect(throwAtcDart(g, S(25)).status).toBe("playing");
     expect(throwAtcDart(g, D(25)).status).toBe("complete");
   });
@@ -299,7 +299,7 @@ describe("undo and restore", () => {
     expect(back.status).toBe("playing");
     expect(back.winner).toBeNull();
     expect(back.players[0].legs).toBe(0);
-    expect(target(back)).toBe("Bull");
+    expect(target(back)).toBe("Any bull");
   });
   it("restoring the saved events rebuilds the same state", () => {
     let g = createAtcGame(

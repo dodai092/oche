@@ -158,7 +158,7 @@ export function CricketMatchView({ match }: { match: CricketMatch }) {
           {CRICKET_NUMBERS.filter((n) => n !== 25).map((n) => (
             <div className="cricket-row" key={n}>
               <span className="cricket-row-mark">
-                <MarkSymbol count={active.marks[CRICKET_NUMBERS.indexOf(n)]} />
+                <MarkSymbol count={game.players[0].marks[CRICKET_NUMBERS.indexOf(n)]} />
               </span>
               {([1, 2, 3] as const).map((m) => (
                 <button
@@ -171,10 +171,15 @@ export function CricketMatchView({ match }: { match: CricketMatch }) {
                   <Marks count={m} />
                 </button>
               ))}
+              <span className="cricket-row-mark">
+                <MarkSymbol count={game.players[1].marks[CRICKET_NUMBERS.indexOf(n)]} />
+              </span>
             </div>
           ))}
           <div className="cricket-row">
-            <span className="cricket-row-mark" />
+            <span className="cricket-row-mark">
+              <MarkSymbol count={game.players[0].marks[CRICKET_NUMBERS.indexOf(25)]} />
+            </span>
             <button
               type="button"
               aria-label="Outer bull"
@@ -194,6 +199,9 @@ export function CricketMatchView({ match }: { match: CricketMatch }) {
             <button type="button" aria-label="Miss" onClick={() => hit(0, 1)}>
               Miss
             </button>
+            <span className="cricket-row-mark">
+              <MarkSymbol count={game.players[1].marks[CRICKET_NUMBERS.indexOf(25)]} />
+            </span>
           </div>
         </div>
         <div className="scoring-actions">

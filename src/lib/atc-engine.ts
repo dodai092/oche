@@ -92,9 +92,9 @@ export function atcSteps(config: AtcConfig): AtcStep[] {
 }
 
 export function atcStepLabel(step: AtcStep): string {
-  if (step.bull === "any") return "Bull";
+  if (step.bull === "any") return "Any bull";
   if (step.bull === "outer") return "Outer bull";
-  if (step.bull === "inner") return "Bullseye";
+  if (step.bull === "inner") return "Bull";
   return String(step.target);
 }
 

@@ -38,7 +38,7 @@ function targetKeys(step: AtcStep | undefined) {
   if (step.bull) {
     return [
       { label: "Outer", aria: "Outer bull", value: 25, mult: 1 as const },
-      { label: "Bull", aria: "Inner bull", value: 25, mult: 2 as const },
+      { label: "Bullseye", aria: "Inner bull", value: 25, mult: 2 as const },
     ];
   }
   return ([1, 2, 3] as const).map((mult) => ({

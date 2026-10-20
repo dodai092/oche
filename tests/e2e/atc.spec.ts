@@ -118,7 +118,7 @@ test("plays a race with undo, a mid-turn refresh and a win", async ({ page }) =>
   await expect(page.getByRole("heading", { name: "Ann wins!" })).toBeVisible();
   await page.getByRole("button", { name: "Undo winning dart" }).click();
   await expect(page.getByTestId("active-player")).toHaveText("Ann to throw");
-  await expect(page.getByTestId("atc-target-0")).toHaveText("Bullseye");
+  await expect(page.getByTestId("atc-target-0")).toHaveText("Bull");
   await page.getByRole("button", { name: "Inner bull", exact: true }).click();
   await expect(page.getByRole("heading", { name: "Ann wins!" })).toBeVisible();
   await page.getByRole("button", { name: /Rematch/ }).click();
