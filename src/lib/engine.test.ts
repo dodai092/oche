@@ -207,7 +207,7 @@ describe("x01 engine", () => {
       dartLabel(d(20, 2)),
       dartLabel(d(25)),
       dartLabel(d(25, 2)),
-    ]).toEqual(["Miss", "T20", "D20", "25", "Bull"]);
+    ]).toEqual(["Miss", "T20", "D20", "Outer bull", "Bullseye"]);
   });
   it("rotates four players in order and skips nobody on a bust", () => {
     let g = createGame(

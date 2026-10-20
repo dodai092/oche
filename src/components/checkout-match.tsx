@@ -11,7 +11,7 @@ import {
   Undo2,
 } from "lucide-react";
 import { Button } from "./ui/button";
-import { CheckoutAttempts, CheckoutBoard } from "./checkout-board";
+import { CheckoutBoard } from "./checkout-board";
 import { CheckoutSummary } from "./checkout-summary";
 import { CheckoutVisitEntry } from "./checkout-visit-entry";
 import type { CheckoutConfig, CheckoutGame } from "@/lib/checkout-engine";
@@ -130,7 +130,6 @@ export function CheckoutMatchView({ match }: { match: CheckoutMatch }) {
         <h2 data-testid="active-player">{active.name} to throw</h2>
         <p>{checkoutMessage(game)}</p>
       </div>
-      <CheckoutAttempts game={game} />
       <fieldset
         disabled={readOnly}
         className="panel scoring-panel atc-input checkout-input"

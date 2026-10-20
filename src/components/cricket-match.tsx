@@ -52,7 +52,8 @@ function MarkSymbol({ count }: { count: number }) {
 
 function dartName(dart: Dart) {
   if (dart.value === 0) return "Miss";
-  if (dart.value === 25 && dart.multiplier === 2) return "Bull";
+  if (dart.value === 25 && dart.multiplier === 1) return "Outer bull";
+  if (dart.value === 25 && dart.multiplier === 2) return "Bullseye";
   return `${MULTIPLIER_PREFIX[dart.multiplier]}${dart.value}`;
 }
 

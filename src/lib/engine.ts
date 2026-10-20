@@ -322,7 +322,8 @@ export function checkoutSuggestions(
 export function dartLabel(dart: Dart): string {
   validateDart(dart);
   if (dart.value === 0) return "Miss";
-  if (dart.value === 25 && dart.multiplier === 2) return "Bull";
+  if (dart.value === 25 && dart.multiplier === 1) return "Outer bull";
+  if (dart.value === 25 && dart.multiplier === 2) return "Bullseye";
   return `${dart.multiplier === 3 ? "T" : dart.multiplier === 2 ? "D" : ""}${dart.value}`;
 }
 

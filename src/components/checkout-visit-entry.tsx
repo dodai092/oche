@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { ArrowRight, Flag, RotateCcw } from "lucide-react";
+import { ArrowRight, Delete, Flag, RotateCcw } from "lucide-react";
 import { Button } from "./ui/button";
 import type { CheckoutVisit } from "@/lib/checkout-engine";
 
@@ -59,6 +59,16 @@ export function CheckoutVisitEntry({
             placeholder="Enter a score"
             value={value}
           />
+          {value && (
+            <button
+              type="button"
+              className="score-delete"
+              aria-label="Backspace score"
+              onClick={() => edit(value.slice(0, -1))}
+            >
+              <Delete size={22} />
+            </button>
+          )}
         </div>
         <Button type="button" disabled={!value} onClick={submit}>
           Submit <ArrowRight size={17} />
