@@ -23,7 +23,7 @@ export function CricketScoreCards({ game }: { game: CricketGame }) {
                 {p.name.slice(0, 1)}
               </span>
               <h2>{p.name}</h2>
-              {active && <span className="throwing-badge">TO THROW</span>}
+              {active && <span className="throwing-badge">To throw</span>}
             </div>
             <div className="big-score" data-testid={`cricket-points-${i}`}>
               {p.points}

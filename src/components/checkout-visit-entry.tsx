@@ -59,72 +59,62 @@ export function CheckoutVisitEntry({
             placeholder="Enter a score"
             value={value}
           />
-          {value && (
-            <button
-              type="button"
-              className="score-delete"
-              aria-label="Backspace score"
-              onClick={() => edit(value.slice(0, -1))}
-            >
-              <Delete size={22} />
-            </button>
-          )}
         </div>
         <Button type="button" disabled={!value} onClick={submit}>
           Submit <ArrowRight size={17} />
         </Button>
-      </div>
-      {finishing && (
-        <section className="finish-confirmation">
-          <p>
-            {Number(value)} finishes {remaining}. Was the last dart a double?
+        {error && (
+          <p role="alert" className="visit-error">
+            {error}
           </p>
-          <div className="segmented" aria-label="Darts used">
-            {([1, 2, 3] as const).map((n) => (
-              <button
-                key={n}
+        )}
+        {finishing && (
+          <section className="finish-confirmation">
+            <p>
+              {Number(value)} finishes {remaining}. Was the last dart a double?
+            </p>
+            <div className="segmented" aria-label="Darts used">
+              {([1, 2, 3] as const).map((n) => (
+                <button
+                  key={n}
+                  type="button"
+                  aria-pressed={darts === n}
+                  className={darts === n ? "selected" : ""}
+                  onClick={() => setDarts(n)}
+                >
+                  {n} {n === 1 ? "dart" : "darts"}
+                </button>
+              ))}
+            </div>
+            <div className="action-row">
+              <Button
                 type="button"
-                aria-pressed={darts === n}
-                className={darts === n ? "selected" : ""}
-                onClick={() => setDarts(n)}
+                onClick={() =>
+                  send({ score: Number(value), darts, checkout: true })
+                }
               >
-                {n} {n === 1 ? "dart" : "darts"}
-              </button>
-            ))}
-          </div>
-          <div className="action-row">
-            <Button
-              type="button"
-              onClick={() =>
-                send({ score: Number(value), darts, checkout: true })
-              }
-            >
-              Double finish
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() =>
-                send({ score: Number(value), darts, checkout: false })
-              }
-            >
-              Not a double (bust)
-            </Button>
-            <Button
-              type="button"
-              variant="ghost"
-              onClick={() => setFinishing(false)}
-            >
-              Cancel
-            </Button>
-          </div>
-        </section>
-      )}
-      {error && (
-        <p role="alert" className="visit-error">
-          {error}
-        </p>
-      )}
+                Double finish
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() =>
+                  send({ score: Number(value), darts, checkout: false })
+                }
+              >
+                Not a double (bust)
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={() => setFinishing(false)}
+              >
+                Cancel
+              </Button>
+            </div>
+          </section>
+        )}
+      </div>
       <div className="total-keypad" aria-label="Score keypad">
         {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((n) => (
           <button
@@ -136,7 +126,14 @@ export function CheckoutVisitEntry({
             {n}
           </button>
         ))}
-        <span className="keypad-blank" aria-hidden="true" />
+        <button
+          type="button"
+          className="backspace-key"
+          aria-label="Backspace score"
+          onClick={() => edit(value.slice(0, -1))}
+        >
+          <Delete size={22} />
+        </button>
         <button
           type="button"
           aria-label="Digit 0"

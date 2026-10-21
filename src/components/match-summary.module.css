@@ -17,7 +17,7 @@
   padding: 18px;
   background: var(--surface, #191c1b);
   border: 1px solid var(--line, #2c312e);
-  border-radius: 8px;
+  border-radius: 14px;
 }
 .stats {
   display: grid;
@@ -50,7 +50,7 @@
   max-width: 100%;
   overflow-x: auto;
   border: 1px solid var(--line, #2c312e);
-  border-radius: 8px;
+  border-radius: 14px;
 }
 .table {
   margin: 0;

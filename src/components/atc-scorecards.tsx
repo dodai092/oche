@@ -23,7 +23,7 @@ export function AtcScoreCards({ game }: { game: AtcGame }) {
             <div className="player-score-head">
               <span className={`avatar color-${i}`}>{p.name.slice(0, 1)}</span>
               <h2>{p.name}</h2>
-              {active && <span className="throwing-badge">TO THROW</span>}
+              {active && <span className="throwing-badge">To throw</span>}
             </div>
             <div className="atc-ring">
               <strong data-testid={`atc-target-${i}`}>

@@ -1,5 +1,5 @@
 "use client";
-import { useEffect } from "react";
+import { useEffect, useSyncExternalStore } from "react";
 import Link from "next/link";
 import {
   LayoutDashboard,
@@ -11,8 +11,6 @@ import {
   ArrowUpRight,
   Target,
   CircleHelp,
-  Moon,
-  Sun,
 } from "lucide-react";
 import { useGameStore } from "@/lib/store";
 import { sheetLog, watchFinishedMatches } from "@/lib/sheet-log";
@@ -51,6 +49,22 @@ const navigation = [
   },
   { screen: "settings", href: "/settings", label: "Settings", icon: Settings2 },
 ];
+type ThemeChoice = "auto" | "dark" | "light";
+const THEMES: ThemeChoice[] = ["auto", "dark", "light"];
+const THEME_LABEL: Record<ThemeChoice, string> = {
+  auto: "Auto",
+  dark: "Dark",
+  light: "Light",
+};
+const THEME_EVENT = "oche-theme-change";
+function subscribeTheme(onChange: () => void) {
+  window.addEventListener(THEME_EVENT, onChange);
+  return () => window.removeEventListener(THEME_EVENT, onChange);
+}
+function readTheme(): ThemeChoice {
+  const saved = document.documentElement.dataset.theme;
+  return saved === "dark" || saved === "light" ? saved : "auto";
+}
 export function OcheApp({ screen }: { screen: Screen }) {
   const hydrated = useGameStore((s) => s.hydrated);
   const error = useGameStore((s) => s.storageError);
@@ -74,26 +88,33 @@ export function OcheApp({ screen }: { screen: Screen }) {
       stopSheetLog();
     };
   }, []);
-  function toggleTheme() {
-    const next = document.documentElement.dataset.theme === "light" ? "dark" : "light";
-    document.documentElement.dataset.theme = next;
+  const theme = useSyncExternalStore(
+    subscribeTheme,
+    readTheme,
+    () => "auto" as ThemeChoice,
+  );
+  function cycleTheme() {
+    const next = THEMES[(THEMES.indexOf(theme) + 1) % THEMES.length];
+    if (next === "auto") delete document.documentElement.dataset.theme;
+    else document.documentElement.dataset.theme = next;
     try {
-      localStorage.setItem("oche-theme", next);
+      if (next === "auto") localStorage.removeItem("oche-theme");
+      else localStorage.setItem("oche-theme", next);
     } catch {
       // Without storage the choice lasts for this page only.
     }
+    window.dispatchEvent(new Event(THEME_EVENT));
   }
   const brandActions = (
     <>
       <button
         type="button"
         className="theme-toggle"
-        onClick={toggleTheme}
-        aria-label="Switch light and dark mode"
-        title="Switch light and dark mode"
+        onClick={cycleTheme}
+        aria-label={`Theme: ${THEME_LABEL[theme]}. Change theme`}
+        title="Change theme"
       >
-        <Sun size={17} className="icon-sun" />
-        <Moon size={17} className="icon-moon" />
+        {THEME_LABEL[theme]}
       </button>
       <Link href="/settings" className="topbar-settings" aria-label="Settings">
         <Settings2 size={18} />

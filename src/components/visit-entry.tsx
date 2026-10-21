@@ -97,7 +97,7 @@ export function VisitEntry({ game }: { game: GameState }) {
             onChange={(e) => edit(e.target.value)}
             autoFocus={!touch || !customKeypad}
           />
-          {value && (
+          {value && !customKeypad && (
             <button
               type="button"
               className="score-delete"
@@ -115,42 +115,40 @@ export function VisitEntry({ game }: { game: GameState }) {
         >
           Submit <ArrowRight size={17} />
         </Button>
-      </div>
-      {error && (
-        <p role="alert" className="visit-error">
-          {error}
-        </p>
-      )}
-      {confirming && (
-        <section
-          className="finish-confirmation"
-          aria-labelledby="finish-confirmation-title"
-        >
-          <h3 id="finish-confirmation-title">Confirm your finish</h3>
-          <p>
-            Did your final dart hit a double or inner bull?
+        {error && (
+          <p role="alert" className="visit-error">
+            {error}
           </p>
-          <div className="action-row">
-            <Button type="button" onClick={() => commit(true)}>
-              Confirm double-out
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => commit(false)}
-            >
-              No double, record bust
-            </Button>
-            <Button
-              type="button"
-              variant="ghost"
-              onClick={() => setConfirming(false)}
-            >
-              Cancel
-            </Button>
-          </div>
-        </section>
-      )}
+        )}
+        {confirming && (
+          <section
+            className="finish-confirmation"
+            aria-labelledby="finish-confirmation-title"
+          >
+            <h3 id="finish-confirmation-title">Confirm your finish</h3>
+            <p>Did your final dart hit a double or inner bull?</p>
+            <div className="action-row">
+              <Button type="button" onClick={() => commit(true)}>
+                Confirm double-out
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => commit(false)}
+              >
+                No double, record bust
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={() => setConfirming(false)}
+              >
+                Cancel
+              </Button>
+            </div>
+          </section>
+        )}
+      </div>
       {customKeypad && (
         <>
           <div className="total-keypad" aria-label="Score keypad">
@@ -164,7 +162,14 @@ export function VisitEntry({ game }: { game: GameState }) {
                 {n}
               </button>
             ))}
-            <span className="keypad-blank" aria-hidden="true" />
+            <button
+              type="button"
+              className="backspace-key"
+              aria-label="Backspace score"
+              onClick={() => edit(value.slice(0, -1))}
+            >
+              <Delete size={22} />
+            </button>
             <button
               type="button"
               aria-label="Digit 0"

@@ -176,7 +176,7 @@ export function LiveMatch() {
                 </span>
                 <h2>{p.name}</h2>
                 {i === game.activePlayer && (
-                  <span className="throwing-badge">TO THROW</span>
+                  <span className="throwing-badge">To throw</span>
                 )}
               </div>
               <div className="big-score" data-testid={`score-${i}`}>
