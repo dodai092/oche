@@ -12,6 +12,7 @@
   --accent-fill: #3C6FA6;
   --accent-hover: #2f5d8f;
   --on-accent: #ffffff;
+  --accent-tint: #1c2a3d;
   --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif;
   color-scheme: dark;
 }
@@ -28,6 +29,7 @@
     --accent: #2c5d93;
     --accent-fill: #3C6FA6;
     --accent-hover: #2f5d8f;
+    --accent-tint: #e3ecf7;
     color-scheme: light;
   }
 }
@@ -42,6 +44,7 @@
   --accent: #2c5d93;
   --accent-fill: #3C6FA6;
   --accent-hover: #2f5d8f;
+  --accent-tint: #e3ecf7;
   color-scheme: light;
 }
 * {
@@ -831,8 +834,8 @@ main {
   padding: 16px 12px;
 }
 .rule-options button.selected {
-  border-color: oklch(from #b3bdcb calc(l + var(--flip) * (1 - 2 * l)) c h);
-  background: oklch(from #282b2e calc(l + var(--flip) * (1 - 1.6 * l)) c h);
+  border-color: var(--accent);
+  background: var(--accent-tint);
 }
 .radio {
   width: 16px;
