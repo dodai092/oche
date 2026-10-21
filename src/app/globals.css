@@ -11,6 +11,7 @@
   --accent: #6f9fd6;
   --accent-fill: #3C6FA6;
   --accent-hover: #2f5d8f;
+  --on-accent: #ffffff;
   --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif;
   color-scheme: dark;
 }
